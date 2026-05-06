@@ -8,916 +8,1012 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Special+Elite&display=swap"
     rel="stylesheet"
   />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink: #2a2319;
-      --ink-soft: #4a4236;
-      --paper: #f3ead8;
-      --paper-deep: #e8dcc6;
-      --rule: #c4b49a;
-      --rule-red: #a53c2e;
-      --stamp: #8b2e2e;
-      --gold: #c9a85c;
-      --shadow: rgba(42, 35, 25, 0.18);
-      /* Leather */
-      --leather-lo: #140a08;
-      --leather-mid: #2a1412;
-      --leather-hi: #4a2822;
-      /* Wood trim */
-      --wood-face: #4a3628;
-      --wood-highlight: #6d5240;
-      --wood-shadow: #2a1f17;
-      --wood-grain: rgba(0, 0, 0, 0.18);
+      /* Paper — aged, varied */
+      --card-cream: #f1e6cd;
+      --card-cream-deep: #d8c9a6;
+      --card-cream-shadow: #b9a679;
+      --ink: #2a2018;
+      --ink-soft: #5a4a38;
+      --ink-faded: #7a6a52;
+
+      /* Stamp / accent inks */
+      --stamp-red: #8a2a22;
+      --stamp-red-deep: #5e1a14;
+      --rule-red: #9c382a;
+
+      /* Brass / gilt */
+      --brass: #b8893a;
+      --brass-hi: #e8c878;
+      --brass-shadow: #6a4a18;
+      --gilt-edge: #d4a644;
+
+      /* Leather — oxblood / cordovan */
+      --leather-1: #2a0e0c;
+      --leather-2: #3e1612;
+      --leather-3: #4f1d18;
+      --leather-4: #5e251f;
+      --leather-shadow: #100403;
+      --leather-stitch: #8a6a3a;
+
+      /* Walnut */
+      --walnut-1: #2a1810;
+      --walnut-2: #3d2418;
+      --walnut-3: #553420;
+      --walnut-4: #6e4528;
+      --walnut-hi: #8a5a36;
+      --walnut-grain: rgba(0,0,0,0.22);
+
+      /* Felt — desk blotter green */
+      --felt-1: #1a3326;
+      --felt-2: #244838;
+      --felt-3: #2e5a48;
     }
 
-    /* ~125% browser zoom without changing user agent font settings */
-    html {
-      zoom: 1.25;
-    }
+    html { font-size: 19px; }
 
     body {
-      background: var(--leather-lo);
+      background: #0a0504;
       color: var(--ink);
       min-height: 100vh;
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Cormorant Garamond', 'Libre Baskerville', Georgia, serif;
       line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Rich leather surround + faint grain; wood frame on inner column */
+    /* ─────────────────────────────────────────────────────────────
+       OUTER LEATHER — like the cover of a tome, with corner blocks
+       ───────────────────────────────────────────────────────────── */
     .lib {
-      --grain: repeating-linear-gradient(
-        82deg,
-        rgba(255, 255, 255, 0.012) 0,
-        rgba(255, 255, 255, 0.012) 1px,
-        transparent 1px,
-        transparent 5px
-      );
-      background:
-        var(--grain),
-        radial-gradient(ellipse 140% 90% at 50% -15%, rgba(120, 60, 50, 0.35), transparent 58%),
-        radial-gradient(ellipse 80% 55% at 100% 100%, rgba(0, 0, 0, 0.55), transparent 55%),
-        radial-gradient(ellipse 60% 45% at 0% 90%, rgba(0, 0, 0, 0.32), transparent 50%),
-        linear-gradient(
-          160deg,
-          var(--leather-hi) 0%,
-          var(--leather-mid) 32%,
-          #221210 72%,
-          var(--leather-lo) 100%
-        );
-      padding: 0 clamp(10px, 2.8vw, 28px) 64px;
+      min-height: 100vh;
+      padding: clamp(18px, 3vw, 38px);
       position: relative;
+      background:
+        /* hairline grain */
+        repeating-linear-gradient(
+          73deg,
+          rgba(255,255,255,0.014) 0,
+          rgba(255,255,255,0.014) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        repeating-linear-gradient(
+          -8deg,
+          rgba(0,0,0,0.10) 0,
+          rgba(0,0,0,0.10) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        /* mottled pebbled leather highlights */
+        radial-gradient(circle at 22% 18%, rgba(180,90,70,0.30) 0%, transparent 8%),
+        radial-gradient(circle at 78% 32%, rgba(180,90,70,0.22) 0%, transparent 9%),
+        radial-gradient(circle at 38% 72%, rgba(180,90,70,0.20) 0%, transparent 10%),
+        radial-gradient(circle at 88% 84%, rgba(180,90,70,0.18) 0%, transparent 7%),
+        radial-gradient(circle at 12% 92%, rgba(180,90,70,0.20) 0%, transparent 8%),
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(140,60,45,0.45), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(0,0,0,0.55), transparent 55%),
+        linear-gradient(165deg, var(--leather-4) 0%, var(--leather-3) 35%, var(--leather-2) 70%, var(--leather-1) 100%);
+      background-attachment: fixed;
     }
 
-    /* Subtle embossed edge like a bound desk blotter */
+    /* outer gilt frame */
     .lib::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
+      position: fixed;
+      inset: clamp(12px, 2.2vw, 24px);
+      border: 1px solid rgba(216, 166, 68, 0.45);
       box-shadow:
-        inset 0 0 120px rgba(0, 0, 0, 0.45),
-        inset 0 2px 0 rgba(255, 255, 255, 0.04);
+        inset 0 0 0 1px rgba(0,0,0,0.6),
+        inset 0 0 0 4px rgba(216, 166, 68, 0.15),
+        inset 0 0 0 5px rgba(0,0,0,0.5),
+        inset 0 0 80px rgba(0,0,0,0.6);
+      pointer-events: none;
+      border-radius: 2px;
+      z-index: 1;
     }
+
+    /* gilt corner ornaments — fleurons */
+    .corner {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      z-index: 2;
+      color: var(--gilt-edge);
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7));
+    }
+    .corner.tl { top: clamp(14px, 2.4vw, 26px); left: clamp(14px, 2.4vw, 26px); }
+    .corner.tr { top: clamp(14px, 2.4vw, 26px); right: clamp(14px, 2.4vw, 26px); transform: scaleX(-1); }
+    .corner.bl { bottom: clamp(14px, 2.4vw, 26px); left: clamp(14px, 2.4vw, 26px); transform: scaleY(-1); }
+    .corner.br { bottom: clamp(14px, 2.4vw, 26px); right: clamp(14px, 2.4vw, 26px); transform: scale(-1, -1); }
 
     .lib-inner {
-      max-width: 1120px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 20px) 0;
       position: relative;
-      border-radius: 8px;
-      border: 1px solid rgba(12, 6, 4, 0.65);
-      background:
-        linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0%, transparent 6px, transparent calc(100% - 6px), rgba(0, 0, 0, 0.3) 100%),
-        repeating-linear-gradient(
-          92deg,
-          transparent 0,
-          transparent 14px,
-          var(--wood-grain) 14px,
-          var(--wood-grain) 15px
-        ),
-        repeating-linear-gradient(
-          -2deg,
-          transparent 0,
-          transparent 3px,
-          rgba(255, 255, 255, 0.025) 3px,
-          rgba(255, 255, 255, 0.025) 4px
-        ),
-        linear-gradient(175deg, var(--wood-highlight) 0%, var(--wood-face) 42%, var(--wood-shadow) 100%);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.11),
-        0 22px 55px rgba(0, 0, 0, 0.48);
+      z-index: 3;
     }
 
-    /* Top rail — mahogany cap (shorter for thin header) */
-    .lib-inner::before {
-      content: '';
-      display: block;
-      height: 6px;
-      margin: 0 clamp(-12px, -2vw, -8px) 12px;
-      border-radius: 3px 3px 2px 2px;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          transparent 0,
-          transparent 28px,
-          var(--wood-grain) 28px,
-          var(--wood-grain) 29px
-        ),
-        linear-gradient(180deg, var(--wood-highlight) 0%, var(--wood-face) 55%, var(--wood-shadow) 100%);
-      box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.14),
-        0 4px 10px rgba(0, 0, 0, 0.35);
-    }
-
-    /* Bottom shoe — matches shelf rules */
-    .lib-inner::after {
-      content: '';
-      display: block;
-      height: 8px;
-      margin: 28px clamp(-12px, -2vw, -8px) 0;
-      border-radius: 2px;
-      background:
-        repeating-linear-gradient(90deg, transparent 0, transparent 26px, var(--wood-grain) 26px, var(--wood-grain) 27px),
-        linear-gradient(180deg, #553e2f 0%, var(--wood-shadow) 100%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-
-    .lib-header {
-      background: linear-gradient(180deg, #fffcf3 0%, var(--paper) 40%, var(--paper-deep) 100%);
-      border: 1px solid var(--rule);
+    /* ─────────────────────────────────────────────────────────────
+       MASTHEAD — embossed leather plaque with brass nameplate
+       ───────────────────────────────────────────────────────────── */
+    .masthead {
+      position: relative;
+      padding: clamp(28px, 4vw, 48px) clamp(22px, 4vw, 56px) clamp(24px, 3.5vw, 40px);
+      margin-bottom: clamp(22px, 3vw, 36px);
       border-radius: 4px;
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset, 0 6px 22px var(--shadow);
-      padding: 8px 14px 10px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: clamp(14px, 3vw, 28px);
-      flex-wrap: nowrap;
+      background:
+        repeating-linear-gradient(73deg, rgba(255,255,255,0.014) 0, rgba(255,255,255,0.014) 1px, transparent 1px, transparent 3px),
+        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(200,110,80,0.18), transparent 70%),
+        linear-gradient(170deg, var(--leather-4) 0%, var(--leather-3) 50%, var(--leather-2) 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(216, 166, 68, 0.35),
+        inset 0 0 0 2px rgba(0,0,0,0.7),
+        inset 0 0 0 6px rgba(216, 166, 68, 0.12),
+        inset 0 0 0 7px rgba(0,0,0,0.6),
+        inset 0 2px 0 rgba(255,255,255,0.05),
+        0 14px 32px rgba(0,0,0,0.5),
+        0 30px 60px rgba(0,0,0,0.4);
     }
 
-    .lib-logo-link {
-      flex-shrink: 0;
-      align-self: center;
-      line-height: 0;
-      opacity: 0.98;
-      transition: opacity 0.2s ease;
+    /* embossed dotted leather stitch */
+    .masthead::before {
+      content: '';
+      position: absolute;
+      inset: 14px;
+      border: 1px dashed rgba(216, 166, 68, 0.32);
+      border-radius: 2px;
+      pointer-events: none;
     }
 
-    .lib-logo-link:hover {
-      opacity: 1;
-    }
-
-    .lib-logo-link:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 3px;
-      border-radius: 6px;
-    }
-
-    .lib-logo-link img {
-      display: block;
-      height: clamp(76px, 18vw, 124px);
-      width: auto;
-    }
-
-    .lib-header-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    /* Title + blurbs + actions on one belt */
-    .lib-header-grid {
+    .masthead-grid {
       display: grid;
-      grid-template-columns: minmax(auto, max-content) minmax(14rem, 1fr) auto;
-      gap: 8px clamp(14px, 3vw, 26px);
+      grid-template-columns: auto 1fr auto;
+      gap: clamp(20px, 3.5vw, 44px);
       align-items: center;
+      position: relative;
+      z-index: 1;
     }
 
-    .lib-ledes {
-      min-width: 0;
+    /* Round logo — no medallion housing */
+    .crest {
+      width: clamp(150px, 17vw, 200px);
+      height: clamp(150px, 17vw, 200px);
+      flex-shrink: 0;
+    }
+    .crest-link {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 30%, #fff8ec 0%, #f1e6cd 60%, #d8c9a6 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.25),
+        inset 0 -6px 14px rgba(0,0,0,0.18),
+        0 6px 14px rgba(0,0,0,0.55),
+        0 12px 26px rgba(0,0,0,0.4);
+      text-decoration: none;
+      transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
+      padding: 8%;
+    }
+    .crest-link:hover { transform: rotate(-4deg) scale(1.02); }
+    .crest-link img {
+      display: block;
+      width: 84%;
+      height: 84%;
+      object-fit: contain;
     }
 
-    .lib-kicker {
+    .masthead-title {
+      text-align: center;
+      color: var(--brass-hi);
+    }
+
+    .masthead-kicker {
       font-family: 'IBM Plex Mono', ui-monospace, monospace;
       font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(216, 166, 68, 0.85);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .masthead-name {
+      font-family: 'Cormorant Garamond', 'EB Garamond', 'Times New Roman', Times, serif;
+      font-weight: 600;
+      font-style: italic;
+      font-size: clamp(2.8rem, 6.4vw, 5rem);
+      line-height: 1;
+      letter-spacing: 0.005em;
+      color: transparent;
+      background:
+        linear-gradient(180deg, #f8e0a4 0%, #d4a644 35%, #b8893a 60%, #e8c878 80%, #a07a30 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)) drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+      margin: 0 auto 4px;
+      display: inline-block;
+    }
+
+    .masthead-name em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .masthead-rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 8px 0 12px;
+    }
+    .masthead-rule .line {
+      flex: 1;
+      max-width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gilt-edge), transparent);
+    }
+    .masthead-rule .ornament {
+      color: var(--gilt-edge);
+      font-size: 14px;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));
+    }
+
+    .masthead-tag {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(13px, 1.4vw, 16px);
+      color: rgba(241, 230, 205, 0.82);
+      letter-spacing: 0.04em;
+      max-width: 580px;
+      margin: 0 auto;
+      line-height: 1.45;
+    }
+    .masthead-tag a {
+      color: var(--brass-hi);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(216, 166, 68, 0.6);
+      padding-bottom: 1px;
+    }
+    .masthead-tag a:hover { color: #fff4d0; border-bottom-color: var(--brass-hi); }
+
+    .masthead-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .masthead-link {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 10.5px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--gold);
-      margin: 0;
-      line-height: 1.3;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-    }
-
-    .lib-title {
-      font-family: 'Libre Baskerville', Georgia, serif;
-      font-size: clamp(1.2rem, 2.85vw, 1.62rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      line-height: 1.1;
-      margin: 0;
-    }
-
-    .lib-title em {
-      font-style: italic;
-      font-weight: 400;
-      color: var(--ink-soft);
-    }
-
-    .lib-lede {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.4;
-      color: var(--ink-soft);
-    }
-
-    .lib-lede a {
-      color: var(--ink);
-      font-weight: 600;
-      text-decoration: underline;
-      text-decoration-color: rgba(201, 168, 92, 0.55);
-      text-underline-offset: 2px;
-    }
-
-    .lib-lede a:hover {
-      text-decoration-color: var(--gold);
-    }
-
-    .lib-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px 8px;
-      margin-top: 0;
-      justify-content: flex-end;
-    }
-
-    @media (max-width: 840px) {
-      .lib-header {
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
-
-      .lib-logo-link img {
-        height: clamp(64px, 22vw, 92px);
-      }
-
-      .lib-header-grid {
-        grid-template-columns: 1fr;
-        align-items: start;
-      }
-
-      .lib-title {
-        margin-bottom: 2px;
-      }
-
-      .lib-actions {
-        justify-content: flex-start;
-        padding-top: 6px;
-        border-top: 1px solid var(--rule);
-      }
-    }
-
-    .lib-link {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 11px;
-      font-weight: 500;
       text-decoration: none;
-      color: var(--ink);
-      border: 1px dashed var(--rule);
-      background: rgba(255, 255, 255, 0.35);
-      padding: 5px 10px;
-      border-radius: 3px;
-      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+      color: rgba(241, 230, 205, 0.92);
+      padding: 8px 14px;
+      border-radius: 2px;
+      background:
+        linear-gradient(180deg, rgba(216, 166, 68, 0.18) 0%, rgba(216, 166, 68, 0.06) 100%);
+      border: 1px solid rgba(216, 166, 68, 0.4);
+      box-shadow: inset 0 1px 0 rgba(255,235,180,0.18), 0 2px 4px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
-
-    .lib-link:hover {
-      border-color: var(--gold);
-      background: rgba(255, 252, 243, 0.9);
+    .masthead-link:hover {
+      color: #fff4d0;
+      border-color: var(--brass-hi);
+      background: linear-gradient(180deg, rgba(216, 166, 68, 0.28) 0%, rgba(216, 166, 68, 0.1) 100%);
       transform: translateY(-1px);
     }
 
-    .lib-link:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
+    @media (max-width: 800px) {
+      .masthead-grid { grid-template-columns: 1fr; gap: 18px; }
+      .crest { margin: 0 auto; }
+      .masthead-meta { align-items: center; flex-direction: row; flex-wrap: wrap; justify-content: center; }
     }
 
-    .lib-shelf-rule {
-      height: 16px;
-      margin: 14px 0 18px;
-      border-radius: 3px;
+    /* ─────────────────────────────────────────────────────────────
+       READING ROOM — felt-topped catalog cabinet sits on this
+       ───────────────────────────────────────────────────────────── */
+    .cabinet {
+      position: relative;
+      border-radius: 6px;
+      padding: clamp(18px, 2.4vw, 30px) clamp(16px, 2.4vw, 28px) clamp(28px, 3vw, 40px);
       background:
-        repeating-linear-gradient(90deg, transparent 0, transparent 34px, var(--wood-grain) 34px, var(--wood-grain) 35px),
-        linear-gradient(180deg, var(--wood-highlight) 0%, var(--wood-face) 42%, var(--wood-shadow) 100%);
+        /* wood grain — fine */
+        repeating-linear-gradient(
+          91deg,
+          transparent 0, transparent 9px,
+          var(--walnut-grain) 9px, var(--walnut-grain) 10px
+        ),
+        repeating-linear-gradient(
+          93deg,
+          transparent 0, transparent 27px,
+          rgba(255,255,255,0.025) 27px, rgba(255,255,255,0.025) 28px
+        ),
+        /* knots — subtle */
+        radial-gradient(ellipse 60px 14px at 18% 28%, rgba(0,0,0,0.30), transparent 70%),
+        radial-gradient(ellipse 50px 12px at 72% 78%, rgba(0,0,0,0.25), transparent 70%),
+        radial-gradient(ellipse 80px 16px at 88% 18%, rgba(0,0,0,0.22), transparent 70%),
+        linear-gradient(178deg, var(--walnut-hi) 0%, var(--walnut-4) 18%, var(--walnut-3) 60%, var(--walnut-2) 100%);
       box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.1),
-        0 5px 14px rgba(0, 0, 0, 0.4);
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        inset 0 0 0 2px rgba(216, 166, 68, 0.22),
+        inset 0 0 0 3px rgba(0,0,0,0.55),
+        inset 0 2px 0 rgba(255,235,180,0.06),
+        inset 0 -8px 18px rgba(0,0,0,0.5),
+        0 22px 50px rgba(0,0,0,0.55);
+    }
+
+    /* Section heading bar — engraved brass plate */
+    .shelf-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 18px;
+      margin-bottom: clamp(20px, 2.5vw, 28px);
+      background:
+        radial-gradient(ellipse 60% 200% at 50% 50%, rgba(255,235,180,0.25), transparent 70%),
+        linear-gradient(180deg, #d4a644 0%, #b8893a 45%, #8a6420 100%);
+      border-radius: 2px;
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,235,180,0.55),
+        inset 0 -2px 4px rgba(0,0,0,0.35),
+        0 4px 10px rgba(0,0,0,0.4),
+        0 1px 0 rgba(255,235,180,0.1);
       position: relative;
     }
-
-    .lib-shelf-rule::after {
+    /* tiny screws */
+    .shelf-label::before,
+    .shelf-label::after {
       content: '';
       position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 5px;
-      border-radius: 3px 3px 0 0;
-      background: linear-gradient(90deg, transparent 5%, rgba(255, 255, 255, 0.14) 50%, transparent 95%);
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      top: 50%; transform: translateY(-50%);
+      background:
+        radial-gradient(circle at 30% 30%, #f4dc9a, var(--brass-shadow));
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.2);
     }
+    .shelf-label::before { left: 6px; }
+    .shelf-label::after { right: 6px; }
 
-    .section-head {
+    .shelf-label-text {
       font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
       text-transform: uppercase;
-      color: rgba(255, 246, 230, 0.88);
-      margin-bottom: 16px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      color: var(--leather-1);
+      text-shadow: 0 1px 0 rgba(255, 235, 180, 0.4);
+      flex: 1;
+      text-align: center;
     }
 
-    /* Optional contributor line */
-    .cat-byline {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 9px;
-      letter-spacing: 0.05em;
-      color: var(--ink-soft);
-      margin: -4px 0 10px;
-      line-height: 1.35;
-      opacity: 0.92;
+    /* ─────────────────────────────────────────────────────────────
+       CATALOG GRID — drawer with cards
+       ───────────────────────────────────────────────────────────── */
+
+    /* The drawer area — green felt blotter inside walnut frame */
+    .drawer {
+      position: relative;
+      padding: clamp(24px, 3vw, 38px) clamp(18px, 2.4vw, 28px) clamp(34px, 4vw, 48px);
+      border-radius: 3px;
+      background:
+        /* felt fibers */
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 2px),
+        repeating-linear-gradient(-45deg, rgba(0,0,0,0.04) 0, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 2px),
+        radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.04), transparent 60%),
+        linear-gradient(165deg, var(--felt-3) 0%, var(--felt-2) 50%, var(--felt-1) 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.5),
+        inset 0 0 0 2px rgba(216, 166, 68, 0.2),
+        inset 0 0 0 3px rgba(0,0,0,0.6),
+        inset 0 6px 20px rgba(0,0,0,0.55),
+        inset 0 -4px 14px rgba(0,0,0,0.4);
     }
 
-    /* Card catalog grid — cards stretch to equal height per row */
     .catalog {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(278px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: clamp(22px, 3vw, 36px) clamp(18px, 2.4vw, 28px);
       align-items: stretch;
     }
 
-    .catalog > * {
-      min-height: 0;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .cat-card { transition: none; }
-      .cat-card:not(.cat-card-static):not(.cat-card-invite):hover { transform: none; }
-      .catalog .cat-card-invite.cat-card:hover {
-        transform: none !important;
-      }
-    }
-
-    .cat-card-sheet {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      width: 100%;
-    }
-
-    .cat-card-notes {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      margin-top: 0;
-      gap: 6px;
-    }
-
-    .cat-abstract {
-      flex: 1;
-      font-size: 11px;
-      color: var(--ink-soft);
-      line-height: 1.42;
-      margin-bottom: 0;
-    }
+    /* ─────────────────────────────────────────────────────────────
+       CARD — heavy cream stock, hand-typed, brass corners
+       ───────────────────────────────────────────────────────────── */
 
     .cat-card {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: linear-gradient(145deg, #fffef8 0%, var(--paper) 56%, var(--paper-deep) 100%);
-      border: 1px solid #c9b89c;
-      border-radius: 2px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.85) inset,
-        3px 6px 0 rgba(42, 35, 25, 0.08),
-        10px 18px 32px rgba(0, 0, 0, 0.28);
-      text-decoration: none;
-      color: inherit;
       position: relative;
-      padding: 0 14px 14px 22px;
-      transition: transform 0.22s ease, box-shadow 0.22s ease;
-    }
-
-    /* “Checked out” invitation — cloth-bound book metaphor */
-    .cat-card-invite.cat-card {
-      background: linear-gradient(145deg, #4f2f32 0%, #2f181c 52%, #1f1013 100%);
-      border-color: rgba(15, 8, 8, 0.85);
-      color: #f4ebe2;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.08) inset,
-        inset 6px 0 0 rgba(0, 0, 0, 0.25),
-        4px 8px 0 rgba(0, 0, 0, 0.35),
-        12px 22px 36px rgba(0, 0, 0, 0.4);
-      transform: rotate(0.9deg) !important;
-    }
-
-    .cat-card-invite.cat-card:not(.cat-card-static):hover {
-      transform: translateY(-6px) rotate(0deg) scale(1.01) !important;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.1) inset,
-        inset 6px 0 0 rgba(0, 0, 0, 0.2),
-        3px 5px 0 rgba(0, 0, 0, 0.25),
-        14px 26px 40px rgba(0, 0, 0, 0.45);
-    }
-
-    .cat-card-invite .cat-top-rule {
-      background: linear-gradient(90deg, #c9a85c, #8b6944);
-    }
-
-    .cat-card-invite .cat-meta {
-      color: #e8c9a8;
-    }
-
-    .cat-card-invite .cat-call {
-      color: #ffb8aa;
-    }
-
-    .cat-card-invite .cat-subject {
-      color: rgba(244, 235, 226, 0.75);
-    }
-
-    .cat-card-invite .cat-volume {
-      color: #fffcf8;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-    }
-
-    .cat-card-invite:not(.cat-card-static):hover .cat-volume-text {
-      background-size: 100% 2px;
-      background-position: left calc(100% - 2px);
-    }
-
-    .cat-card-invite .cat-window {
-      border-color: rgba(244, 235, 226, 0.35);
-      background: transparent;
-      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-    }
-
-    .cat-card-invite .cat-checkout-slip {
-      height: 100%;
-      padding: clamp(14px, 4vw, 22px);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 8px;
+      min-height: 380px;
+      padding: 22px 18px 18px 36px;
+      text-decoration: none;
+      color: var(--ink);
+      border-radius: 2px;
       background:
-        radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
-        linear-gradient(180deg, #f8f5ef 0%, #eaddcf 100%);
-      color: #2a2319;
-    }
-
-    .cat-card-invite .cat-checkout-slip strong {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      color: #8b2e2e;
-    }
-
-    .cat-card-invite .cat-checkout-slip em {
-      font-family: 'Libre Baskerville', Georgia, serif;
-      font-style: italic;
-      font-size: 13px;
-      color: #4a4236;
-    }
-
-    .cat-slip-hint {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 9px;
-      letter-spacing: 0.06em;
-      color: rgba(42, 35, 25, 0.55);
-    }
-
-    .cat-card-invite.cat-card:not(.cat-card-static):hover .cat-window {
-      outline-color: rgba(232, 201, 168, 0.55);
+        /* paper fiber & age spots */
+        radial-gradient(circle at 18% 12%, rgba(180, 140, 80, 0.16) 0%, transparent 4%),
+        radial-gradient(circle at 82% 28%, rgba(180, 140, 80, 0.14) 0%, transparent 3%),
+        radial-gradient(circle at 28% 78%, rgba(160, 100, 60, 0.10) 0%, transparent 4%),
+        radial-gradient(circle at 78% 88%, rgba(180, 140, 80, 0.12) 0%, transparent 3%),
+        repeating-linear-gradient(
+          17deg,
+          rgba(180, 140, 80, 0.04) 0,
+          rgba(180, 140, 80, 0.04) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        /* edge darkening */
+        radial-gradient(ellipse 100% 70% at 50% 100%, rgba(140, 100, 50, 0.18), transparent 60%),
+        radial-gradient(ellipse 100% 70% at 50% 0%, rgba(140, 100, 50, 0.14), transparent 60%),
+        linear-gradient(160deg, #f7eed5 0%, var(--card-cream) 45%, var(--card-cream-deep) 100%);
       box-shadow:
-        inset 0 0 0 1px rgba(0, 0, 0, 0.1),
-        0 0 0 2px rgba(232, 201, 168, 0.28);
-    }
-      color: rgba(244, 235, 226, 0.55);
-    }
-
-    .cat-card-invite .cat-window-cap span:last-child {
-      color: #e8c9a8;
-    }
-
-    .cat-card-invite .cat-abstract {
-      color: rgba(244, 235, 226, 0.88);
+        inset 0 0 0 1px rgba(120, 90, 50, 0.35),
+        inset 0 0 24px rgba(180, 140, 80, 0.18),
+        2px 3px 0 rgba(0, 0, 0, 0.18),
+        4px 6px 0 rgba(0, 0, 0, 0.10),
+        10px 14px 28px rgba(0, 0, 0, 0.45),
+        20px 28px 48px rgba(0, 0, 0, 0.32);
+      transition: transform 0.32s cubic-bezier(.2,.8,.2,1), box-shadow 0.32s;
     }
 
-    .cat-card-invite .cat-byline {
-      color: rgba(244, 235, 226, 0.65);
-    }
-
-    /* Catalog punch margin */
+    /* The single brass-rimmed punch hole at bottom (catalog-card hallmark) */
     .cat-card::before {
       content: '';
       position: absolute;
-      left: 10px;
-      top: 22px;
-      bottom: 22px;
-      width: 0;
-      border-left: 1px dotted var(--rule);
-    }
-
-    .cat-holes {
-      position: absolute;
-      left: 5px;
-      top: 28px;
-      bottom: 28px;
-      width: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      pointer-events: none;
-    }
-
-    .cat-holes span {
-      width: 8px;
-      height: 8px;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #6b5a4a, #2a2319);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
-    }
-
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover {
-      transform: translateY(-6px) rotate(0deg) scale(1.01);
+      background:
+        radial-gradient(circle at 35% 30%, #4a3220, #1a0e08 60%, #000 100%);
       box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.85) inset,
-        2px 4px 0 rgba(42, 35, 25, 0.06),
-        14px 26px 40px rgba(0, 0, 0, 0.35);
+        inset 0 0 0 2px rgba(216, 166, 68, 0.55),
+        inset 0 0 0 3px rgba(0,0,0,0.5),
+        inset 0 1px 1px rgba(255,235,180,0.15),
+        0 1px 0 rgba(255,255,255,0.4);
     }
 
-    .cat-card:not(.cat-card-static):focus-visible {
-      outline: 3px solid var(--gold);
+    /* Red guideline that runs the length — like catalog cards have */
+    .cat-card::after {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 0;
+      bottom: 36px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent 0, rgba(156, 56, 42, 0.45) 8%, rgba(156, 56, 42, 0.45) 92%, transparent 100%);
+    }
+
+    /* Subtle rotation for casual stack feel */
+    .cat-card:nth-child(7n+1) { transform: rotate(-0.55deg); }
+    .cat-card:nth-child(7n+2) { transform: rotate(0.4deg); }
+    .cat-card:nth-child(7n+3) { transform: rotate(-0.25deg); }
+    .cat-card:nth-child(7n+4) { transform: rotate(0.6deg); }
+    .cat-card:nth-child(7n+5) { transform: rotate(-0.4deg); }
+    .cat-card:nth-child(7n+6) { transform: rotate(0.2deg); }
+    .cat-card:nth-child(7n+7) { transform: rotate(-0.15deg); }
+
+    .cat-card:hover {
+      transform: translateY(-8px) rotate(0deg) scale(1.015);
+      box-shadow:
+        inset 0 0 0 1px rgba(120, 90, 50, 0.4),
+        inset 0 0 24px rgba(180, 140, 80, 0.18),
+        2px 3px 0 rgba(0, 0, 0, 0.16),
+        4px 6px 0 rgba(0, 0, 0, 0.08),
+        14px 18px 32px rgba(0, 0, 0, 0.5),
+        24px 36px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .cat-card:focus-visible {
+      outline: 3px solid var(--gilt-edge);
       outline-offset: 4px;
     }
 
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):nth-child(5n + 1) { transform: rotate(-0.7deg); }
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):nth-child(5n + 2) { transform: rotate(0.5deg); }
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):nth-child(5n + 3) { transform: rotate(-0.35deg); }
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):nth-child(5n + 4) { transform: rotate(0.65deg); }
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):nth-child(5n + 5) { transform: rotate(-0.2deg); }
-
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover:nth-child(5n + 1),
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover:nth-child(5n + 2),
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover:nth-child(5n + 3),
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover:nth-child(5n + 4),
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover:nth-child(5n + 5) {
-      transform: translateY(-6px) rotate(0deg) scale(1.01);
+    /* Brass corner clip top-right */
+    .cat-corner {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 38px;
+      height: 38px;
+      pointer-events: none;
+      z-index: 2;
     }
+    .cat-corner svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
 
-    .cat-top-rule {
-      height: 3px;
-      background: var(--rule-red);
-      margin: 14px -14px 12px -6px;
-      border-radius: 1px;
-      opacity: 0.92;
-    }
-
-    .cat-meta {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 10px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--stamp);
+    /* Header strip on card */
+    .cat-head {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
+      align-items: baseline;
+      gap: 10px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(156, 56, 42, 0.4);
+      position: relative;
+    }
+    .cat-head::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(156, 56, 42, 0.25);
     }
 
-    .cat-call { font-weight: 600; }
+    .cat-call {
+      font-family: 'Special Elite', 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--stamp-red);
+      font-weight: 400;
+    }
 
     .cat-subject {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 12px;
       color: var(--ink-soft);
-      font-weight: 500;
       text-align: right;
+      max-width: 60%;
     }
 
-    .cat-volume {
-      font-family: 'Libre Baskerville', Georgia, serif;
-      font-size: 15px;
+    .cat-title {
+      font-family: 'Playfair Display', Georgia, serif;
       font-weight: 700;
-      line-height: 1.3;
-      margin-bottom: 8px;
+      font-size: 22px;
+      line-height: 1.15;
       color: var(--ink);
+      margin-bottom: 4px;
+      letter-spacing: -0.005em;
     }
 
-    /* Animated underline on hover — linked cards only */
-    .cat-volume-text {
-      background: linear-gradient(to right, currentColor, currentColor) no-repeat;
-      background-position: left calc(100% - 2px);
-      background-size: 0 2px;
-      transition: background-size 0.3s ease;
+    .cat-card:hover .cat-title-inner {
+      color: var(--stamp-red);
+    }
+    .cat-title-inner { transition: color 0.2s ease; }
+
+    .cat-byline {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+      line-height: 1.35;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .cat-volume-text {
-        transition: none;
-      }
-
-      .cat-card:not(.cat-card-static):not(.cat-card-invite):hover .cat-window {
-        transition: none;
-      }
+    /* Plate window — like a tipped-in engraving */
+    .cat-plate-frame {
+      position: relative;
+      margin: 4px 0 14px;
+      padding: 5px;
+      background:
+        linear-gradient(135deg, #c9a85c 0%, #8a6420 50%, #b8893a 100%);
+      border-radius: 1px;
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,235,180,0.4),
+        2px 3px 6px rgba(0,0,0,0.25);
     }
 
-    .cat-card:not(.cat-card-static):hover .cat-volume-text {
-      background-size: 100% 2px;
-    }
-
-    /* “Plate” window — figurative inset into the artifact */
     .cat-window {
-      border: 2px solid var(--ink);
-      background: #f9f6ef;
-      margin: 0 0 10px;
+      position: relative;
       aspect-ratio: 16 / 10;
       overflow: hidden;
-      position: relative;
-      box-shadow: 3px 3px 0 rgba(42, 35, 25, 0.12);
-      outline: 2px solid transparent;
-      outline-offset: 2px;
-      transition: outline-color 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .cat-card:not(.cat-card-static):not(.cat-card-invite):hover .cat-window {
-      outline-color: rgba(201, 168, 92, 0.65);
+      background: #2a2018;
       box-shadow:
-        3px 3px 0 rgba(42, 35, 25, 0.1),
-        0 0 0 3px rgba(201, 168, 92, 0.22);
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        inset 0 1px 6px rgba(0,0,0,0.5);
     }
 
     .cat-window img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top left;
+      object-position: top center;
+      filter: sepia(0.18) saturate(0.95) contrast(1.02);
+      transition: filter 0.3s ease, transform 0.4s ease;
     }
 
-    .cat-window-cap {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 9px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
+    .cat-card:hover .cat-window img {
+      filter: sepia(0.05) saturate(1.05) contrast(1.04);
+      transform: scale(1.03);
     }
 
-    .cat-window-cap span:last-child {
-      color: var(--gold);
-      font-weight: 500;
-    }
+    .cat-plate-cap { display: none; }
 
     .cat-window-placeholder {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(42, 35, 25, 0.35);
-      background: repeating-linear-gradient(
-        -12deg,
-        transparent,
-        transparent 6px,
-        rgba(196, 180, 154, 0.25) 6px,
-        rgba(196, 180, 154, 0.25) 7px
-      );
-    }
-
-    .cat-prompt {
-      flex-shrink: 0;
-      font-size: 11px;
-      color: var(--ink-soft);
+      font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      border-top: 1px solid var(--rule);
-      padding-top: 8px;
+      font-size: 13px;
+      color: rgba(241, 230, 205, 0.55);
+      background:
+        repeating-linear-gradient(
+          -12deg,
+          transparent 0,
+          transparent 10px,
+          rgba(216, 166, 68, 0.08) 10px,
+          rgba(216, 166, 68, 0.08) 11px
+        ),
+        radial-gradient(ellipse at 50% 50%, var(--leather-3), var(--leather-1));
+    }
+
+    .cat-abstract {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.42;
+      color: var(--ink);
+      flex: 1;
       margin-bottom: 12px;
-      line-height: 1.5;
+      text-wrap: pretty;
     }
 
-    .cat-prompt::before {
-      content: 'Marginalia (prompt essence): ';
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-style: normal;
-      font-size: 9px;
+
+
+    .cat-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding-top: 10px;
+      margin-top: auto;
+      margin-bottom: 16px;
+      border-top: 1px dashed rgba(120, 90, 50, 0.35);
+      font-family: 'Special Elite', 'IBM Plex Mono', monospace;
+      font-size: 10px;
       letter-spacing: 0.06em;
+      color: var(--ink-faded);
       text-transform: uppercase;
-      color: var(--gold);
-      display: block;
-      margin-bottom: 4px;
     }
 
-    .cat-pending-footer {
-      flex-shrink: 0;
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    .cat-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cat-status::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4a8a4a;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 4px rgba(74, 138, 74, 0.6);
+    }
+
+    /* Date-due slip — top-right inset stamp */
+    .cat-stamp-due {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-family: 'Special Elite', monospace;
       font-size: 9px;
-      letter-spacing: 0.06em;
-      color: var(--ink-soft);
-      margin-top: 4px;
-      line-height: 1.45;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--stamp-red);
+      border: 1.5px solid var(--stamp-red);
+      padding: 3px 7px;
+      transform: rotate(6deg);
+      opacity: 0.0;
+      pointer-events: none;
+      background: rgba(255,255,255,0.15);
     }
 
-    .cat-stamp {
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 11px;
+    .cat-card:hover .cat-stamp-due {
+      opacity: 0.78;
+      transition: opacity 0.4s ease 0.1s;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       INVITATION CARD — looks like a leather-bound chapbook
+       ───────────────────────────────────────────────────────────── */
+    .cat-card-invite {
+      background:
+        repeating-linear-gradient(73deg, rgba(255,255,255,0.014) 0, rgba(255,255,255,0.014) 1px, transparent 1px, transparent 3px),
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(180,90,70,0.30), transparent 60%),
+        linear-gradient(165deg, var(--leather-4) 0%, var(--leather-3) 50%, var(--leather-1) 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(216, 166, 68, 0.3),
+        inset 0 0 0 2px rgba(0,0,0,0.65),
+        inset 0 0 0 5px rgba(216, 166, 68, 0.12),
+        inset 0 0 0 6px rgba(0,0,0,0.55),
+        2px 3px 0 rgba(0, 0, 0, 0.2),
+        10px 14px 28px rgba(0, 0, 0, 0.5),
+        20px 28px 48px rgba(0, 0, 0, 0.35);
+      color: #f1e6cd;
+      transform: rotate(0.8deg) !important;
+    }
+    .cat-card-invite:hover {
+      transform: translateY(-8px) rotate(0deg) scale(1.015) !important;
+    }
+    .cat-card-invite::before { display: none; }
+    .cat-card-invite::after { display: none; }
+    .cat-card-invite .cat-corner { display: none; }
+
+    .cat-invite-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 24px 14px;
+    }
+
+    .cat-invite-mono {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 72px;
+      line-height: 1;
+      color: transparent;
+      background: linear-gradient(180deg, #f8e0a4 0%, #d4a644 60%, #8a6420 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,0.6));
+    }
+
+    .cat-invite-kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(216, 166, 68, 0.85);
+    }
+
+    .cat-invite-title {
+      font-family: 'Playfair Display', serif;
       font-weight: 600;
+      font-style: italic;
+      font-size: 26px;
+      line-height: 1.1;
+      color: #f1e6cd;
+    }
+
+    .cat-invite-rule {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gilt-edge), transparent);
+    }
+
+    .cat-invite-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.4;
+      color: rgba(241, 230, 205, 0.85);
+      max-width: 240px;
+    }
+
+    .cat-invite-mailto {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--brass-hi);
+      padding: 7px 14px;
+      border: 1px dashed rgba(216, 166, 68, 0.5);
+      border-radius: 1px;
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       FOOTER
+       ───────────────────────────────────────────────────────────── */
+    .lib-footer {
+      margin-top: clamp(28px, 3.5vw, 44px);
+      padding: 22px 18px;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: rgba(241, 230, 205, 0.7);
+      position: relative;
+    }
+    .lib-footer-rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .lib-footer-rule .line { flex: 1; max-width: 180px; height: 1px; background: linear-gradient(90deg, transparent, rgba(216,166,68,0.4), transparent); }
+    .lib-footer-rule .ornament { color: var(--gilt-edge); font-size: 18px; }
+
+    .lib-footer p { margin: 4px 0; }
+    .lib-footer a { color: var(--brass-hi); text-decoration: none; border-bottom: 1px dotted rgba(216,166,68,0.5); }
+    .lib-footer a:hover { color: #fff4d0; }
+
+    .lib-footer-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-style: normal;
+      font-size: 9.5px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(216, 166, 68, 0.55);
+      margin-top: 8px;
+    }
+
+    /* Original-version link button */
+    .original-link {
+      position: fixed;
+      bottom: clamp(22px, 3vw, 36px);
+      right: clamp(22px, 3vw, 36px);
+      z-index: 20;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      text-align: center;
-      color: var(--stamp);
-      border: 2px solid var(--stamp);
-      border-radius: 4px;
-      padding: 8px 10px;
-      transform: rotate(-2deg);
-      opacity: 0.92;
-      margin-top: 2px;
+      color: rgba(241, 230, 205, 0.85);
+      text-decoration: none;
+      padding: 9px 14px;
+      border-radius: 2px;
+      background:
+        linear-gradient(180deg, rgba(60, 30, 24, 0.9) 0%, rgba(30, 12, 10, 0.9) 100%);
+      border: 1px solid rgba(216, 166, 68, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(216, 166, 68, 0.25),
+        0 4px 12px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    .original-link:hover {
+      color: #fff4d0;
+      border-color: var(--brass-hi);
     }
 
-    .cat-stamp small {
-      display: block;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      font-weight: 500;
-      margin-top: 3px;
-      opacity: 0.85;
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .cat-card { transition: none; }
+      .cat-card:hover { transform: none !important; }
+      .cat-window img { transition: none; }
     }
 
-    /* Accession / CTA — not a link */
-    .cat-card-static {
-      cursor: default;
-      border-style: dashed;
-      background: linear-gradient(145deg, rgba(255, 254, 248, 0.55) 0%, rgba(243, 234, 216, 0.35) 100%);
-      box-shadow: 3px 6px 0 rgba(42, 35, 25, 0.05);
-    }
-
-    .cat-card-static:hover {
-      transform: rotate(0deg) translateY(0);
-      box-shadow: 3px 6px 0 rgba(42, 35, 25, 0.05);
-    }
-
-    .cat-card-static .cat-stamp {
-      border-style: dashed;
-      color: var(--gold);
-      border-color: var(--gold);
-      transform: rotate(1deg);
-    }
-
-    .lib-footer {
-      margin-top: 36px;
-      padding-bottom: 12px;
-      text-align: center;
-      font-family: 'IBM Plex Mono', ui-monospace, monospace;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      color: rgba(255, 246, 230, 0.76);
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .lib-footer a {
-      color: rgba(255, 245, 220, 0.95);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .lib-footer a:hover {
-      color: #fff;
+    @media (max-width: 600px) {
+      .cat-card { min-height: 360px; padding: 20px 14px 14px 28px; }
+      .cat-card::after { left: 22px; }
+      .cat-title { font-size: 19px; }
     }
   </style>
 </head>
 <body>
   <div class="lib">
+    <!-- gilt corner ornaments -->
+    <svg class="corner tl" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner tr" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner bl" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner br" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+
     <div class="lib-inner">
-      <header class="lib-header">
-        <a class="lib-logo-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer" title="AI Co-Lab — educolab.org">
-          <img src="assets/ai-co-lab-logo.png" alt="AI Co-Lab" decoding="async" />
-        </a>
-        <div class="lib-header-body">
-          <p class="lib-kicker">AI Co-Lab · Circulating collection</p>
-          <div class="lib-header-grid">
-            <h1 class="lib-title">The <em>Vibe-rary</em></h1>
-            <div class="lib-ledes">
-              <p class="lib-lede">A card catalog for teacher-made builds.</p>
-              <p class="lib-lede">
-                Vibe coding is iterative, conversational creation with AI.</p>
-                <p class="lib-lede">Check out the <a
-                <a
-                  href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >Co-Lab Exploration doc</a>
-                to try it yourself!
-              </p>
+      <!-- ─── MASTHEAD ─── -->
+      <header class="masthead">
+        <div class="masthead-grid">
+          <div class="crest" aria-hidden="false">
+            <a class="crest-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer" title="AI Co-Lab — educolab.org">
+              <img src="assets/ai-co-lab-logo.png" alt="AI Co-Lab" decoding="async" />
+            </a>
+          </div>
+          <div class="masthead-title">
+            <p class="masthead-kicker">AI Co-Lab · Circulating Collection · MMXXVI</p>
+            <h1 class="masthead-name">The Vibe-rary</h1>
+            <div class="masthead-rule" aria-hidden="true">
+              <span class="line"></span>
+              <span class="ornament">❦</span>
+              <span class="line"></span>
             </div>
-            <div class="lib-actions">
-              <a class="lib-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer">Co-Lab · home</a>
-              <a
-                class="lib-link"
-                href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
-                target="_blank"
-                rel="noopener noreferrer"
-              >Exploration doc</a>
-            </div>
+            <p class="masthead-tag">
+              A card catalog of teacher-made builds — vibe coding is iterative,
+              conversational creation with AI. Borrow freely from the
+              <a href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
+                 target="_blank" rel="noopener noreferrer">Co-Lab Exploration doc</a>.
+            </p>
+          </div>
+          <div class="masthead-meta">
+            <a class="masthead-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer">Co-Lab · home</a>
+            <a class="masthead-link"
+               href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
+               target="_blank" rel="noopener noreferrer">Exploration doc</a>
           </div>
         </div>
       </header>
 
-      <div class="lib-shelf-rule" aria-hidden="true"></div>
-
-      <p class="section-head" id="catalog-heading">Main catalog · teacher contributions</p>
-      <div class="catalog" id="catalog-grid" aria-labelledby="catalog-heading"></div>
+      <!-- ─── CABINET / DRAWER ─── -->
+      <section class="cabinet">
+        <div class="drawer">
+          <div class="catalog" id="catalog-grid"></div>
+        </div>
+      </section>
 
       <footer class="lib-footer">
-        <p>AI Co-Lab · The Vibe-rary · 2026</p>
-        <p style="margin-top: 8px">
-          <a href="https://educolab.org/" target="_blank" rel="noopener noreferrer">educolab.org</a>
-        </p>
+        <div class="lib-footer-rule">
+          <span class="line"></span>
+          <span class="ornament">❦</span>
+          <span class="line"></span>
+        </div>
+        <p>The AI Co-Lab Vibe-rary, kept and circulated since the year of grace 2026.</p>
+        <p><a href="https://educolab.org/" target="_blank" rel="noopener noreferrer">educolab.org</a></p>
+        <p class="lib-footer-mono">Returns accepted at the circulating desk</p>
       </footer>
     </div>
+
+    <a class="original-link" href="indexORIG.html" title="View the classic v1 layout">View v1 →</a>
   </div>
 
   <script>
-    /**
-     * ─── Vibe-rary data layer ───────────────────────────────────────────
-     * Add one object per project. Array order = display order.
-     *
-     * Required:
-     *   title, abstract
-     *   url             — optional until deployed; omit or "" shows a short pending note
-     *
-     * Catalog subject line (pick ONE approach):
-     *   subjectHeading  — full string, e.g. "Biology · Simulation"
-     *   OR discipline + format — each can be a key from Taxonomy below, or any free-text label
-     *
-     * Optional:
-     *   slug            — stable id for future deep-linking (not shown yet)
-     *   cohortYear      — e.g. 2026; last two digits feed auto call number (default 26)
-     *   callNumber      — full override, e.g. "VIB · 26 · 014"
-     *   contributor     — { name, school?, role? } → thin byline under title
-     *   promptEssence   — marginalia on card (aliases: legacy `prompt`)
-     *   previewImage    — screenshot URL (aliases: `thumb`)
-     *   omitPrompt      — true to hide marginalia even if promptEssence is set
-     *
-     * Back-compat: `desc`, `badge`, `callNo` still read if newer names absent.
-     */
-
+    /* Same data layer as the original. */
     const Taxonomy = {
       discipline: {
-        science: 'Science',
-        biology: 'Biology',
-        chemistry: 'Chemistry',
-        physics: 'Physics',
-        environmental: 'Environmental science',
-        math: 'Mathematics',
-        ela: 'ELA',
-        socialStudies: 'Social studies',
-        history: 'History',
-        worldLanguages: 'World languages',
-        cs: 'Computer science',
-        steam: 'STEAM / engineering',
-        arts: 'Arts',
-        crossCurricular: 'Cross-curricular',
+        science: 'Science', biology: 'Biology', chemistry: 'Chemistry',
+        physics: 'Physics', environmental: 'Environmental science',
+        math: 'Mathematics', ela: 'ELA', socialStudies: 'Social studies',
+        history: 'History', worldLanguages: 'World languages',
+        cs: 'Computer science', steam: 'STEAM / engineering',
+        arts: 'Arts', crossCurricular: 'Cross-curricular',
       },
       format: {
-        simulation: 'Simulation',
-        interactiveLesson: 'Interactive lesson',
-        quiz: 'Quiz / assessment',
-        tool: 'Classroom tool',
-        reference: 'Student reference',
-        visualization: 'Visualization',
-        narrative: 'Story / narrative',
-        portfolio: 'Portfolio / showcase',
+        simulation: 'Simulation', interactiveLesson: 'Interactive lesson',
+        quiz: 'Quiz / assessment', tool: 'Classroom tool',
+        reference: 'Student reference', visualization: 'Visualization',
+        narrative: 'Story / narrative', portfolio: 'Portfolio / showcase',
         other: 'Build',
       },
     };
@@ -927,15 +1023,9 @@
         slug: 'foodweb-journal-colorado',
         url: 'https://jeffellenbogen.github.io/food-web/',
         title: 'Colorado Food Web Journal',
-        abstract:
-          'Colorado habitat badges, save/load journal progress, certificate when a habitat is mastered.',
-        discipline: 'environmental',
-        format: 'interactiveLesson',
-        contributor: {
-          name: 'Jeff Ellenbogen',
-          school: 'Dawson School, CO',
-          role: 'Director of Innovation & Technology',
-        },
+        abstract: 'Colorado habitat badges, save/load journal progress, certificate when a habitat is mastered.',
+        discipline: 'environmental', format: 'interactiveLesson',
+        contributor: { name: 'Jeff Ellenbogen', school: 'Dawson School, CO', role: 'Director of Innovation & Technology' },
         previewImage: 'assets/foodweb-journal-jeff.png',
         cohortYear: 2026,
       },
@@ -943,15 +1033,9 @@
         slug: 'thinking-experiment-physics',
         url: 'https://thinking-experiment-sims.github.io/interactive-physics/',
         title: 'Physics Simulations',
-        abstract:
-          'Mechanics through astrophysics — sims with launch links and code where available.',
-        discipline: 'physics',
-        format: 'simulation',
-        contributor: {
-          name: 'Vladimir Lopez',
-          school: 'The Kinkaid School, Houston, TX',
-          role: 'Physics',
-        },
+        abstract: 'Mechanics through astrophysics — sims with launch links and code where available.',
+        discipline: 'physics', format: 'simulation',
+        contributor: { name: 'Vladimir Lopez', school: 'The Kinkaid School, Houston, TX', role: 'Physics' },
         previewImage: 'assets/physics-simulations-lopez.png',
         cohortYear: 2026,
       },
@@ -959,15 +1043,9 @@
         slug: 'apostrophe-challenge',
         url: 'https://ajuss-create.github.io/Heronapostrophechallenge/',
         title: 'Apostrophe Challenge',
-        abstract:
-          'Greeks vs Romans: twelve mixed-format apostrophe questions with a playful framing.',
-        discipline: 'ela',
-        format: 'quiz',
-        contributor: {
-          name: 'Alison Jussaume',
-          school: 'Montgomery School',
-          role: 'Language arts teacher · grades 7 & 8',
-        },
+        abstract: 'Greeks vs Romans: twelve mixed-format apostrophe questions with a playful framing.',
+        discipline: 'ela', format: 'quiz',
+        contributor: { name: 'Alison Jussaume', school: 'Montgomery School', role: 'Language arts teacher · grades 7 & 8' },
         previewImage: 'assets/heron-apostrophe-challenge.png',
         cohortYear: 2026,
       },
@@ -975,14 +1053,9 @@
         slug: 'capstone-compass',
         url: 'https://ewaltersscitech.github.io/certificate-planner/',
         title: 'Capstone Compass',
-        abstract:
-          'One browser session — empathize through test — leaves a capstone roadmap. Nothing uploaded.',
-        discipline: 'crossCurricular',
-        format: 'tool',
-        contributor: {
-          name: 'Eric Walters',
-          school: 'Marymount School of New York',
-        },
+        abstract: 'One browser session — empathize through test — leaves a capstone roadmap. Nothing uploaded.',
+        discipline: 'crossCurricular', format: 'tool',
+        contributor: { name: 'Eric Walters', school: 'Marymount School of New York' },
         previewImage: 'assets/capstone-compass.png',
         cohortYear: 2026,
       },
@@ -990,13 +1063,9 @@
         slug: 'dark-skies-california-scouting',
         url: 'https://web.pomfret.org/jlake/darkskies/',
         title: 'CA Scouting Trip Report',
-        abstract:
-          'Scouting Vegas → Eastern Sierra along the Bortle scale for a 2027 student astronomy expedition.',
+        abstract: 'Scouting Vegas → Eastern Sierra along the Bortle scale for a 2027 student astronomy expedition.',
         subjectHeading: 'Honors astronomy · Dark Skies of California',
-        contributor: {
-          name: 'Josh Lake',
-          school: 'Pomfret School',
-        },
+        contributor: { name: 'Josh Lake', school: 'Pomfret School' },
         previewImage: 'assets/dark-skies-california-scouting.png',
         cohortYear: 2026,
       },
@@ -1004,14 +1073,9 @@
         slug: 'ap-lang-evidence-brainstorm',
         url: 'https://dianacurtiswebb.github.io/webb-tools/ap-evidence-game.html',
         title: 'AP Language Evidence Brainstorm',
-        abstract:
-          'Timed argument prompts for AP Lang — category chips, countdown per round, new prompt/mark-done workflow, undo and reset.',
-        discipline: 'ela',
-        format: 'quiz',
-        contributor: {
-          name: 'Diana Curtis',
-          school: 'The Webb School, Knoxville',
-        },
+        abstract: 'Timed argument prompts for AP Lang — category chips, countdown per round, new prompt/mark-done workflow, undo and reset.',
+        discipline: 'ela', format: 'quiz',
+        contributor: { name: 'Diana Curtis', school: 'The Webb School, Knoxville' },
         previewImage: 'assets/ap-lang-evidence-brainstorm.png',
         cohortYear: 2026,
       },
@@ -1019,16 +1083,13 @@
 
     function escapeHtml(s) {
       return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     function taxonomyLabel(map, key) {
       if (key == null || key === '') return '';
-      const k = String(key);
-      return map[k] ?? k;
+      return map[String(key)] ?? String(key);
     }
 
     function subjectHeading(entry) {
@@ -1055,102 +1116,79 @@
       return `VIB · ${yy} · ${n}`;
     }
 
-    function normalized(entry, index) {
-      const rawUrl = entry.url != null ? String(entry.url).trim() : '';
-      return {
-        url: rawUrl,
-        deployPending: rawUrl === '',
-        title: entry.title,
-        abstract: entry.abstract ?? entry.desc ?? '',
-        subject: subjectHeading(entry),
-        callNumber: callNumberFor(entry, index),
-        promptEssence:
-          entry.omitPrompt ? '' : (entry.promptEssence ?? entry.prompt ?? ''),
-        previewImage: entry.previewImage ?? entry.thumb ?? '',
-        byline: contributorLine(entry.contributor),
-      };
+    function brassCornerSvg(gradientId) {
+      const gid = `brassG-${gradientId}`;
+      return `<span class="cat-corner" aria-hidden="true"><svg viewBox="0 0 38 38">
+        <defs>
+          <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f4dc9a"/>
+            <stop offset="45%" stop-color="#d4a644"/>
+            <stop offset="100%" stop-color="#6a4a18"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 0 L38 0 L38 38 Q 38 18, 18 8 Q 8 4, 0 0 Z" fill="url(#${gid})" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+        <circle cx="28" cy="10" r="1.4" fill="#1a0c04"/>
+        <path d="M0 0 L38 0 L38 6 Q 30 4, 18 2 Q 8 1, 0 4 Z" fill="rgba(255,235,180,0.35)"/>
+      </svg></span>`;
     }
 
-    function renderInviteCheckoutCard() {
-      const inviteHref =
-        'mailto:jlake@pomfret.org?subject=' + encodeURIComponent('Vibe-rary submission');
-      const inner = `
-    <div class="cat-holes" aria-hidden="true"><span></span><span></span><span></span></div>
-    <div class="cat-card-sheet">
-    <div class="cat-top-rule"></div>
-    <div class="cat-meta">
-      <span class="cat-call">Circ · VIB-NEW</span>
-      <span class="cat-subject">Checked out · invitation</span>
-    </div>
-    <p class="cat-volume"><span class="cat-volume-text">What will you create?</span></p>
-    <p class="cat-byline">Josh Lake · circulating desk</p>
-    <div class="cat-window-cap"><span>Loan slip</span><span>Checked out</span></div>
-    <div class="cat-window"><div class="cat-checkout-slip">
-      <strong>Due when ready</strong>
-      <em>Your vibe-coded classroom project</em>
-      <span class="cat-slip-hint">Opens email · jlake@pomfret.org</span>
-    </div></div>
-    <div class="cat-card-notes">
-    <p class="cat-abstract">Send a link and a one-line pitch. We'll file the next catalog card together.</p>
-    </div>
-    </div>`;
-      return `<a class="cat-card cat-card-invite" href="${escapeHtml(inviteHref)}" aria-label="Email Josh Lake to add your project to the Vibe-rary">${inner}
-  </a>`;
+    function renderInviteCard() {
+      const inviteHref = 'mailto:jlake@pomfret.org?subject=' + encodeURIComponent('Vibe-rary submission');
+      return `<a class="cat-card cat-card-invite" href="${escapeHtml(inviteHref)}"
+                 aria-label="Email Josh Lake to add your project to the Vibe-rary">
+        <div class="cat-invite-inner">
+          <div class="cat-invite-mono">V</div>
+          <div class="cat-invite-kicker">Circ · VIB-NEW</div>
+          <div class="cat-invite-title">What will you<br/>create?</div>
+          <span class="cat-invite-rule"></span>
+          <p class="cat-invite-text">Send a link and a one-line pitch. We'll file the next catalog card together.</p>
+          <span class="cat-invite-mailto">jlake@pomfret.org</span>
+        </div>
+      </a>`;
     }
 
     function renderCatalog() {
       const grid = document.getElementById('catalog-grid');
-      grid.innerHTML =
-        VIBRARY_ENTRIES.map((raw, i) => {
-        const p = normalized(raw, i);
-        const plateStatus = p.deployPending ? 'Preview' : 'Live artifact';
-        const plate = p.previewImage && String(p.previewImage).trim()
-          ? `<div class="cat-window-cap"><span>Plate / fig.</span><span>${plateStatus}</span></div>
-          <div class="cat-window"><img src="${escapeHtml(String(p.previewImage).trim())}" alt="" loading="lazy" /></div>`
-          : `<div class="cat-window-cap"><span>Plate / fig.</span><span>Not yet filed</span></div>
-          <div class="cat-window"><div class="cat-window-placeholder">Awaiting screenshot</div></div>`;
+      grid.innerHTML = VIBRARY_ENTRIES.map((raw, i) => {
+        const url = raw.url ? String(raw.url).trim() : '';
+        const pending = url === '';
+        const subject = subjectHeading(raw);
+        const callNo = callNumberFor(raw, i);
+        const byline = contributorLine(raw.contributor);
+        const img = raw.previewImage ?? raw.thumb ?? '';
+        const abstract = raw.abstract ?? raw.desc ?? '';
+        const plateStatus = pending ? 'Forthcoming' : 'Live · MMXXVI';
 
-        const promptBlock =
-          p.promptEssence && String(p.promptEssence).trim()
-            ? `<p class="cat-prompt">“${escapeHtml(String(p.promptEssence).trim())}”</p>`
-            : '';
-
-        const bylineBlock = p.byline
-          ? `<p class="cat-byline">${escapeHtml(p.byline)}</p>`
-          : '';
-
-        const pendingFooter = p.deployPending
-          ? '<p class="cat-pending-footer">Not circulated yet — add a url in VIBRARY_ENTRIES when the build is public.</p>'
-          : '';
-
-        const titleBlock = `<p class="cat-volume"><span class="cat-volume-text">${escapeHtml(p.title)}</span></p>`;
+        const plate = img && String(img).trim()
+          ? `<div class="cat-plate-frame">
+               <div class="cat-window"><img src="${escapeHtml(String(img).trim())}" alt="" loading="lazy" /></div>
+             </div>`
+          : `<div class="cat-plate-frame">
+               <div class="cat-window"><div class="cat-window-placeholder">awaiting engraving</div></div>
+             </div>`;
 
         const inner = `
-    <div class="cat-holes" aria-hidden="true"><span></span><span></span><span></span></div>
-    <div class="cat-card-sheet">
-    <div class="cat-top-rule"></div>
-    <div class="cat-meta">
-      <span class="cat-call">${escapeHtml(p.callNumber)}</span>
-      <span class="cat-subject">${escapeHtml(p.subject)}</span>
-    </div>
-    ${titleBlock}
-    ${bylineBlock}
-    ${plate}
-    <div class="cat-card-notes">
-    <p class="cat-abstract">${escapeHtml(p.abstract)}</p>
-    ${promptBlock}
-    ${pendingFooter}
-    </div>
-    </div>`;
+          ${brassCornerSvg(i)}
+          <div class="cat-head">
+            <span class="cat-call">${escapeHtml(callNo)}</span>
+            <span class="cat-subject">${escapeHtml(subject)}</span>
+          </div>
+          <h3 class="cat-title"><span class="cat-title-inner">${escapeHtml(raw.title)}</span></h3>
+          ${byline ? `<p class="cat-byline">${escapeHtml(byline)}</p>` : ''}
+          ${plate}
+          <p class="cat-abstract">${escapeHtml(abstract)}</p>
+          <div class="cat-footer">
+            <span class="cat-status">${escapeHtml(plateStatus)}</span>
+            <span>Circulating</span>
+          </div>
+          <span class="cat-stamp-due">Open / read</span>
+        `;
 
-        if (p.deployPending) {
-          return `<article class="cat-card cat-card-static">${inner}
-  </article>`;
+        if (pending) {
+          return `<article class="cat-card">${inner}</article>`;
         }
-
-        return `<a class="cat-card" href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer">${inner}
-  </a>`;
-      }).join('') + renderInviteCheckoutCard();
+        return `<a class="cat-card" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
+      }).join('') + renderInviteCard();
     }
 
     renderCatalog();
