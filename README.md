@@ -2,4 +2,27 @@
 
 Static gallery (`index.html` + `assets/`).
 
-**GitHub Pages:** Repository **Settings → Pages** → **Build and deployment** → Source **Deploy from branch** → branch **`main`**, folder **`/ (root)`** → Save. The site will be at `https://<your-username>.github.io/<repo-name>/`.
+**Live site:** [https://rootlake.github.io/colabviberary/](https://rootlake.github.io/colabviberary/)  
+**Repo:** [github.com/rootlake/colabviberary](https://github.com/rootlake/colabviberary)
+
+**GitHub Pages** (already configured): deploy from branch **`main`**, folder **`/ (root)`**.
+
+## Update the site
+
+After editing `index.html` or adding images under `assets/`:
+
+```bash
+./scripts/push-pages.sh
+```
+
+Optional custom commit message:
+
+```bash
+./scripts/push-pages.sh "Add Diana Curtis evidence brainstorm card"
+```
+
+Remote/branch override (defaults: `origin`, `main`):
+
+```bash
+PAGES_REMOTE=origin PAGES_BRANCH=main ./scripts/push-pages.sh
+```
