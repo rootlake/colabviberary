@@ -75,10 +75,10 @@
               <span class="line"></span>
             </div>
             <p class="masthead-tag">
-              A card catalog of teacher-made builds — vibe coding is iterative,
+              A card catalog of teacher-made builds. Vibe coding is iterative,
               conversational creation with AI. Borrow freely from the
               <a href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
-                 target="_blank" rel="noopener noreferrer">Co-Lab Exploration doc</a>.
+                 target="_blank" rel="noopener noreferrer">Co-Lab Exploration doc</a>!
             </p>
           </div>
           <div class="masthead-meta">
@@ -113,7 +113,7 @@
   </div>
 
   <script>
-    /* Same data layer as the original. */
+    /* Taxonomy maps + entries. Cards show examplePrompt as a quoted excerpt; abstract is a legacy fallback. */
     const Taxonomy = {
       discipline: {
         science: 'Science', biology: 'Biology', chemistry: 'Chemistry',
@@ -137,7 +137,8 @@
         slug: 'foodweb-journal-colorado',
         url: 'https://jeffellenbogen.github.io/food-web/',
         title: 'Colorado Food Web Journal',
-        abstract: 'Colorado habitat badges, save/load journal progress, certificate when a habitat is mastered.',
+        examplePrompt:
+          'Build an interactive Colorado food-web journal where students earn habitat badges, can save and reload progress, and get a certificate when they master a habitat',
         discipline: 'environmental', format: 'interactiveLesson',
         contributor: { name: 'Jeff Ellenbogen', school: 'Dawson School, CO', role: 'Director of Innovation & Technology' },
         previewImage: 'assets/foodweb-journal-jeff.png',
@@ -147,7 +148,8 @@
         slug: 'thinking-experiment-physics',
         url: 'https://thinking-experiment-sims.github.io/interactive-physics/',
         title: 'Physics Simulations',
-        abstract: 'Mechanics through astrophysics — sims with launch links and code where available.',
+        examplePrompt:
+          'Help me curate launchable physics simulations from mechanics through astrophysics, with links to code or builds where they exist',
         discipline: 'physics', format: 'simulation',
         contributor: { name: 'Vladimir Lopez', school: 'The Kinkaid School, Houston, TX', role: 'Physics' },
         previewImage: 'assets/physics-simulations-lopez.png',
@@ -157,7 +159,8 @@
         slug: 'apostrophe-challenge',
         url: 'https://ajuss-create.github.io/Heronapostrophechallenge/',
         title: 'Apostrophe Challenge',
-        abstract: 'Greeks vs Romans: twelve mixed-format apostrophe questions with a playful framing.',
+        examplePrompt:
+          'Make a playful apostrophe quiz styled as Greeks vs Romans, with a mix of question types students can click through',
         discipline: 'ela', format: 'quiz',
         contributor: { name: 'Alison Jussaume', school: 'Montgomery School', role: 'Language arts teacher · grades 7 & 8' },
         previewImage: 'assets/heron-apostrophe-challenge.png',
@@ -167,7 +170,8 @@
         slug: 'capstone-compass',
         url: 'https://ewaltersscitech.github.io/certificate-planner/',
         title: 'Capstone Compass',
-        abstract: 'One browser session — empathize through test — leaves a capstone roadmap. Nothing uploaded.',
+        examplePrompt:
+          'Design a one-session-in-the-browser capstone planner that interviews the student empathize-style and outputs a roadmap, with nothing uploaded to a server',
         discipline: 'crossCurricular', format: 'tool',
         contributor: { name: 'Eric Walters', school: 'Marymount School of New York' },
         previewImage: 'assets/capstone-compass.png',
@@ -177,7 +181,8 @@
         slug: 'dark-skies-california-scouting',
         url: 'https://web.pomfret.org/jlake/darkskies/',
         title: 'CA Scouting Trip Report',
-        abstract: 'Scouting Vegas → Eastern Sierra along the Bortle scale for a 2027 student astronomy expedition.',
+        examplePrompt:
+          'Create a rich picture-driven single page for my astronomy scouting trip along Vegas to the Eastern Sierra, tied to dark-sky readability and Bortle zones',
         subjectHeading: 'Honors astronomy · Dark Skies of California',
         contributor: { name: 'Josh Lake', school: 'Pomfret School' },
         previewImage: 'assets/dark-skies-california-scouting.png',
@@ -187,7 +192,8 @@
         slug: 'ap-lang-evidence-brainstorm',
         url: 'https://dianacurtiswebb.github.io/webb-tools/ap-evidence-game.html',
         title: 'AP Language Evidence Brainstorm',
-        abstract: 'Timed argument prompts for AP Lang — category chips, countdown per round, new prompt/mark-done workflow, undo and reset.',
+        examplePrompt:
+          'Build a timed AP Lang evidence-brainstorm game with category chips, countdown rounds, undo, reset, and a clean new-prompt flow',
         discipline: 'ela', format: 'quiz',
         contributor: { name: 'Diana Curtis', school: 'The Webb School, Knoxville' },
         previewImage: 'assets/ap-lang-evidence-brainstorm.png',
@@ -230,6 +236,15 @@
       return `VIB · ${yy} · ${n}`;
     }
 
+    /** Example vibe-coding prompt, shown as a quoted excerpt ending in an ellipsis. */
+    function formatExamplePrompt(entry) {
+      let body = String(entry.examplePrompt ?? entry.abstract ?? entry.desc ?? '').trim();
+      if (!body) return '';
+      body = body.replace(/^[\u201C\u201D"'\s]+/, '').replace(/[\u201C\u201D"'\s]+$/, '').trim();
+      body = body.replace(/(?:\.{3,}|[…])\s*$/u, '').trim();
+      return `"${body}…"`;
+    }
+
     function brassCornerSvg(gradientId) {
       const gid = `brassG-${gradientId}`;
       return `<span class="cat-corner" aria-hidden="true"><svg viewBox="0 0 38 38">
@@ -270,7 +285,7 @@
         const callNo = callNumberFor(raw, i);
         const byline = contributorLine(raw.contributor);
         const img = raw.previewImage ?? raw.thumb ?? '';
-        const abstract = raw.abstract ?? raw.desc ?? '';
+        const promptExcerpt = formatExamplePrompt(raw);
         const plateStatus = pending ? 'Forthcoming' : 'Live · MMXXVI';
 
         const plate = img && String(img).trim()
@@ -290,12 +305,11 @@
           <h3 class="cat-title"><span class="cat-title-inner">${escapeHtml(raw.title)}</span></h3>
           ${byline ? `<p class="cat-byline">${escapeHtml(byline)}</p>` : ''}
           ${plate}
-          <p class="cat-abstract">${escapeHtml(abstract)}</p>
+          ${promptExcerpt ? `<p class="cat-prompt">${escapeHtml(promptExcerpt)}</p>` : ''}
           <div class="cat-footer">
             <span class="cat-status">${escapeHtml(plateStatus)}</span>
             <span>Circulating</span>
           </div>
-          <span class="cat-stamp-due">Open / read</span>
         `;
 
         if (pending) {

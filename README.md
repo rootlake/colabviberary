@@ -29,7 +29,7 @@ Overrides: `PAGES_REMOTE`, `PAGES_BRANCH` (defaults: `origin`, `main`).
 
 ## Editing content
 
-Near the bottom of `index.html`, edit the **`VIBRARY_ENTRIES`** array. Each entry can use the same fields as before (for example `slug`, `url`, `title`, `abstract`, `discipline`, `format`, `subjectHeading`, `callNumber`, `contributor`, `previewImage`, `cohortYear`, `omitPrompt`, `promptEssence`). Add preview images under **`assets/`** and reference them with paths like `assets/your-file.png`.
+Near the bottom of `index.html`, edit the **`VIBRARY_ENTRIES`** array. Each entry supports fields such as **`examplePrompt`** (shown on the card as a short quoted excerpt ending in `…`), `url`, `title`, `discipline`, `format`, `subjectHeading`, `callNumber`, `contributor`, `previewImage`, `cohortYear`, `omitPrompt`, `promptEssence`. Older **`abstract`** strings are still read as a fallback if `examplePrompt` is missing. Add preview images under **`assets/`** with paths like `assets/your-file.png`.
 
 ---
 

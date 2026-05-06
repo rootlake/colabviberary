@@ -42,7 +42,7 @@
   --felt-3: #2e5a48;
 }
 
-html { font-size: 19px; }
+html { font-size: 21px; }
 
 body {
   background: #0a0504;
@@ -211,7 +211,7 @@ body {
 
 .masthead-kicker {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: rgba(216, 166, 68, 0.85);
@@ -277,14 +277,14 @@ body {
 }
 .masthead-rule .ornament {
   color: var(--gilt-edge);
-  font-size: 14px;
+  font-size: 16px;
   filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));
 }
 
 .masthead-tag {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
-  font-size: clamp(13px, 1.4vw, 16px);
+  font-size: clamp(15px, 1.45vw, 18px);
   color: rgba(241, 230, 205, 0.82);
   letter-spacing: 0.04em;
   max-width: 580px;
@@ -309,7 +309,7 @@ body {
 
 .masthead-link {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
@@ -405,7 +405,7 @@ body {
 
 .shelf-label-text {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -575,7 +575,7 @@ body {
 
 .cat-call {
   font-family: 'Special Elite', 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: 0.08em;
   color: var(--stamp-red);
   font-weight: 400;
@@ -584,7 +584,7 @@ body {
 .cat-subject {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--ink-soft);
   text-align: right;
   max-width: 60%;
@@ -593,7 +593,7 @@ body {
 .cat-title {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.15;
   color: var(--ink);
   margin-bottom: 4px;
@@ -608,7 +608,7 @@ body {
 .cat-byline {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--ink-soft);
   margin-bottom: 12px;
   line-height: 1.35;
@@ -661,7 +661,7 @@ body {
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 13px;
+  font-size: 14.5px;
   color: rgba(241, 230, 205, 0.55);
   background:
     repeating-linear-gradient(
@@ -674,17 +674,18 @@ body {
     radial-gradient(ellipse at 50% 50%, var(--leather-3), var(--leather-1));
 }
 
-.cat-abstract {
+/* Example vibe prompt — excerpt in quotes */
+.cat-prompt {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.42;
-  color: var(--ink);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.46;
+  color: var(--ink-soft);
   flex: 1;
   margin-bottom: 12px;
   text-wrap: pretty;
+  letter-spacing: 0.01em;
 }
-
-
 
 .cat-footer {
   display: flex;
@@ -693,10 +694,10 @@ body {
   gap: 10px;
   padding-top: 10px;
   margin-top: auto;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   border-top: 1px dashed rgba(120, 90, 50, 0.35);
   font-family: 'Special Elite', 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 11.5px;
   letter-spacing: 0.06em;
   color: var(--ink-faded);
   text-transform: uppercase;
@@ -713,29 +714,6 @@ body {
   border-radius: 50%;
   background: #4a8a4a;
   box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 4px rgba(74, 138, 74, 0.6);
-}
-
-/* Date-due slip — top-right inset stamp */
-.cat-stamp-due {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  font-family: 'Special Elite', monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--stamp-red);
-  border: 1.5px solid var(--stamp-red);
-  padding: 3px 7px;
-  transform: rotate(6deg);
-  opacity: 0.0;
-  pointer-events: none;
-  background: rgba(255,255,255,0.15);
-}
-
-.cat-card:hover .cat-stamp-due {
-  opacity: 0.78;
-  transition: opacity 0.4s ease 0.1s;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -789,7 +767,7 @@ body {
 
 .cat-invite-kicker {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 11.5px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: rgba(216, 166, 68, 0.85);
@@ -799,7 +777,7 @@ body {
   font-family: 'Playfair Display', serif;
   font-weight: 600;
   font-style: italic;
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1.1;
   color: #f1e6cd;
 }
@@ -813,7 +791,7 @@ body {
 .cat-invite-text {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.4;
   color: rgba(241, 230, 205, 0.85);
   max-width: 240px;
@@ -821,7 +799,7 @@ body {
 
 .cat-invite-mailto {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--brass-hi);
@@ -840,7 +818,7 @@ body {
   text-align: center;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: 16px;
   color: rgba(241, 230, 205, 0.7);
   position: relative;
 }
@@ -852,7 +830,7 @@ body {
   margin-bottom: 12px;
 }
 .lib-footer-rule .line { flex: 1; max-width: 180px; height: 1px; background: linear-gradient(90deg, transparent, rgba(216,166,68,0.4), transparent); }
-.lib-footer-rule .ornament { color: var(--gilt-edge); font-size: 18px; }
+.lib-footer-rule .ornament { color: var(--gilt-edge); font-size: 20px; }
 
 .lib-footer p { margin: 4px 0; }
 .lib-footer a { color: var(--brass-hi); text-decoration: none; border-bottom: 1px dotted rgba(216,166,68,0.5); }
@@ -861,7 +839,7 @@ body {
 .lib-footer-mono {
   font-family: 'IBM Plex Mono', monospace;
   font-style: normal;
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: rgba(216, 166, 68, 0.55);
@@ -875,7 +853,7 @@ body {
   right: clamp(22px, 3vw, 36px);
   z-index: 20;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(241, 230, 205, 0.85);
@@ -905,5 +883,5 @@ body {
 @media (max-width: 600px) {
   .cat-card { min-height: 360px; padding: 20px 14px 14px 28px; }
   .cat-card::after { left: 22px; }
-  .cat-title { font-size: 19px; }
+  .cat-title { font-size: 21px; }
 }
