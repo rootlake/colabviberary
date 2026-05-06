@@ -505,12 +505,13 @@ body {
 }
 
 /* Red guideline that runs the length — like catalog cards have */
+/* Red guideline — stop above footer + typewriter prompt region */
 .cat-card::after {
   content: '';
   position: absolute;
   left: 28px;
   top: 0;
-  bottom: 36px;
+  bottom: clamp(100px, 22%, 140px);
   width: 1px;
   background: linear-gradient(180deg, transparent 0, rgba(156, 56, 42, 0.45) 8%, rgba(156, 56, 42, 0.45) 92%, transparent 100%);
 }
@@ -556,7 +557,7 @@ body {
 .cat-head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-end;
   gap: 10px;
   padding-bottom: 8px;
   margin-bottom: 12px;
@@ -581,13 +582,17 @@ body {
   font-weight: 400;
 }
 
-.cat-subject {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-style: italic;
-  font-size: 13.5px;
-  color: var(--ink-soft);
+.cat-category {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 12.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink);
   text-align: right;
-  max-width: 60%;
+  max-width: 58%;
+  line-height: 1.2;
 }
 
 .cat-title {
@@ -605,13 +610,29 @@ body {
 }
 .cat-title-inner { transition: color 0.2s ease; }
 
-.cat-byline {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-style: italic;
-  font-size: 14.5px;
-  color: var(--ink-soft);
+.cat-attrib {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin-bottom: 12px;
-  line-height: 1.35;
+}
+
+.cat-attrib-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 15px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.cat-attrib-school {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--ink-soft);
 }
 
 /* Plate window — like a tipped-in engraving */
@@ -674,17 +695,18 @@ body {
     radial-gradient(ellipse at 50% 50%, var(--leather-3), var(--leather-1));
 }
 
-/* Example vibe prompt — excerpt in quotes */
+/* Example prompt — typewriter / code feel at card foot */
 .cat-prompt {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-style: italic;
-  font-size: 17px;
-  line-height: 1.46;
-  color: var(--ink-soft);
-  flex: 1;
-  margin-bottom: 12px;
+  font-family: 'Courier New', Courier, 'Liberation Mono', 'Nimbus Mono PS', ui-monospace, monospace;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(120, 90, 50, 0.28);
   text-wrap: pretty;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 .cat-footer {
@@ -694,7 +716,7 @@ body {
   gap: 10px;
   padding-top: 10px;
   margin-top: auto;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   border-top: 1px dashed rgba(120, 90, 50, 0.35);
   font-family: 'Special Elite', 'IBM Plex Mono', monospace;
   font-size: 11.5px;

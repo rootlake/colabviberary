@@ -29,7 +29,7 @@ Overrides: `PAGES_REMOTE`, `PAGES_BRANCH` (defaults: `origin`, `main`).
 
 ## Editing content
 
-Near the bottom of `index.html`, edit the **`VIBRARY_ENTRIES`** array. Each entry supports fields such as **`examplePrompt`** (shown on the card as a short quoted excerpt ending in `…`), `url`, `title`, `discipline`, `format`, `subjectHeading`, `callNumber`, `contributor`, `previewImage`, `cohortYear`, `omitPrompt`, `promptEssence`. Older **`abstract`** strings are still read as a fallback if `examplePrompt` is missing. Add preview images under **`assets/`** with paths like `assets/your-file.png`.
+Near the bottom of `index.html`, edit the **`VIBRARY_ENTRIES`** array. **`examplePrompt`** appears at the **bottom** of each card as a courier-style quoted excerpt ending in **`…`**. **`contributor`** uses **`name`** and **`school`** only (two lines). Top-right **`cardCategory`** overrides the coarse label; otherwise **`discipline`** / **`format`** map to buckets like **Science**, **English**, **Projects**, **Math**, **Social studies**, **Languages**, **Arts**. Other fields: `url`, `title`, `subjectHeading`, `callNumber`, `previewImage`, `cohortYear`, `abstract` (prompt fallback). Images live under **`assets/`**.
 
 ---
 

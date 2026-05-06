@@ -113,25 +113,7 @@
   </div>
 
   <script>
-    /* Taxonomy maps + entries. Cards show examplePrompt as a quoted excerpt; abstract is a legacy fallback. */
-    const Taxonomy = {
-      discipline: {
-        science: 'Science', biology: 'Biology', chemistry: 'Chemistry',
-        physics: 'Physics', environmental: 'Environmental science',
-        math: 'Mathematics', ela: 'ELA', socialStudies: 'Social studies',
-        history: 'History', worldLanguages: 'World languages',
-        cs: 'Computer science', steam: 'STEAM / engineering',
-        arts: 'Arts', crossCurricular: 'Cross-curricular',
-      },
-      format: {
-        simulation: 'Simulation', interactiveLesson: 'Interactive lesson',
-        quiz: 'Quiz / assessment', tool: 'Classroom tool',
-        reference: 'Student reference', visualization: 'Visualization',
-        narrative: 'Story / narrative', portfolio: 'Portfolio / showcase',
-        other: 'Build',
-      },
-    };
-
+    /* Entries: discipline/format keys inform simpleCategory(); examplePrompt drives the excerpt. */
     const VIBRARY_ENTRIES = [
       {
         slug: 'foodweb-journal-colorado',
@@ -207,24 +189,47 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function taxonomyLabel(map, key) {
-      if (key == null || key === '') return '';
-      return map[String(key)] ?? String(key);
+    /** Coarse shelf label — top-right of each card */
+    function simpleCategory(entry) {
+      if (entry.cardCategory != null && String(entry.cardCategory).trim() !== '') {
+        return String(entry.cardCategory).trim();
+      }
+      const d = entry.discipline != null ? String(entry.discipline) : '';
+      const map = {
+        science: 'Science',
+        biology: 'Science',
+        chemistry: 'Science',
+        physics: 'Science',
+        environmental: 'Science',
+        math: 'Math',
+        ela: 'English',
+        history: 'Social studies',
+        socialStudies: 'Social studies',
+        worldLanguages: 'Languages',
+        arts: 'Arts',
+        cs: 'Projects',
+        steam: 'Projects',
+        crossCurricular: 'Projects',
+      };
+      if (d && map[d]) return map[d];
+      const f = entry.format != null ? String(entry.format) : '';
+      if (f === 'tool' || f === 'portfolio' || f === 'other') return 'Projects';
+      const sh = String(entry.subjectHeading ?? '').toLowerCase();
+      if (sh.includes('astronomy') || sh.includes('physics') || sh.includes('bio')) return 'Science';
+      if (sh.includes('lang') || sh.includes('english') || sh.includes('ap lang')) return 'English';
+      if (sh.includes('history') || sh.includes('social')) return 'Social studies';
+      return 'Projects';
     }
 
-    function subjectHeading(entry) {
-      const custom = entry.subjectHeading ?? entry.badge;
-      if (custom != null && String(custom).trim() !== '') return String(custom).trim();
-      const d = taxonomyLabel(Taxonomy.discipline, entry.discipline);
-      const f = taxonomyLabel(Taxonomy.format, entry.format);
-      const parts = [d, f].filter(Boolean);
-      return parts.length ? parts.join(' · ') : 'General';
-    }
-
-    function contributorLine(c) {
+    function contributorBlock(c) {
       if (!c || !c.name) return '';
-      const who = [c.name, c.school].filter(Boolean).join(', ');
-      return c.role ? `${who} · ${c.role}` : who;
+      const name = escapeHtml(String(c.name).trim());
+      const schoolRaw = c.school != null ? String(c.school).trim() : '';
+      const school = schoolRaw ? escapeHtml(schoolRaw) : '';
+      return `<div class="cat-attrib">
+        <span class="cat-attrib-name">${name}</span>
+        ${school ? `<span class="cat-attrib-school">${school}</span>` : ''}
+      </div>`;
     }
 
     function callNumberFor(entry, index) {
@@ -281,9 +286,9 @@
       grid.innerHTML = VIBRARY_ENTRIES.map((raw, i) => {
         const url = raw.url ? String(raw.url).trim() : '';
         const pending = url === '';
-        const subject = subjectHeading(raw);
+        const category = simpleCategory(raw);
         const callNo = callNumberFor(raw, i);
-        const byline = contributorLine(raw.contributor);
+        const attrib = contributorBlock(raw.contributor);
         const img = raw.previewImage ?? raw.thumb ?? '';
         const promptExcerpt = formatExamplePrompt(raw);
         const plateStatus = pending ? 'Forthcoming' : 'Live · MMXXVI';
@@ -300,16 +305,16 @@
           ${brassCornerSvg(i)}
           <div class="cat-head">
             <span class="cat-call">${escapeHtml(callNo)}</span>
-            <span class="cat-subject">${escapeHtml(subject)}</span>
+            <span class="cat-category">${escapeHtml(category)}</span>
           </div>
           <h3 class="cat-title"><span class="cat-title-inner">${escapeHtml(raw.title)}</span></h3>
-          ${byline ? `<p class="cat-byline">${escapeHtml(byline)}</p>` : ''}
+          ${attrib}
           ${plate}
-          ${promptExcerpt ? `<p class="cat-prompt">${escapeHtml(promptExcerpt)}</p>` : ''}
           <div class="cat-footer">
             <span class="cat-status">${escapeHtml(plateStatus)}</span>
             <span>Circulating</span>
           </div>
+          ${promptExcerpt ? `<p class="cat-prompt">${escapeHtml(promptExcerpt)}</p>` : ''}
         `;
 
         if (pending) {
