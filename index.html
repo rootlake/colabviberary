@@ -291,7 +291,6 @@
         const attrib = contributorBlock(raw.contributor);
         const img = raw.previewImage ?? raw.thumb ?? '';
         const promptExcerpt = formatExamplePrompt(raw);
-        const plateStatus = pending ? 'Forthcoming' : 'Live · MMXXVI';
 
         const plate = img && String(img).trim()
           ? `<div class="cat-plate-frame">
@@ -310,10 +309,6 @@
           <h3 class="cat-title"><span class="cat-title-inner">${escapeHtml(raw.title)}</span></h3>
           ${attrib}
           ${plate}
-          <div class="cat-footer">
-            <span class="cat-status">${escapeHtml(plateStatus)}</span>
-            <span>Circulating</span>
-          </div>
           ${promptExcerpt ? `<p class="cat-prompt">${escapeHtml(promptExcerpt)}</p>` : ''}
         `;
 

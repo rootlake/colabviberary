@@ -511,7 +511,7 @@ body {
   position: absolute;
   left: 28px;
   top: 0;
-  bottom: clamp(100px, 22%, 140px);
+  bottom: clamp(88px, 20%, 128px);
   width: 1px;
   background: linear-gradient(180deg, transparent 0, rgba(156, 56, 42, 0.45) 8%, rgba(156, 56, 42, 0.45) 92%, transparent 100%);
 }
@@ -706,39 +706,10 @@ body {
   letter-spacing: 0;
   tab-size: 2;
   color: var(--ink);
-  margin: 14px 0 0;
-  padding: 12px 2px 0 0;
+  margin: 10px 0 0;
+  padding: 10px 2px 0 0;
   border-top: 1px dashed rgba(120, 90, 50, 0.28);
   text-wrap: pretty;
-}
-
-.cat-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding-top: 10px;
-  margin-top: auto;
-  margin-bottom: 8px;
-  border-top: 1px dashed rgba(120, 90, 50, 0.35);
-  font-family: 'Special Elite', 'IBM Plex Mono', monospace;
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  color: var(--ink-faded);
-  text-transform: uppercase;
-}
-
-.cat-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.cat-status::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #4a8a4a;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 4px rgba(74, 138, 74, 0.6);
 }
 
 /* ─────────────────────────────────────────────────────────────
