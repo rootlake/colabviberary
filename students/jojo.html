@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CyberGuard: Tower Defense</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            touch-action: none;
+            background-color: #0f172a; 
+        }
+        canvas {
+            image-rendering: pixelated;
+        }
+        ::-webkit-scrollbar { height: 8px; width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        
+        @keyframes movePacket {
+            0% { left: -20px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+        .data-packet {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 8px;
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            border-radius: 4px;
+            animation: movePacket 3s linear forwards;
+        }
+        
+        @keyframes overdrivePacket {
+            0% { left: -20px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+        .data-packet.overdrive {
+            animation: overdrivePacket 0.3s linear forwards;
+            background-color: #4ade80;
+            box-shadow: 0 0 15px #4ade80;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-green-400 overflow-hidden">
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="fixed inset-0 z-[10000] bg-slate-950 flex flex-col p-4 sm:p-8 overflow-y-auto">
+        <div class="max-w-6xl w-full mx-auto flex flex-col h-full">
+            
+            <!-- Start Header -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 shrink-0 border-b-2 border-green-500 pb-6">
+                <div class="text-center md:text-left">
+                    <h1 class="text-5xl md:text-7xl font-bold text-white tracking-wider drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">CYBER<span class="text-green-500">GUARD</span></h1>
+                    <p class="text-xl text-green-600 uppercase mt-2 tracking-widest">System Defense Protocol</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="start-music-btn" onclick="toggleMusic()" class="bg-slate-800 border-2 border-slate-600 hover:border-green-400 text-white px-6 py-4 rounded font-bold text-xl transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+                        🎵 MUSIC: OFF
+                    </button>
+                    <button onclick="startGame()" class="bg-green-600 hover:bg-green-500 text-black px-10 py-4 rounded font-bold text-2xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.6)] animate-pulse">
+                        INITIATE DEFENSE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Start Content Tabs -->
+            <div class="flex flex-col flex-1 min-h-0 bg-slate-900 border border-slate-700 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                <!-- Tabs Header -->
+                <div class="flex overflow-x-auto bg-slate-950 border-b border-slate-700 shrink-0">
+                    <button onclick="switchStartTab('how-to-play')" id="start-tab-how-to-play" class="flex-1 px-4 py-3 font-bold text-blue-400 bg-slate-900 border-t-2 border-blue-500 whitespace-nowrap transition-colors">📋 HOW TO PLAY</button>
+                    <button onclick="switchStartTab('arsenal')" id="start-tab-arsenal" class="flex-1 px-4 py-3 font-bold text-slate-400 hover:bg-slate-800 border-t-2 border-transparent whitespace-nowrap transition-colors">🏢 ARSENAL LOGS</button>
+                    <button onclick="switchStartTab('threats')" id="start-tab-threats" class="flex-1 px-4 py-3 font-bold text-slate-400 hover:bg-slate-800 border-t-2 border-transparent whitespace-nowrap transition-colors">🦠 THREAT DATABASE</button>
+                </div>
+
+                <!-- Content Container -->
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-900">
+                    
+                    <!-- Tab Content: Instructions -->
+                    <div id="start-content-how-to-play" class="block animate-[fadeIn_0.2s_ease-in]">
+                        <ul class="space-y-6 text-slate-300 text-base sm:text-lg max-w-4xl mx-auto">
+                            <li class="bg-slate-800 p-4 rounded border border-slate-700"><strong class="text-blue-400 block mb-1">OBJECTIVE</strong> Protect the Mainframe Server (🗄️) from incoming virus waves. If 100 Integrity is lost, the system crashes.</li>
+                            <li class="bg-slate-800 p-4 rounded border border-slate-700"><strong class="text-yellow-400 block mb-1">ECONOMY</strong> Earn Data Bytes (💾) by destroying viruses. Use them to deploy Towers and Abilities. Build Data Banks to multiply your earnings!</li>
+                            <li class="bg-slate-800 p-4 rounded border border-slate-700"><strong class="text-green-400 block mb-1">UPGRADES</strong> Double-Tap (or click) any placed tower to open its control panel. You can Upgrade it (+50% damage) or Sell it (70% refund).</li>
+                            <li class="bg-slate-800 p-4 rounded border border-slate-700"><strong class="text-purple-400 block mb-1">SCANNING</strong> Double-Tap any moving virus to scan its health, speed, and special ability cooldowns.</li>
+                            <li class="bg-slate-800 p-4 rounded border border-slate-700"><strong class="text-red-400 block mb-1">DATA LINK CABLE</strong> The blue cable at the top connects your server. If Sharks (🦈) bite it or Ransomware (🔒) encrypts it, rapidly click/tap it to repair it before you lose Integrity!</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tab Content: Towers & Abilities -->
+                    <div id="start-content-arsenal" class="hidden animate-[fadeIn_0.2s_ease-in]">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="start-towers-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Enemies -->
+                    <div id="start-content-threats" class="hidden animate-[fadeIn_0.2s_ease-in]">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="start-enemies-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secret Jumpscare Overlay -->
+    <div id="jumpscare-overlay" class="hidden fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden pointer-events-none">
+        <div id="jumpscare-face" class="text-[80vw] md:text-[60vw] leading-none select-none transition-transform duration-75 text-center drop-shadow-[0_0_100px_rgba(255,0,0,1)]">👹</div>
+    </div>
+
+    <!-- Header / HUD -->
+    <header class="bg-slate-900 border-b-2 border-slate-700 p-4 z-10 flex justify-between items-center shrink-0">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider text-shadow">CYBER<span class="text-green-500">GUARD</span></h1>
+            <p class="text-xs sm:text-sm text-green-600 uppercase">System Defense Protocol</p>
+        </div>
+        <div class="flex gap-4 sm:gap-8 text-lg sm:text-xl">
+            <button onclick="toggleMusic()" class="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
+                <span class="text-green-600 text-xs uppercase">Music</span>
+                <span id="hud-music-status" class="font-bold text-slate-400">🎵 OFF</span>
+            </button>
+            <div class="flex flex-col items-center">
+                <span class="text-green-600 text-xs uppercase">Integrity</span>
+                <span id="ui-lives" class="font-bold text-red-400">❤️ 100</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-green-600 text-xs uppercase">Data Bytes</span>
+                <span id="ui-money" class="font-bold text-yellow-400">💾 100</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-green-600 text-xs uppercase">Wave</span>
+                <span id="ui-wave" class="font-bold text-white">1 / 10</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Undersea Cable Bar -->
+    <div id="cable-container" class="bg-slate-950 border-b border-slate-700 h-16 relative overflow-hidden flex items-center justify-center cursor-pointer select-none shrink-0" onclick="fixWire()">
+        <div class="absolute left-4 text-blue-400 text-sm md:text-base font-bold uppercase z-10 drop-shadow-md">Trans-Atlantic Data Link</div>
+        <div id="wire-line" class="absolute w-full h-2 bg-blue-500 top-1/2 -translate-y-1/2 shadow-[0_0_12px_rgba(59,130,246,0.9)] transition-colors duration-100"></div>
+        <div id="packets-layer" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div id="shark-warning" class="hidden absolute inset-0 bg-red-600/90 flex flex-col items-center justify-center text-white font-bold animate-pulse z-20">
+            <span class="sm:text-lg tracking-wider text-shadow">🦈 SHARK BITE! WIRE BROKEN! 🦈</span>
+            <span id="fix-progress-shark" class="text-yellow-300 text-xl font-black mt-1">CLICK TO FIX! (0/10)</span>
+        </div>
+        
+        <div id="ransomware-warning" class="hidden absolute inset-0 bg-purple-700/95 flex flex-col items-center justify-center text-white font-bold animate-pulse z-20">
+            <span class="sm:text-lg tracking-wider text-shadow">🔒 RANSOMWARE! DATA LINK ENCRYPTED! 🔒</span>
+            <span id="fix-progress-ransom" class="text-yellow-300 text-xl font-black mt-1">CLICK TO DECRYPT! (0/15)</span>
+        </div>
+    </div>
+
+    <!-- Category Tabs Segment -->
+    <div class="bg-slate-950 pt-2 px-4 flex gap-2 z-10 shrink-0 border-b border-slate-700">
+        <button id="tab-towers" onclick="switchTab('towers')" class="px-6 py-2 font-bold rounded-t-lg bg-slate-800 text-green-400 border-x border-t border-green-500 shadow-[0_-5px_15px_rgba(16,185,129,0.1)] transition-colors">🏢 TOWERS</button>
+        <button id="tab-abilities" onclick="switchTab('abilities')" class="px-6 py-2 font-bold rounded-t-lg bg-slate-900 text-slate-400 border border-slate-700 hover:text-white transition-colors cursor-pointer">⚡ ABILITIES</button>
+    </div>
+
+    <!-- Top Shop / Controls -->
+    <div class="bg-slate-900 border-b-2 border-green-500 p-2 sm:p-4 shadow-[0_0_15px_rgba(16,185,129,0.2)] z-10 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0">
+        <div class="flex gap-2 sm:gap-4 overflow-x-auto w-full pb-2 sm:pb-0" id="shop-container">
+            <!-- Dynamic Shop Items Generated by JS -->
+        </div>
+
+        <div class="flex flex-col items-center sm:items-end gap-2 shrink-0 mt-2 sm:mt-0 w-full sm:w-auto border-l border-slate-700 pl-4">
+            <button id="btn-next-wave" class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-500 text-black px-6 py-3 rounded font-bold text-lg transition-all shadow-[0_0_10px_rgba(16,185,129,0.4)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span>▶️</span> START WAVE
+            </button>
+            <label class="flex items-center gap-2 text-sm text-green-400 cursor-pointer hover:text-green-300 transition-colors">
+                <input type="checkbox" id="auto-start-cb" class="w-4 h-4 accent-green-500 cursor-pointer">
+                Auto-Start Wave
+            </label>
+        </div>
+    </div>
+
+    <!-- Game Canvas Area -->
+    <main class="flex-1 relative flex items-center justify-center bg-slate-900 overflow-hidden" id="canvas-container">
+        
+        <!-- Game Over / Win Screen Overlay -->
+        <div id="game-overlay" class="absolute inset-0 bg-black/80 z-20 hidden flex-col items-center justify-center backdrop-blur-sm px-4 text-center">
+            <h2 id="overlay-title" class="text-5xl mb-4 font-bold text-white">SYSTEM COMPROMISED</h2>
+            <p id="overlay-desc" class="text-xl mb-8 text-green-400">The viruses breached the mainframe.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button id="reboot-btn" onclick="rebootSystem()" class="bg-green-600 hover:bg-green-500 text-black px-8 py-4 rounded font-bold text-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+                    REBOOT IN INFINITE MODE
+                </button>
+                <button id="restart-btn" onclick="location.reload()" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded font-bold text-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                    RESTART NORMAL MODE
+                </button>
+            </div>
+        </div>
+
+        <!-- Educational Fact Overlay -->
+        <div id="fact-overlay" class="absolute inset-0 bg-slate-900/95 z-20 hidden flex-col items-center justify-center backdrop-blur-sm px-4 text-center">
+            <h2 class="text-4xl md:text-5xl mb-6 font-bold text-blue-400">WAVE CLEARED!</h2>
+            <div class="bg-slate-800 border-2 border-blue-500 rounded-lg p-6 max-w-2xl mb-8 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                <h3 class="text-xl text-green-400 font-bold mb-4">🖥️ DATA PACKET FACT:</h3>
+                <p id="fact-text" class="text-lg md:text-xl text-white"></p>
+            </div>
+            <button onclick="closeFactScreen()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded font-bold text-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                CONTINUE
+            </button>
+        </div>
+
+        <!-- Tower Upgrade/Sell Panel -->
+        <div id="tower-panel" class="absolute hidden bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 border-2 border-blue-500 rounded-lg p-3 sm:p-4 shadow-[0_0_20px_rgba(59,130,246,0.5)] z-30 text-white min-w-[280px] sm:min-w-[320px]">
+            <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-2">
+                <h3 id="tp-name" class="font-bold text-lg sm:text-xl text-blue-400 flex items-center">Tower <span id="tp-lvl" class="text-xs bg-blue-700 text-white px-2 py-1 rounded ml-3">Lvl 1</span></h3>
+                <button onclick="hideTowerPanel()" class="text-slate-400 hover:text-red-400 font-bold text-xl px-2">&times;</button>
+            </div>
+            <div class="flex justify-between text-sm mb-3">
+                <p id="tp-dmg-container" class="text-slate-300">Damage: <span id="tp-dmg" class="text-green-400 font-bold">10</span> <span id="tp-dmg-next" class="text-blue-400 text-xs hidden">-> 15</span></p>
+                <p id="tp-rng-container" class="text-slate-300">Range: <span id="tp-rng" class="text-green-400 font-bold">150</span></p>
+            </div>
+            <div class="flex gap-2">
+                <button id="tp-upgrade-btn" onclick="upgradeTower()" class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:bg-slate-700 px-2 py-2 rounded text-sm font-bold shadow transition-colors flex flex-col items-center">
+                    <span>⬆️ UPGRADE</span>
+                    <span id="tp-upgrade-cost" class="text-yellow-300 text-xs mt-1">💾 50</span>
+                </button>
+                <button id="tp-sell-btn" onclick="sellTower()" class="flex-1 bg-red-600 hover:bg-red-500 px-2 py-2 rounded text-sm font-bold shadow transition-colors flex flex-col items-center">
+                    <span>💰 SELL</span>
+                    <span id="tp-sell-val" class="text-yellow-300 text-xs mt-1">💾 35</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Enemy Info Panel -->
+        <div id="enemy-panel" class="absolute hidden top-4 sm:top-8 right-4 bg-slate-900 border-2 border-red-500 rounded-lg p-3 sm:p-4 shadow-[0_0_20px_rgba(239,68,68,0.5)] z-30 text-white min-w-[200px] pointer-events-auto">
+            <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-2">
+                <h3 id="ep-name" class="font-bold text-lg text-red-400 flex items-center">Enemy</h3>
+                <button onclick="hideEnemyPanel()" class="text-slate-400 hover:text-white font-bold text-xl px-2">&times;</button>
+            </div>
+            <div class="flex flex-col gap-1 text-sm mb-1">
+                <p class="text-slate-300">Health: <span id="ep-hp" class="text-green-400 font-bold"></span></p>
+                <p class="text-slate-300">Reward: <span id="ep-reward" class="text-yellow-400 font-bold"></span></p>
+                <p class="text-slate-300">Integrity Dmg: <span id="ep-dmg" class="text-red-400 font-bold"></span></p>
+                <p class="text-slate-300 hidden" id="ep-ability-container">Ability: <span id="ep-ability" class="text-purple-400 font-bold"></span></p>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" class="max-w-full max-h-full aspect-[12/8] bg-slate-900 outline-none block" width="1200" height="800"></canvas>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const GW = 1200, GH = 800, COLS = 12, ROWS = 8, CELL = GW / COLS; 
+
+        // Game State
+        let state = {
+            gameStarted: false,
+            lives: 100, money: 100, wave: 0, isPlaying: false, gameOver: false,
+            activeTab: 'towers', selectedShopIndex: null, selectedPlacedTower: null, selectedEnemy: null,
+            mouseGridX: -1, mouseGridY: -1, mouseExactX: -1, mouseExactY: -1,
+            wireBroken: false, brokenType: '', sharkTimer: 0, brokenTimer: 0, packetTimer: 0,
+            infiniteMode: false, clicksNeededToFix: 0, currentClicksToFix: 0,
+            epicEnding: false, epicPhase: 0, epicTimer: 0, bastionX: 0, bastionY: 0,
+            freezeTimer: 0, showingFact: false
+        };
+
+        // Entities
+        let enemies = [], towers = [], projectiles = [], bombs = [], explosions = [], orbitalStrikes = [];
+
+        // --- Procedural Cyberpunk Music System ---
+        let audioCtx;
+        let isPlayingMusic = false;
+        let musicStep = 0;
+        let nextNoteTime = 0;
+        const tempo = 135; 
+        
+        const bassPattern = [
+            65.41, 65.41, 65.41, 65.41, 
+            77.78, 77.78, 87.31, 87.31, 
+            65.41, 65.41, 65.41, 65.41, 
+            58.27, 58.27, 49.00, 49.00  
+        ];
+
+        function playSynthNote(freq, time, type, duration, vol) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, time);
+            
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(vol, time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        function scheduleMusic() {
+            if (!isPlayingMusic) return;
+            
+            while (nextNoteTime < audioCtx.currentTime + 0.1) {
+                let bassFreq = bassPattern[musicStep % bassPattern.length];
+                playSynthNote(bassFreq, nextNoteTime, 'sawtooth', 0.2, 0.08);
+                
+                if (musicStep % 2 !== 0) {
+                    let arpFreq = bassPattern[(musicStep + 2) % bassPattern.length] * 4;
+                    playSynthNote(arpFreq, nextNoteTime, 'square', 0.1, 0.02);
+                }
+
+                if (musicStep % 4 === 0) {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.frequency.setValueAtTime(150, nextNoteTime);
+                    osc.frequency.exponentialRampToValueAtTime(0.01, nextNoteTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, nextNoteTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + 0.1);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(nextNoteTime); osc.stop(nextNoteTime + 0.1);
+                }
+
+                nextNoteTime += 0.25 * (60.0 / tempo);
+                musicStep++;
+            }
+            setTimeout(scheduleMusic, 25);
+        }
+
+        function toggleMusic() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            isPlayingMusic = !isPlayingMusic;
+            
+            const startBtn = document.getElementById('start-music-btn');
+            const hudBtn = document.getElementById('hud-music-status');
+            
+            if (isPlayingMusic) {
+                audioCtx.resume();
+                startBtn.innerText = "🎵 MUSIC: ON";
+                startBtn.classList.add('border-green-400', 'text-green-400');
+                startBtn.classList.remove('text-white');
+                hudBtn.innerText = "🎵 ON";
+                hudBtn.classList.replace('text-slate-400', 'text-green-400');
+                nextNoteTime = audioCtx.currentTime + 0.05;
+                scheduleMusic();
+            } else {
+                startBtn.innerText = "🎵 MUSIC: OFF";
+                startBtn.classList.remove('border-green-400', 'text-green-400');
+                startBtn.classList.add('text-white');
+                hudBtn.innerText = "🎵 OFF";
+                hudBtn.classList.replace('text-green-400', 'text-slate-400');
+            }
+        }
+
+        // The Path
+        const pathGrid = [ {c: 0, r: 2}, {c: 3, r: 2}, {c: 3, r: 6}, {c: 8, r: 6}, {c: 8, r: 3}, {c: 11, r: 3} ];
+        const waypoints = pathGrid.map(p => ({ x: p.c * CELL + CELL/2, y: p.r * CELL + CELL/2 }));
+
+        // Databases
+        const TOWER_TYPES = [
+            { id: 0, name: "Junior Coder", icon: "👨‍💻", cost: 50, range: 250, damage: 15, cooldown: 40, desc: "Fast but weak." },
+            { id: 1, name: "Firewall Admin", icon: "🛡️", cost: 100, range: 180, damage: 40, cooldown: 70, desc: "Heavy local damage." },
+            { id: 2, name: "Net Sniper", icon: "👩‍💼", cost: 150, range: 450, damage: 100, cooldown: 120, desc: "Slow, long range." },
+            { id: 3, name: "Core Router", icon: "📡", cost: 100, range: 200, damage: 15, cooldown: 15, desc: "Rapid fire packets." },
+            { id: 4, name: "Antivirus Cannon", icon: "💊", cost: 250, range: 300, damage: 250, cooldown: 90, desc: "High damage burst." },
+            { id: 5, name: "AI Sentry", icon: "🤖", cost: 400, range: 400, damage: 20, cooldown: 8, desc: "Hyper-fast targeting." },
+            { id: 6, name: "Quantum Node", icon: "⚛️", cost: 1000, range: 500, damage: 800, cooldown: 30, desc: "Emits cyan energy sphere." },
+            { id: 7, name: "Satellite Link", icon: "🛰️", cost: 5000, range: 1500, damage: 5000, cooldown: 150, desc: "Massive orbital strike." },
+            { id: 8, name: "System Bastion", icon: "🏰", cost: 10000, range: 0, damage: 0, cooldown: 0, desc: "Permanent protection. Wins game." },
+            { id: 9, name: "???", icon: "❓", cost: 100000, range: 0, damage: 0, cooldown: 0, desc: "DO NOT DEPLOY." },
+            { id: 10, name: "Data Bank", icon: "🏦", cost: 500, range: 0, damage: 0, cooldown: 0, desc: "+20% Bytes per kill (Stacks)." },
+            { id: 11, name: "Auto-Wrench", icon: "🔧", cost: 1000, range: 0, damage: 0, cooldown: 0, desc: "-1 Shark click (Stacks)." }
+        ];
+
+        const ABILITY_TYPES = [
+            { id: 'bomb', name: "Logic Bomb", icon: "💣", cost: 500, desc: "Ticks 5s. Massive AoE dmg.", isTargeted: false },
+            { id: 'overclock', name: "Overclock", icon: "🛠️", cost: 750, desc: "Triple attack speed for 5s.", isTargeted: true },
+            { id: 'freeze', name: "Cryo-Stasis", icon: "❄️", cost: 1000, desc: "Freezes all enemies for 4s.", isTargeted: false },
+            { id: 'patch', name: "System Patch", icon: "🩹", cost: 1500, desc: "Restores 20 Integrity.", isTargeted: false }
+        ];
+
+        const ENEMY_TYPES = {
+            bug: { name: "Bug", icon: "🐛", hp: 60, speed: 2, reward: 5, size: 40, damage: 2, desc: "Basic grunt. Fast and weak." },
+            worm: { name: "Worm", icon: "🪱", hp: 40, speed: 3.5, reward: 10, size: 50, damage: 5, desc: "Very fast, slips past defenses." }, 
+            glitch: { name: "Glitch", icon: "👾", hp: 120, speed: 3.5, reward: 8, size: 40, damage: 3, desc: "Periodically fires EMPs to stun nearby towers." }, 
+            virus: { name: "Virus", icon: "🦠", hp: 300, speed: 1.5, reward: 15, size: 45, damage: 10, desc: "Tanky and deals moderate damage." }, 
+            ransomware: { name: "Ransomware", icon: "🔒", hp: 500, speed: 1.2, reward: 20, size: 55, damage: 10, desc: "Instantly encrypts the Data Link Cable." }, 
+            trojan: { name: "Trojan", icon: "🐴", hp: 1000, speed: 0.8, reward: 30, size: 60, damage: 20, spawnsOnDeath: 'virus', desc: "Massive HP. Spawns a Virus when destroyed." },
+            megatrojan: { name: "Mega Trojan", icon: "👹", hp: 4000, speed: 0.5, reward: 100, size: 80, damage: 50, desc: "Boss tier. Periodically spawns Worms." } 
+        };
+
+        const WAVES = [
+            { count: 10, type: 'bug', interval: 60 }, { count: 15, type: 'bug', interval: 45 },
+            { count: 10, type: 'worm', interval: 60 }, { count: 20, type: 'bug', interval: 30 },
+            { count: 5, type: 'glitch', interval: 40 }, { count: 15, type: 'worm', interval: 40 },
+            { count: 5, type: 'ransomware', interval: 100 }, { count: 30, type: 'glitch', interval: 15 },
+            { count: 1, type: 'trojan', interval: 100 }, { count: 1, type: 'megatrojan', interval: 120 }
+        ];
+
+        let currentWaveData = null, spawnTimer = 0, spawnedCount = 0;
+
+        // --- Start Screen Logic ---
+        function populateStartScreen() {
+            const tList = document.getElementById('start-towers-list');
+            [...TOWER_TYPES, ...ABILITY_TYPES].forEach(item => {
+                let html = `
+                    <div class="flex items-center gap-3 bg-slate-800 p-2 rounded border border-slate-700">
+                        <span class="text-3xl shrink-0">${item.icon}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-bold text-white text-sm truncate">${item.name}</span>
+                                <span class="text-yellow-400 text-xs shrink-0 ml-2">💾 ${item.cost}</span>
+                            </div>
+                            <p class="text-slate-400 text-xs truncate">${item.desc}</p>
+                        </div>
+                    </div>
+                `;
+                tList.innerHTML += html;
+            });
+
+            const eList = document.getElementById('start-enemies-list');
+            for (let key in ENEMY_TYPES) {
+                let e = ENEMY_TYPES[key];
+                let html = `
+                    <div class="flex items-center gap-3 bg-slate-800 p-2 rounded border border-slate-700">
+                        <span class="text-3xl shrink-0 text-center w-10">${e.icon}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-bold text-red-400 text-sm truncate">${e.name}</span>
+                                <span class="text-xs text-slate-300 shrink-0 ml-2">❤️ -${e.damage}</span>
+                            </div>
+                            <p class="text-slate-400 text-xs line-clamp-2">${e.desc}</p>
+                        </div>
+                    </div>
+                `;
+                eList.innerHTML += html;
+            }
+        }
+
+        function switchStartTab(tabId) {
+            document.getElementById('start-content-how-to-play').classList.add('hidden');
+            document.getElementById('start-content-arsenal').classList.add('hidden');
+            document.getElementById('start-content-threats').classList.add('hidden');
+            
+            const tabs = ['how-to-play', 'arsenal', 'threats'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`start-tab-${t}`);
+                btn.className = 'flex-1 px-4 py-3 font-bold text-slate-400 hover:bg-slate-800 border-t-2 border-transparent whitespace-nowrap transition-colors';
+            });
+            
+            document.getElementById(`start-content-${tabId}`).classList.remove('hidden');
+            document.getElementById(`start-content-${tabId}`).classList.add('block');
+            
+            const activeBtn = document.getElementById(`start-tab-${tabId}`);
+            const colors = { 'how-to-play': 'blue', 'arsenal': 'green', 'threats': 'red' };
+            const color = colors[tabId];
+            activeBtn.className = `flex-1 px-4 py-3 font-bold text-${color}-400 bg-slate-900 border-t-2 border-${color}-500 whitespace-nowrap transition-colors`;
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            state.gameStarted = true;
+        }
+
+        populateStartScreen();
+
+
+        // --- UI Setup ---
+        const shopContainer = document.getElementById('shop-container');
+
+        function switchTab(tab) {
+            state.activeTab = tab;
+            state.selectedShopIndex = null;
+            state.selectedPlacedTower = null;
+            hideTowerPanel();
+            
+            document.getElementById('tab-towers').className = tab === 'towers' 
+                ? "px-6 py-2 font-bold rounded-t-lg bg-slate-800 text-green-400 border-x border-t border-green-500 shadow-[0_-5px_15px_rgba(16,185,129,0.1)] transition-colors"
+                : "px-6 py-2 font-bold rounded-t-lg bg-slate-900 text-slate-400 border border-slate-700 hover:text-white transition-colors cursor-pointer";
+                
+            document.getElementById('tab-abilities').className = tab === 'abilities' 
+                ? "px-6 py-2 font-bold rounded-t-lg bg-slate-800 text-green-400 border-x border-t border-green-500 shadow-[0_-5px_15px_rgba(16,185,129,0.1)] transition-colors"
+                : "px-6 py-2 font-bold rounded-t-lg bg-slate-900 text-slate-400 border border-slate-700 hover:text-white transition-colors cursor-pointer";
+                
+            renderShop();
+        }
+
+        function renderShop() {
+            shopContainer.innerHTML = '';
+            let items = state.activeTab === 'towers' ? TOWER_TYPES : ABILITY_TYPES;
+            
+            items.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = `shop-item flex-shrink-0 bg-slate-800 border-2 border-slate-600 rounded p-2 text-left w-40 sm:w-48 hover:border-green-400 transition-colors focus:outline-none`;
+                btn.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-3xl">${item.icon}</span>
+                        <span class="text-yellow-400 font-bold">💾 ${item.cost}</span>
+                    </div>
+                    <div class="font-bold text-white text-sm truncate">${item.name}</div>
+                    <div class="text-xs text-slate-400 truncate">${item.desc}</div>
+                `;
+                btn.onclick = () => {
+                    state.selectedShopIndex = index;
+                    hideTowerPanel();
+                    document.querySelectorAll('.shop-item').forEach(c => c.classList.remove('border-green-400', 'bg-slate-700'));
+                    btn.classList.add('border-green-400', 'bg-slate-700');
+                };
+                shopContainer.appendChild(btn);
+            });
+        }
+
+        // --- Input Handling ---
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const pos = getMousePos(e);
+            state.mouseExactX = pos.x; state.mouseExactY = pos.y;
+            state.mouseGridX = Math.floor(pos.x / CELL);
+            state.mouseGridY = Math.floor(pos.y / CELL);
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            state.mouseGridX = -1; state.mouseGridY = -1;
+            state.mouseExactX = -1; state.mouseExactY = -1;
+        });
+
+        function handleEnemySelection(ex, ey) {
+            let clickedEnemy = null;
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let en = enemies[i];
+                if (Math.hypot(en.x - ex, en.y - ey) <= en.size) {
+                    clickedEnemy = en;
+                    break;
+                }
+            }
+            if (clickedEnemy) {
+                state.selectedEnemy = clickedEnemy;
+                updateEnemyPanel();
+            }
+        }
+
+        canvas.addEventListener('dblclick', (e) => {
+            if (state.gameOver || !state.gameStarted) return;
+            const pos = getMousePos(e);
+            handleEnemySelection(pos.x, pos.y);
+        });
+
+        let lastTapTime = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            if (state.gameOver || !state.gameStarted) return;
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+            
+            if (tapLength < 300 && tapLength > 0) {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const tx = (touch.clientX - rect.left) * scaleX;
+                const ty = (touch.clientY - rect.top) * scaleY;
+                
+                handleEnemySelection(tx, ty);
+                e.preventDefault(); 
+            }
+            lastTapTime = currentTime;
+        }, { passive: false });
+
+        canvas.addEventListener('click', (e) => {
+            if (state.gameOver || !state.gameStarted) return;
+            const gx = state.mouseGridX, gy = state.mouseGridY;
+            if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
+
+            let clickedTower = towers.find(t => t.c === gx && t.r === gy);
+
+            if (state.activeTab === 'towers') {
+                if (clickedTower) {
+                    if (clickedTower.type.id === 8 || clickedTower.type.id === 9) return; 
+                    state.selectedPlacedTower = clickedTower;
+                    state.selectedShopIndex = null;
+                    document.querySelectorAll('.shop-item').forEach(c => c.classList.remove('border-green-400', 'bg-slate-700'));
+                    updateTowerPanel();
+                    return;
+                } else { hideTowerPanel(); }
+
+                if (state.selectedShopIndex === null) return;
+                
+                const px = gx * CELL + CELL/2, py = gy * CELL + CELL/2;
+                let isOnPath = false;
+                for (let i = 0; i < waypoints.length - 1; i++) {
+                    const minX = Math.min(waypoints[i].x, waypoints[i+1].x) - CELL/2 + 5;
+                    const maxX = Math.max(waypoints[i].x, waypoints[i+1].x) + CELL/2 - 5;
+                    const minY = Math.min(waypoints[i].y, waypoints[i+1].y) - CELL/2 + 5;
+                    const maxY = Math.max(waypoints[i].y, waypoints[i+1].y) + CELL/2 - 5;
+                    if (px >= minX && px <= maxX && py >= minY && py <= maxY) { isOnPath = true; break; }
+                }
+
+                if (isOnPath) return; 
+
+                const tDef = TOWER_TYPES[state.selectedShopIndex];
+                if (state.money >= tDef.cost) {
+                    state.money -= tDef.cost;
+                    towers.push({
+                        c: gx, r: gy, x: px, y: py, type: tDef, damage: tDef.damage, range: tDef.range, 
+                        cooldown: tDef.cooldown, level: 1, upgradeCost: Math.floor(tDef.cost * 0.8), 
+                        totalSpent: tDef.cost, cooldownTimer: 0, burstTimer: 0, stunTimer: 0, overclockTimer: 0
+                    });
+                    updateHUD();
+                }
+            } 
+            else if (state.activeTab === 'abilities' && state.selectedShopIndex !== null) {
+                const ab = ABILITY_TYPES[state.selectedShopIndex];
+                if (ab.id === 'patch' && state.lives >= 100) return; 
+                if (state.money < ab.cost) return;
+
+                if (ab.id === 'bomb') {
+                    state.money -= ab.cost;
+                    bombs.push({ x: state.mouseExactX, y: state.mouseExactY, timer: 300, radius: 200, damage: 1500 });
+                    updateHUD();
+                } 
+                else if (ab.id === 'overclock' && clickedTower) {
+                    state.money -= ab.cost;
+                    clickedTower.overclockTimer = 300;
+                    updateHUD();
+                }
+                else if (ab.id === 'freeze') {
+                    state.money -= ab.cost;
+                    state.freezeTimer = 240; 
+                    updateHUD();
+                    state.selectedShopIndex = null;
+                    document.querySelectorAll('.shop-item').forEach(c => c.classList.remove('border-green-400', 'bg-slate-700'));
+                }
+                else if (ab.id === 'patch') {
+                    state.money -= ab.cost;
+                    state.lives = Math.min(state.lives + 20, 100);
+                    updateHUD();
+                    state.selectedShopIndex = null;
+                    document.querySelectorAll('.shop-item').forEach(c => c.classList.remove('border-green-400', 'bg-slate-700'));
+                }
+            }
+        });
+
+        document.getElementById('btn-next-wave').addEventListener('click', () => {
+            if (state.wave < WAVES.length && !state.isPlaying) {
+                state.isPlaying = true;
+                currentWaveData = WAVES[state.wave];
+                spawnedCount = 0; spawnTimer = 0;
+                document.getElementById('btn-next-wave').disabled = true;
+                state.wave++;
+                updateHUD();
+            }
+        });
+
+        // --- Tower Actions ---
+        function hideTowerPanel() { state.selectedPlacedTower = null; document.getElementById('tower-panel').classList.add('hidden'); }
+
+        function updateTowerPanel() {
+            const t = state.selectedPlacedTower;
+            if (!t) return;
+            document.getElementById('tower-panel').classList.remove('hidden');
+            document.getElementById('tp-name').innerHTML = `${t.type.icon} ${t.type.name} <span class="text-xs bg-blue-700 text-white px-2 py-1 rounded ml-3">Lvl ${t.level}</span>`;
+            
+            if (t.type.id === 10) {
+                document.getElementById('tp-dmg-container').innerHTML = `Yield: <span class="text-green-400 font-bold">+${10+(10*t.level)}%</span> <span class="text-blue-400 text-xs">-> +${10+(10*(t.level+1))}%</span>`;
+                document.getElementById('tp-rng-container').style.display = 'none';
+            } else if (t.type.id === 11) {
+                document.getElementById('tp-dmg-container').innerHTML = `Reduction: <span class="text-green-400 font-bold">-${1*t.level}</span> <span class="text-blue-400 text-xs">-> -${1*(t.level+1)}</span> clicks`;
+                document.getElementById('tp-rng-container').style.display = 'none';
+            } else {
+                document.getElementById('tp-dmg-container').innerHTML = `Damage: <span class="text-green-400 font-bold">${t.damage}</span> <span class="text-blue-400 text-xs">-> ${Math.floor(t.damage*1.5)}</span>`;
+                document.getElementById('tp-rng-container').style.display = 'block';
+                document.getElementById('tp-rng-container').innerHTML = `Range: <span class="text-green-400 font-bold">${t.range}</span>`;
+            }
+            
+            const upBtn = document.getElementById('tp-upgrade-btn');
+            document.getElementById('tp-upgrade-cost').innerText = `💾 ${t.upgradeCost}`;
+            upBtn.disabled = state.money < t.upgradeCost;
+            document.getElementById('tp-sell-val').innerText = `💾 ${Math.floor(t.totalSpent * 0.7)}`;
+        }
+
+        function upgradeTower() {
+            const t = state.selectedPlacedTower;
+            if (!t || state.money < t.upgradeCost) return;
+            state.money -= t.upgradeCost; t.totalSpent += t.upgradeCost;
+            if (t.type.id !== 10 && t.type.id !== 11) t.damage = Math.floor(t.damage * 1.5);
+            t.level++; t.upgradeCost = Math.floor(t.upgradeCost * 1.5);
+            updateTowerPanel(); updateHUD();
+        }
+
+        function sellTower() {
+            const t = state.selectedPlacedTower;
+            if (!t) return;
+            state.money += Math.floor(t.totalSpent * 0.7);
+            const idx = towers.indexOf(t); if (idx > -1) towers.splice(idx, 1);
+            hideTowerPanel(); updateHUD();
+        }
+
+        // --- Enemy Panel Actions ---
+        function hideEnemyPanel() {
+            state.selectedEnemy = null;
+            document.getElementById('enemy-panel').classList.add('hidden');
+        }
+
+        function updateEnemyPanel() {
+            const e = state.selectedEnemy;
+            if (!e || !enemies.includes(e)) {
+                hideEnemyPanel();
+                return;
+            }
+            
+            const panel = document.getElementById('enemy-panel');
+            panel.classList.remove('hidden');
+            
+            let eName = "Virus";
+            for (let key in ENEMY_TYPES) {
+                if (ENEMY_TYPES[key].icon === e.icon) {
+                    eName = key.charAt(0).toUpperCase() + key.slice(1);
+                    break;
+                }
+            }
+            
+            document.getElementById('ep-name').innerText = `${e.icon} ${eName}`;
+            document.getElementById('ep-hp').innerText = `${Math.ceil(Math.max(0, e.hp))} / ${e.maxHp}`;
+            document.getElementById('ep-reward').innerText = `💾 ${e.reward}`;
+            document.getElementById('ep-dmg').innerText = `❤️ -${e.damage}`;
+            
+            const abilityContainer = document.getElementById('ep-ability-container');
+            const abilityText = document.getElementById('ep-ability');
+            
+            if (e.icon === "👾") { 
+                abilityContainer.classList.remove('hidden');
+                let cd = Math.max(0, 180 - e.abilityTimer);
+                abilityText.innerText = `EMP in ${(cd / 60).toFixed(1)}s`;
+            } else if (e.icon === "👹") { 
+                abilityContainer.classList.remove('hidden');
+                let cd = Math.max(0, 180 - e.spawnTimer);
+                abilityText.innerText = `Spawn in ${(cd / 60).toFixed(1)}s`;
+            } else if (e.icon === "🔒") {
+                abilityContainer.classList.remove('hidden');
+                abilityText.innerText = e.triggeredLock ? "Used" : "Ready";
+            } else {
+                abilityContainer.classList.add('hidden');
+            }
+        }
+
+        // --- Educational Facts ---
+        const DATA_FACTS = [
+            "Data packets are like digital envelopes. They carry a chunk of your data, plus the sender and receiver's addresses, so the internet knows where to send them!",
+            "When you send a picture to a friend, it doesn't go all at once. It gets chopped up into thousands of tiny data packets, sent across the web, and reassembled on their phone!",
+            "Packets don't always take the same route. Like cars using different roads to avoid traffic, routers send packets along the fastest available paths.",
+            "Every packet has a 'header' that acts like a shipping label. It tells routers exactly where the packet came from and its final destination.",
+            "Packets have a 'Time to Live' (TTL). If a packet gets lost bouncing between routers, its TTL runs out and it gets deleted so it doesn't clog up the internet forever!",
+            "Sometimes packets arrive out of order! They have sequence numbers inside them so the receiving computer knows how to put the file back together correctly.",
+            "If a packet gets lost, the receiver can ask the sender to resend just that missing piece using a protocol called TCP (Transmission Control Protocol).",
+            "A standard data packet on the internet (an Ethernet frame) can usually hold up to 1,500 bytes of information.",
+            "Even video games use packets! When you move your character, a tiny packet is sent to the server so everyone else sees you move almost instantly.",
+            "Ping is the time it takes for a data packet to travel from your computer to a server and back. Lower ping means a faster connection!"
+        ];
+
+        function showFactScreen() {
+            state.showingFact = true;
+            document.getElementById('btn-next-wave').disabled = true;
+            
+            const factIndex = (state.wave - 1) % DATA_FACTS.length;
+            document.getElementById('fact-text').innerText = DATA_FACTS[factIndex];
+            
+            document.getElementById('fact-overlay').classList.replace('hidden', 'flex');
+        }
+
+        function closeFactScreen() {
+            state.showingFact = false;
+            document.getElementById('fact-overlay').classList.replace('flex', 'hidden');
+            document.getElementById('btn-next-wave').disabled = false;
+            
+            if (document.getElementById('auto-start-cb').checked && !state.gameOver && state.wave < WAVES.length) {
+                document.getElementById('btn-next-wave').click();
+            }
+        }
+
+        // --- Core Functions ---
+        function fixWire() {
+            if (state.wireBroken) {
+                state.currentClicksToFix++;
+                if (state.brokenType === 'ransomware') {
+                    document.getElementById('fix-progress-ransom').innerText = `CLICK TO DECRYPT! (${state.currentClicksToFix}/${state.clicksNeededToFix})`;
+                } else {
+                    document.getElementById('fix-progress-shark').innerText = `CLICK TO FIX! (${state.currentClicksToFix}/${state.clicksNeededToFix})`;
+                }
+                if (state.currentClicksToFix >= state.clicksNeededToFix) {
+                    state.wireBroken = false; state.brokenType = ''; state.sharkTimer = 0;
+                    document.getElementById('shark-warning').classList.add('hidden');
+                    document.getElementById('ransomware-warning').classList.add('hidden');
+                    const wl = document.getElementById('wire-line');
+                    wl.classList.remove('bg-red-600', 'bg-purple-500', 'border-y-2', 'border-dashed');
+                    wl.classList.add('bg-blue-500');
+                }
+            }
+        }
+        
+        function spawnVisualPacket(isOverdrive = false) {
+            if (state.wireBroken && !isOverdrive) return;
+            if (state.gameOver && !isOverdrive) return;
+            const p = document.createElement('div');
+            p.className = 'data-packet' + (isOverdrive ? ' overdrive' : '');
+            document.getElementById('packets-layer').appendChild(p);
+            setTimeout(() => p.remove(), isOverdrive ? 300 : 3000);
+        }
+
+        function generateInfiniteWave(waveNum) {
+            const types = Object.keys(ENEMY_TYPES);
+            let type = types[Math.floor(Math.random() * types.length)];
+            if (waveNum > 15 && Math.random() > 0.7) type = 'megatrojan';
+            return {
+                count: Math.floor(10 + waveNum * 1.5), type: type, interval: Math.max(10, 60 - Math.floor(waveNum))
+            };
+        }
+
+        function rebootSystem() {
+            state.infiniteMode = true; state.lives = 100; state.money = 100; 
+            state.wave = 0; state.isPlaying = false; state.gameOver = false;
+            state.wireBroken = false; state.brokenType = ''; state.sharkTimer = 0;
+            state.brokenTimer = 0; state.clicksNeededToFix = 0; state.currentClicksToFix = 0;
+            enemies = []; towers = []; projectiles = []; spawnedCount = 0; orbitalStrikes = [];
+            state.showingFact = false; document.getElementById('fact-overlay').classList.replace('flex', 'hidden');
+            hideTowerPanel(); fixWire();
+            document.getElementById('game-overlay').classList.replace('flex', 'hidden');
+            document.getElementById('btn-next-wave').disabled = false;
+            WAVES.length = 0; WAVES.push(generateInfiniteWave(1));
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('ui-lives').innerText = `❤️ ${Math.max(0, state.lives)}`;
+            document.getElementById('ui-money').innerText = `💾 ${state.money}`;
+            document.getElementById('ui-wave').innerText = state.infiniteMode ? `∞ ${state.wave}` : `${state.wave} / ${WAVES.length}`;
+            if (state.selectedPlacedTower) updateTowerPanel();
+        }
+
+        function handleEnemyDeath(e, index) {
+            enemies.splice(index, 1);
+            let bankBonus = 0; towers.forEach(t => { if (t.type.id === 10) bankBonus += (0.10 + 0.10 * t.level); });
+            state.money += Math.ceil((e.reward || 10) * (1 + bankBonus));
+            updateHUD();
+            if (e.spawnsOnDeath) {
+                const def = ENEMY_TYPES[e.spawnsOnDeath];
+                enemies.push({ ...def, maxHp: def.hp, abilityTimer: 0, spawnTimer: 0, targetWp: e.targetWp, x: e.x, y: e.y, triggeredLock: false });
+            }
+        }
+
+        function endGame(victory) {
+            state.gameOver = true;
+            document.getElementById('game-overlay').classList.replace('hidden', 'flex');
+        }
+
+        // --- Loop Logic ---
+        function gameLoop() {
+            if (!state.gameOver) { 
+                if (state.gameStarted) update(); 
+                draw(); // Draw keeps background grid visible behind start screen
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            if (state.selectedEnemy) updateEnemyPanel();
+
+            if (state.freezeTimer > 0) state.freezeTimer--;
+
+            // Bombs Update
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                let b = bombs[i];
+                b.timer--;
+                if (b.timer <= 0) {
+                    explosions.push({ x: b.x, y: b.y, radius: b.radius, timer: 15, maxTimer: 15, r: 239, g: 68, b: 68 });
+                    for (let j = enemies.length - 1; j >= 0; j--) {
+                        let e = enemies[j];
+                        if (Math.hypot(e.x - b.x, e.y - b.y) <= b.radius) {
+                            e.hp -= b.damage;
+                            if (e.hp <= 0) handleEnemyDeath(e, j);
+                        }
+                    }
+                    bombs.splice(i, 1);
+                }
+            }
+
+            // Enemies
+            if (state.isPlaying && currentWaveData) {
+                spawnTimer++;
+                if (spawnTimer >= currentWaveData.interval && spawnedCount < currentWaveData.count) {
+                    const def = ENEMY_TYPES[currentWaveData.type];
+                    enemies.push({ ...def, maxHp: def.hp, abilityTimer: 0, spawnTimer: 0, targetWp: 1, 
+                        x: waypoints[0].x, y: waypoints[0].y, triggeredLock: false });
+                    spawnedCount++; spawnTimer = 0;
+                }
+                if (spawnedCount >= currentWaveData.count && enemies.length === 0) {
+                    state.isPlaying = false; 
+                    
+                    if (state.infiniteMode) { WAVES.push(generateInfiniteWave(state.wave + 1)); } 
+                    else if (state.wave >= WAVES.length) { endGame(true); return; }
+
+                    showFactScreen();
+                }
+            }
+
+            let ransomwareActive = enemies.some(e => e.icon === "🔒");
+
+            if (state.isPlaying && !state.wireBroken && !state.gameOver) {
+                state.packetTimer++;
+                if (state.packetTimer > 180) { 
+                    state.lives = Math.min(state.lives + 2, 100);
+                    updateHUD(); spawnVisualPacket(); state.packetTimer = 0;
+                }
+                
+                if (!ransomwareActive) {
+                    state.sharkTimer++;
+                    if (state.sharkTimer > Math.random() * 600 + 600) { 
+                        state.wireBroken = true; state.brokenType = 'shark';
+                        let wrenchReduction = 0; towers.forEach(t => { if (t.type.id === 11) wrenchReduction += (1 * t.level); });
+                        let baseClicks = Math.floor(Math.random() * 6) + 10;
+                        state.clicksNeededToFix = Math.max(1, Math.floor(baseClicks - wrenchReduction));
+                        state.currentClicksToFix = 0;
+                        document.getElementById('fix-progress-shark').innerText = `CLICK TO FIX! (0/${state.clicksNeededToFix})`;
+                        document.getElementById('shark-warning').classList.remove('hidden');
+                        const wl = document.getElementById('wire-line');
+                        wl.classList.remove('bg-blue-500'); wl.classList.add('bg-red-600', 'border-y-2', 'border-dashed');
+                    }
+                }
+            }
+            
+            if (state.wireBroken && !state.gameOver) {
+                state.brokenTimer++;
+                if (state.brokenTimer > 60) {
+                    state.lives -= (state.brokenType === 'ransomware' ? 3 : 5);
+                    updateHUD(); state.brokenTimer = 0;
+                    if (state.lives <= 0) endGame(false);
+                }
+            }
+
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                if (state.freezeTimer > 0) continue;
+
+                let wp = waypoints[e.targetWp], dist = Math.hypot(wp.x - e.x, wp.y - e.y);
+                if (dist < e.speed) {
+                    e.targetWp++;
+                    if (e.targetWp >= waypoints.length) {
+                        state.lives -= e.damage; updateHUD(); enemies.splice(i, 1);
+                        if (state.lives <= 0) endGame(false);
+                        continue;
+                    }
+                } else { e.x += ((wp.x - e.x) / dist) * e.speed; e.y += ((wp.y - e.y) / dist) * e.speed; }
+                
+                if (e.icon === "👾") {
+                    e.abilityTimer++;
+                    if (e.abilityTimer > 180) {
+                        towers.forEach(t => { if (Math.hypot(t.x - e.x, t.y - e.y) < 150) t.stunTimer = 180; });
+                        e.abilityTimer = 0;
+                    }
+                }
+                if (e.icon === "👹") {
+                    e.spawnTimer++;
+                    if (e.spawnTimer > 180) { 
+                        const def = ENEMY_TYPES['worm'];
+                        enemies.push({ ...def, maxHp: def.hp, abilityTimer: 0, spawnTimer: 0, targetWp: e.targetWp, x: e.x, y: e.y, triggeredLock: false });
+                        e.spawnTimer = 0;
+                    }
+                }
+                if (e.icon === "🔒" && !e.triggeredLock) {
+                    e.triggeredLock = true;
+                    if (!state.wireBroken || state.brokenType === 'shark') {
+                        state.wireBroken = true; state.brokenType = 'ransomware';
+                        state.clicksNeededToFix = Math.floor(Math.random() * 6) + 15; state.currentClicksToFix = 0;
+                        document.getElementById('fix-progress-ransom').innerText = `CLICK TO DECRYPT! (0/${state.clicksNeededToFix})`;
+                        document.getElementById('shark-warning').classList.add('hidden'); document.getElementById('ransomware-warning').classList.remove('hidden');
+                        const wl = document.getElementById('wire-line');
+                        wl.classList.remove('bg-blue-500', 'bg-red-600'); wl.classList.add('bg-purple-500', 'border-y-2', 'border-dashed');
+                    }
+                }
+            }
+
+            // Towers Shooting & Overclocking (With Orbital Strike Logic)
+            towers.forEach(t => {
+                if (t.overclockTimer > 0) t.overclockTimer--;
+                if (t.burstTimer > 0) t.burstTimer--;
+                if (t.stunTimer > 0) { t.stunTimer--; return; }
+
+                if (t.cooldownTimer > 0) {
+                    t.cooldownTimer -= (t.overclockTimer > 0 ? 3 : 1);
+                }
+
+                if (t.cooldownTimer <= 0 && t.type.id < 10) {
+                    let target = null, minDist = t.range;
+                    enemies.forEach(e => { let dist = Math.hypot(e.x - t.x, e.y - t.y); if (dist < minDist) { minDist = dist; target = e; } });
+
+                    if (target) {
+                        if (t.type.id === 7) {
+                            orbitalStrikes.push({ x: target.x, y: target.y, timer: 90 });
+                            explosions.push({ x: target.x, y: target.y, radius: 100, timer: 90, maxTimer: 90, r: 135, g: 206, b: 235 });
+                            
+                            for (let j = enemies.length - 1; j >= 0; j--) {
+                                let e = enemies[j];
+                                if (Math.hypot(e.x - target.x, e.y - target.y) <= 100) {
+                                    e.hp -= t.damage;
+                                    if (e.hp <= 0) handleEnemyDeath(e, j);
+                                }
+                            }
+                        } else {
+                            projectiles.push({ x: t.x, y: t.y, target: target, damage: t.damage, speed: 10, size: 5, color: '#10b981' });
+                        }
+                        t.cooldownTimer = t.cooldown;
+                    }
+                }
+            });
+
+            // Projectiles Move
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                let p = projectiles[i];
+                if (!enemies.includes(p.target)) { projectiles.splice(i, 1); continue; }
+                let dist = Math.hypot(p.target.x - p.x, p.target.y - p.y);
+                if (dist < p.speed) {
+                    p.target.hp -= p.damage; projectiles.splice(i, 1);
+                    if (p.target.hp <= 0) handleEnemyDeath(p.target, enemies.indexOf(p.target));
+                } else { p.x += ((p.target.x - p.x) / dist) * p.speed; p.y += ((p.target.y - p.y) / dist) * p.speed; }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, GW, GH);
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+            for(let c=0; c<=COLS; c++) { ctx.beginPath(); ctx.moveTo(c*CELL, 0); ctx.lineTo(c*CELL, GH); ctx.stroke(); }
+            for(let r=0; r<=ROWS; r++) { ctx.beginPath(); ctx.moveTo(0, r*CELL); ctx.lineTo(GW, r*CELL); ctx.stroke(); }
+
+            // Path
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = CELL * 0.8; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(waypoints[0].x, waypoints[0].y);
+            waypoints.forEach(w => ctx.lineTo(w.x, w.y)); ctx.stroke();
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = CELL * 0.6; ctx.stroke();
+
+            // Placement Hover
+            if (state.selectedShopIndex !== null && state.mouseGridX >= 0) {
+                if (state.activeTab === 'towers') {
+                    const tDef = TOWER_TYPES[state.selectedShopIndex];
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.fillRect(state.mouseGridX * CELL, state.mouseGridY * CELL, CELL, CELL);
+                    if (tDef.range > 0) {
+                        ctx.beginPath(); ctx.arc(state.mouseGridX*CELL+CELL/2, state.mouseGridY*CELL+CELL/2, tDef.range, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; ctx.fill();
+                        ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)'; ctx.stroke();
+                    }
+                } else if (state.activeTab === 'abilities') {
+                    const aDef = ABILITY_TYPES[state.selectedShopIndex];
+                    if (aDef.id === 'bomb') {
+                        ctx.beginPath(); ctx.arc(state.mouseExactX, state.mouseExactY, 200, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; ctx.fill();
+                        ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'; ctx.stroke();
+                        ctx.font = '30px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(aDef.icon, state.mouseExactX, state.mouseExactY);
+                    } else if (aDef.id === 'freeze') {
+                        ctx.fillStyle = 'rgba(147, 197, 253, 0.1)';
+                        ctx.fillRect(0, 0, GW, GH);
+                        ctx.font = '50px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(aDef.icon, state.mouseExactX, state.mouseExactY);
+                    } else if (aDef.id === 'patch') {
+                        ctx.font = '50px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(aDef.icon, state.mouseExactX, state.mouseExactY);
+                    }
+                }
+            }
+
+            // Towers
+            towers.forEach(t => {
+                ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.arc(t.x, t.y, CELL/3, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = t.overclockTimer > 0 ? '#fbbf24' : '#10b981'; ctx.lineWidth = t.overclockTimer > 0 ? 4 : 2; ctx.stroke();
+                ctx.font = '40px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(t.type.icon, t.x, t.y);
+
+                if (t.overclockTimer > 0) {
+                    ctx.font = '24px sans-serif'; ctx.fillText('🛠️', t.x + 20, t.y - 25);
+                }
+                
+                if (t.stunTimer > 0) {
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.4)'; 
+                    ctx.beginPath(); ctx.arc(t.x, t.y, CELL/3, 0, Math.PI*2); ctx.fill();
+                    ctx.font = '28px sans-serif'; ctx.fillText("⚡", t.x + 20, t.y - 20);
+                }
+            });
+
+            // Enemies
+            enemies.forEach(e => {
+                if (state.freezeTimer > 0) {
+                    ctx.fillStyle = 'rgba(147, 197, 253, 0.4)'; 
+                    ctx.fillRect(e.x - e.size/2 - 5, e.y - e.size/2 - 5, e.size + 10, e.size + 10);
+                    ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2;
+                    ctx.strokeRect(e.x - e.size/2 - 5, e.y - e.size/2 - 5, e.size + 10, e.size + 10);
+                }
+
+                ctx.font = `${e.size}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(e.icon, e.x, e.y);
+                ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - e.size/2 - 10, 40, 6);
+                ctx.fillStyle = '#22c55e'; ctx.fillRect(e.x - 20, e.y - e.size/2 - 10, 40 * (e.hp / e.maxHp), 6);
+
+                if (state.selectedEnemy === e) {
+                    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+                    ctx.beginPath(); ctx.arc(e.x, e.y, e.size/1.5, 0, Math.PI*2); ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+
+            if (state.freezeTimer > 0) {
+                ctx.fillStyle = 'rgba(191, 219, 254, 0.15)'; 
+                ctx.fillRect(0, 0, GW, GH);
+            }
+
+            // Bombs
+            bombs.forEach(b => {
+                ctx.font = '30px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('💣', b.x, b.y);
+                ctx.fillStyle = '#ef4444'; ctx.font = 'bold 20px monospace';
+                ctx.fillText(Math.ceil(b.timer / 60), b.x, b.y - 25);
+            });
+
+            // Explosions
+            explosions.forEach(exp => {
+                let maxT = exp.maxTimer || 15;
+                let r = exp.r || 239, g = exp.g || 68, b = exp.b || 68;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${exp.timer / maxT})`;
+                ctx.beginPath(); ctx.arc(exp.x, exp.y, exp.radius, 0, Math.PI * 2); ctx.fill();
+                exp.timer--;
+            });
+            explosions = explosions.filter(exp => exp.timer > 0);
+
+            // Orbital Strikes
+            orbitalStrikes.forEach(strike => {
+                let alpha = strike.timer / 90;
+                let gradient = ctx.createLinearGradient(strike.x, 0, strike.x, strike.y);
+                gradient.addColorStop(0, `rgba(135, 206, 235, 0)`); 
+                gradient.addColorStop(0.5, `rgba(135, 206, 235, ${alpha})`); 
+                gradient.addColorStop(1, `rgba(56, 189, 248, ${alpha})`); 
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(strike.x - 20, 0, 40, strike.y);
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+                ctx.fillRect(strike.x - 8, 0, 16, strike.y);
+
+                ctx.strokeStyle = `rgba(135, 206, 235, ${alpha})`;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.ellipse(strike.x, strike.y, 80 * (1.2 - alpha), 25 * (1.2 - alpha), 0, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                strike.timer--;
+            });
+            orbitalStrikes = orbitalStrikes.filter(s => s.timer > 0);
+
+            // Projectiles
+            projectiles.forEach(p => {
+                ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            });
+        }
+
+        renderShop();
+        updateHUD();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

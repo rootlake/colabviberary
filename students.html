@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="The Vibe-rary — a card-catalog gallery of teacher vibe-coded projects from the AI Co-Lab." />
-  <title>The Vibe-rary · AI Co-Lab</title>
+  <meta name="description" content="The Vibe-rary · Junior Stacks — student vibe-coded projects from the AI Co-Lab." />
+  <title>The Vibe-rary · Junior Stacks</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -15,7 +15,7 @@
   <script src="scripts/view-transitions.js"></script>
 </head>
 <body>
-  <div class="lib">
+  <div class="lib students-view">
     <!-- gilt corner ornaments -->
     <svg class="corner tl" viewBox="0 0 60 60" aria-hidden="true">
       <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
@@ -68,25 +68,22 @@
             </a>
           </div>
           <div class="masthead-title">
-            <p class="masthead-kicker">AI Co-Lab · Circulating Collection · MMXXVI</p>
-            <h1 class="masthead-name"><span class="masthead-name-inner">The Vibe-rary</span></h1>
+            <p class="masthead-kicker">AI Co-Lab · Junior Stacks · MMXXVI</p>
+            <h1 class="masthead-name"><span class="masthead-name-inner">Student Vibe&#8209;rary</span></h1>
             <div class="masthead-rule" aria-hidden="true">
               <span class="line"></span>
               <span class="ornament">❦</span>
               <span class="line"></span>
             </div>
             <p class="masthead-tag">
-              A card catalog of teacher-made builds. Vibe coding is iterative,
-              conversational creation with AI. Borrow freely from the
-              <a href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
-                 target="_blank" rel="noopener noreferrer">Co-Lab Exploration doc</a>!
+              First brushes with code in the age of AI &mdash; a shelf of
+              projects students made the first time they sat down to build
+              something with an AI partner.
             </p>
           </div>
           <div class="masthead-meta">
             <a class="masthead-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer">Co-Lab · home</a>
-            <a class="masthead-link"
-               href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
-               target="_blank" rel="noopener noreferrer">Exploration doc</a>
+            <a class="masthead-link" href="index.html">Teacher catalog</a>
           </div>
         </div>
       </header>
@@ -104,85 +101,36 @@
           <span class="ornament">❦</span>
           <span class="line"></span>
         </div>
-        <p>The AI Co-Lab Vibe-rary, kept and circulated since the year of grace 2026.</p>
+        <p>The AI Co-Lab Vibe-rary &mdash; Junior Stacks, kept and circulated since 2026.</p>
         <p><a href="https://educolab.org/" target="_blank" rel="noopener noreferrer">educolab.org</a></p>
         <p class="lib-footer-mono">Returns accepted at the circulating desk</p>
       </footer>
     </div>
 
+    <!-- Slim shelf-edge band: a thin, full-width footer accent that
+         hints at the front face of the drawer without taking the
+         metaphor too literally. -->
+    <div class="shelf-bottom" aria-hidden="true"></div>
+
     <nav class="view-nav" aria-label="Switch collection">
-      <a class="view-nav-link is-active" href="index.html" aria-current="page">Teachers</a>
-      <a class="view-nav-link" href="students.html">Students</a>
+      <a class="view-nav-link" href="index.html">Teachers</a>
+      <a class="view-nav-link is-active" href="students.html" aria-current="page">Students</a>
     </nav>
   </div>
 
   <script>
-    /* Entries: discipline/format keys inform simpleCategory(); examplePrompt drives the excerpt. */
-    const VIBRARY_ENTRIES = [
+    /* Student catalog entries. Same shape as the teacher catalog,
+       but with a `grade` field that replaces the teacher `role`. */
+    const STUDENT_ENTRIES = [
       {
-        slug: 'foodweb-journal-colorado',
-        url: 'https://jeffellenbogen.github.io/food-web/',
-        title: 'Colorado Food Web Journal',
+        slug: 'jojo-cyber-guard',
+        url: 'students/jojo.html',
+        title: 'Cyber Guard',
         examplePrompt:
-          'Build an interactive Colorado food-web journal where students earn habitat badges, can save and reload progress, and get a certificate when they master a habitat',
-        discipline: 'environmental', format: 'interactiveLesson',
-        contributor: { name: 'Jeff Ellenbogen', school: 'Dawson School, CO', role: 'Director of Innovation & Technology' },
-        previewImage: 'assets/foodweb-journal-jeff.png',
-        cohortYear: 2026,
-      },
-      {
-        slug: 'thinking-experiment-physics',
-        url: 'https://thinking-experiment-sims.github.io/interactive-physics/',
-        title: 'Physics Simulations',
-        examplePrompt:
-          'Help me curate launchable physics simulations from mechanics through astrophysics, with links to code or builds where they exist',
-        discipline: 'physics', format: 'simulation',
-        contributor: { name: 'Vladimir Lopez', school: 'The Kinkaid School, Houston, TX', role: 'Physics' },
-        previewImage: 'assets/physics-simulations-lopez.png',
-        cohortYear: 2026,
-      },
-      {
-        slug: 'apostrophe-challenge',
-        url: 'https://ajuss-create.github.io/Heronapostrophechallenge/',
-        title: 'Apostrophe Challenge',
-        examplePrompt:
-          'Make a playful apostrophe quiz styled as Greeks vs Romans, with a mix of question types students can click through',
-        discipline: 'ela', format: 'quiz',
-        contributor: { name: 'Alison Jussaume', school: 'Montgomery School', role: 'Language arts teacher · grades 7 & 8' },
-        previewImage: 'assets/heron-apostrophe-challenge.png',
-        cohortYear: 2026,
-      },
-      {
-        slug: 'capstone-compass',
-        url: 'https://ewaltersscitech.github.io/certificate-planner/',
-        title: 'Capstone Compass',
-        examplePrompt:
-          'Design a one-session-in-the-browser capstone planner that interviews the student empathize-style and outputs a roadmap, with nothing uploaded to a server',
-        discipline: 'crossCurricular', format: 'tool',
-        contributor: { name: 'Eric Walters', school: 'Marymount School of New York' },
-        previewImage: 'assets/capstone-compass.png',
-        cohortYear: 2026,
-      },
-      {
-        slug: 'dark-skies-california-scouting',
-        url: 'https://web.pomfret.org/jlake/darkskies/',
-        title: 'CA Scouting Trip Report',
-        examplePrompt:
-          'Create a rich picture-driven single page for my astronomy scouting trip along Vegas to the Eastern Sierra, tied to dark-sky readability and Bortle zones',
-        subjectHeading: 'Honors astronomy · Dark Skies of California',
-        contributor: { name: 'Josh Lake', school: 'Pomfret School' },
-        previewImage: 'assets/dark-skies-california-scouting.png',
-        cohortYear: 2026,
-      },
-      {
-        slug: 'ap-lang-evidence-brainstorm',
-        url: 'https://dianacurtiswebb.github.io/webb-tools/ap-evidence-game.html',
-        title: 'AP Language Evidence Brainstorm',
-        examplePrompt:
-          'Build a timed AP Lang evidence-brainstorm game with category chips, countdown rounds, undo, reset, and a clean new-prompt flow',
-        discipline: 'ela', format: 'quiz',
-        contributor: { name: 'Diana Curtis', school: 'The Webb School, Knoxville' },
-        previewImage: 'assets/ap-lang-evidence-brainstorm.png',
+          'Make an interactive tower-defense game that teaches how data packets travel across the internet, with towers as network roles and enemies as bad packets',
+        discipline: 'cs', format: 'tool',
+        contributor: { name: 'Jojo', school: 'Sidwell Friends School', grade: '6th grade' },
+        previewImage: 'students/jojo.png',
         cohortYear: 2026,
       },
     ];
@@ -193,7 +141,6 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    /** Coarse shelf label — top-right of each card */
     function simpleCategory(entry) {
       if (entry.cardCategory != null && String(entry.cardCategory).trim() !== '') {
         return String(entry.cardCategory).trim();
@@ -211,28 +158,26 @@
         socialStudies: 'Social studies',
         worldLanguages: 'Languages',
         arts: 'Arts',
-        cs: 'Projects',
+        cs: 'Computing',
         steam: 'Projects',
         crossCurricular: 'Projects',
       };
       if (d && map[d]) return map[d];
       const f = entry.format != null ? String(entry.format) : '';
       if (f === 'tool' || f === 'portfolio' || f === 'other') return 'Projects';
-      const sh = String(entry.subjectHeading ?? '').toLowerCase();
-      if (sh.includes('astronomy') || sh.includes('physics') || sh.includes('bio')) return 'Science';
-      if (sh.includes('lang') || sh.includes('english') || sh.includes('ap lang')) return 'English';
-      if (sh.includes('history') || sh.includes('social')) return 'Social studies';
       return 'Projects';
     }
 
+    /** Student attribution: name, then "<grade> · <school>". */
     function contributorBlock(c) {
       if (!c || !c.name) return '';
       const name = escapeHtml(String(c.name).trim());
-      const schoolRaw = c.school != null ? String(c.school).trim() : '';
-      const school = schoolRaw ? escapeHtml(schoolRaw) : '';
+      const grade = c.grade ? String(c.grade).trim() : '';
+      const school = c.school ? String(c.school).trim() : '';
+      const sub = [grade, school].filter(Boolean).join(' · ');
       return `<div class="cat-attrib">
         <span class="cat-attrib-name">${name}</span>
-        ${school ? `<span class="cat-attrib-school">${school}</span>` : ''}
+        ${sub ? `<span class="cat-attrib-school">${escapeHtml(sub)}</span>` : ''}
       </div>`;
     }
 
@@ -242,14 +187,13 @@
       const year = entry.cohortYear != null ? Number(entry.cohortYear) : 2026;
       const yy = Number.isFinite(year) ? String(year % 100).padStart(2, '0') : '26';
       const n = String(index + 1).padStart(3, '0');
-      return `VIB · ${yy} · ${n}`;
+      return `STU · ${yy} · ${n}`;
     }
 
-    /** Example vibe-coding prompt, shown as a quoted excerpt ending in an ellipsis. */
     function formatExamplePrompt(entry) {
       let body = String(entry.examplePrompt ?? entry.abstract ?? entry.desc ?? '').trim();
       if (!body) return '';
-      body = body.replace(/^[\u201C\u201D"'\s]+/, '').replace(/[\u201C\u201D"'\s]+$/, '').trim();
+      body = body.replace(/^[“”"'\s]+/, '').replace(/[“”"'\s]+$/, '').trim();
       body = body.replace(/(?:\.{3,}|[…])\s*$/u, '').trim();
       return `"${body}…"`;
     }
@@ -259,27 +203,27 @@
       return `<span class="cat-corner" aria-hidden="true"><svg viewBox="0 0 38 38">
         <defs>
           <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#f4dc9a"/>
-            <stop offset="45%" stop-color="#d4a644"/>
-            <stop offset="100%" stop-color="#6a4a18"/>
+            <stop offset="0%" stop-color="#d8dee9"/>
+            <stop offset="45%" stop-color="#8a96aa"/>
+            <stop offset="100%" stop-color="#2c3340"/>
           </linearGradient>
         </defs>
         <path d="M0 0 L38 0 L38 38 Q 38 18, 18 8 Q 8 4, 0 0 Z" fill="url(#${gid})" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
-        <circle cx="28" cy="10" r="1.4" fill="#1a0c04"/>
-        <path d="M0 0 L38 0 L38 6 Q 30 4, 18 2 Q 8 1, 0 4 Z" fill="rgba(255,235,180,0.35)"/>
+        <circle cx="28" cy="10" r="1.4" fill="#0a121f"/>
+        <path d="M0 0 L38 0 L38 6 Q 30 4, 18 2 Q 8 1, 0 4 Z" fill="rgba(220,228,240,0.35)"/>
       </svg></span>`;
     }
 
     function renderInviteCard() {
-      const inviteHref = 'mailto:jlake@pomfret.org?subject=' + encodeURIComponent('Vibe-rary submission');
+      const inviteHref = 'mailto:jlake@pomfret.org?subject=' + encodeURIComponent('Vibe-rary student submission');
       return `<a class="cat-card cat-card-invite" href="${escapeHtml(inviteHref)}"
-                 aria-label="Email Josh Lake to add your project to the Vibe-rary">
+                 aria-label="Email Josh Lake to add a student project to the Vibe-rary">
         <div class="cat-invite-inner">
           <div class="cat-invite-mono">V</div>
-          <div class="cat-invite-kicker">Circ · VIB-NEW</div>
-          <div class="cat-invite-title">What will you<br/>create?</div>
+          <div class="cat-invite-kicker">Circ · STU-NEW</div>
+          <div class="cat-invite-title">What did you<br/>build?</div>
           <span class="cat-invite-rule"></span>
-          <p class="cat-invite-text">Send a link and a one-line pitch. We'll file the next catalog card together.</p>
+          <p class="cat-invite-text">Send a link, a screenshot, and the prompt you started with. We'll file the next card together.</p>
           <span class="cat-invite-mailto">jlake@pomfret.org</span>
         </div>
       </a>`;
@@ -287,7 +231,7 @@
 
     function renderCatalog() {
       const grid = document.getElementById('catalog-grid');
-      grid.innerHTML = VIBRARY_ENTRIES.map((raw, i) => {
+      grid.innerHTML = STUDENT_ENTRIES.map((raw, i) => {
         const url = raw.url ? String(raw.url).trim() : '';
         const pending = url === '';
         const category = simpleCategory(raw);

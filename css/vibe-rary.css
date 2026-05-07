@@ -42,7 +42,12 @@
   --felt-3: #2e5a48;
 }
 
-html { font-size: 21px; }
+html {
+  font-size: 21px;
+  /* Dark backstop behind the page so cross-document view transitions
+     never flash through to the browser's default white. */
+  background-color: #0a0504;
+}
 
 body {
   background: #0a0504;
@@ -842,20 +847,16 @@ body {
   margin-top: 8px;
 }
 
-/* Original-version link button */
-.original-link {
+/* Bottom-right collection switcher (Teachers / Students) */
+.view-nav {
   position: fixed;
   bottom: clamp(22px, 3vw, 36px);
   right: clamp(22px, 3vw, 36px);
   z-index: 20;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(241, 230, 205, 0.85);
-  text-decoration: none;
-  padding: 9px 14px;
-  border-radius: 2px;
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 3px;
   background:
     linear-gradient(180deg, rgba(60, 30, 24, 0.9) 0%, rgba(30, 12, 10, 0.9) 100%);
   border: 1px solid rgba(216, 166, 68, 0.45);
@@ -864,9 +865,89 @@ body {
     0 4px 12px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
 }
-.original-link:hover {
+.view-nav-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(241, 230, 205, 0.65);
+  text-decoration: none;
+  padding: 7px 12px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.view-nav-link:hover {
   color: #fff4d0;
-  border-color: var(--brass-hi);
+  border-color: rgba(216, 166, 68, 0.45);
+}
+.view-nav-link.is-active {
+  color: #fff4d0;
+  background: rgba(216, 166, 68, 0.14);
+  border-color: rgba(216, 166, 68, 0.55);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SHELF BOTTOM — Student page only.
+   A wide, thin band at the very bottom of the viewport that reads
+   as the front edge of the drawer / the bottom of the shelf.
+   Decorative (pointer-events: none); the bottom-right view-nav
+   handles actual navigation.
+   ───────────────────────────────────────────────────────────── */
+.shelf-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16px;
+  z-index: 18;
+  pointer-events: none;
+  background:
+    /* faint horizontal wood-grain striations */
+    repeating-linear-gradient(
+      92deg,
+      rgba(255, 255, 255, 0.035) 0 1px,
+      transparent 1px 7px
+    ),
+    linear-gradient(180deg,
+      #1f3354 0%,
+      #14223c 55%,
+      #0a142a 100%);
+  border-top: 1px solid rgba(200, 212, 232, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 228, 240, 0.18),
+    0 -8px 18px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 600px) {
+  .shelf-bottom { height: 12px; }
+}
+
+/* Student-page title scales down and stays on one line so
+   "Student Vibe-rary" never wraps mid-word. */
+.students-view .masthead-name {
+  font-size: clamp(1.9rem, 4.6vw, 4rem);
+  white-space: nowrap;
+}
+
+/* Pewter recoloring of the same switcher on the students view */
+.students-view .view-nav {
+  background:
+    linear-gradient(180deg, rgba(24, 38, 70, 0.92) 0%, rgba(10, 18, 36, 0.92) 100%);
+  border-color: rgba(154, 166, 184, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(200, 208, 220, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.55);
+}
+.students-view .view-nav-link { color: rgba(220, 228, 240, 0.7); }
+.students-view .view-nav-link:hover {
+  color: #ecf2fb;
+  border-color: rgba(154, 166, 184, 0.45);
+}
+.students-view .view-nav-link.is-active {
+  color: #ecf2fb;
+  background: rgba(154, 166, 184, 0.16);
+  border-color: rgba(154, 166, 184, 0.6);
 }
 
 /* Reduced motion */
@@ -881,3 +962,119 @@ body {
   .cat-card::after { left: 22px; }
   .cat-title { font-size: 21px; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   STUDENTS VIEW — same catalog, cooler palette
+   Navy/ink leather binding + pewter/steel accents instead of
+   oxblood + brass. Cream paper stays the same so the cards feel
+   kindred to the teacher collection.
+   ───────────────────────────────────────────────────────────── */
+.students-view {
+  /* Stamp ink shifts from red to deep ink-blue */
+  --stamp-red: #1f3a6a;
+  --stamp-red-deep: #122247;
+  --rule-red: #29457a;
+
+  /* Brass becomes pewter / steel */
+  --brass: #6f7a8a;
+  --brass-hi: #c8d0dc;
+  --brass-shadow: #2c3340;
+  --gilt-edge: #9aa6b8;
+
+  /* Leather becomes deep navy / midnight */
+  --leather-1: #0b1424;
+  --leather-2: #11203a;
+  --leather-3: #182c4d;
+  --leather-4: #213860;
+  --leather-shadow: #050a14;
+  --leather-stitch: #5a6a8a;
+
+  /* Walnut shifts to a cool slate */
+  --walnut-1: #131a24;
+  --walnut-2: #1d2734;
+  --walnut-3: #2a3645;
+  --walnut-4: #354456;
+  --walnut-hi: #4a5a72;
+  --walnut-grain: rgba(0,0,0,0.26);
+
+  /* Felt — deeper teal-blue */
+  --felt-1: #122a36;
+  --felt-2: #19384a;
+  --felt-3: #224a60;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CROSS-DOCUMENT DRAWER SLIDE
+   The Student catalog is a drawer that slides DOWN over the
+   Teacher catalog. The teacher page sits still underneath; only
+   the student layer moves. Stowing reverses it — the student
+   drawer slides back up and out.
+   Browsers without the View Transitions API snap-cut.
+   ───────────────────────────────────────────────────────────── */
+@view-transition { navigation: auto; }
+
+/* Paint the transition stage dark so any uncovered region during
+   the slide reads as part of the cabinet, not a white flash. */
+::view-transition { background-color: #0a0504; }
+::view-transition-group(root) { background-color: #0a0504; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 720ms;
+  animation-timing-function: cubic-bezier(0.32, 0.04, 0.18, 1);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+  background-color: #0a0504;
+}
+
+/* Forward: Teachers → Students. Teacher (old) stays put;
+   student (new) drops down from above and lands on top. */
+html:active-view-transition-type(forward)::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+html:active-view-transition-type(forward)::view-transition-new(root) {
+  animation-name: drawer-pull-down;
+  z-index: 2;
+  /* drawer face shadow as it descends */
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* Back: Students → Teachers. Student (old) lifts back up
+   and out; teacher (new) is revealed beneath. */
+html:active-view-transition-type(back)::view-transition-old(root) {
+  animation-name: drawer-stow-up;
+  z-index: 2;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+html:active-view-transition-type(back)::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
+
+@keyframes drawer-pull-down {
+  from { transform: translate3d(0, -100%, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+@keyframes drawer-stow-up {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -100%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms !important;
+  }
+}
+
+/* Recolor the brass-corner gradient on student cards.
+   The SVG uses a per-card linearGradient, so we overlay a CSS gradient
+   on the wrapping span instead — the SVG sits beneath at lower opacity. */
+.students-view .cat-corner svg stop:first-child { stop-color: #d8dee9; }
+.students-view .cat-corner svg stop:nth-child(2) { stop-color: #8a96aa; }
+.students-view .cat-corner svg stop:last-child { stop-color: #2c3340; }
+
+/* Student call-number chip reads in pewter rather than warm brass */
+.students-view .cat-call { color: var(--brass-shadow); }
+.students-view .cat-category { color: var(--brass-shadow); }
