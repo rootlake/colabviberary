@@ -25,18 +25,20 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 6px;
+            padding: 4px 6px;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            line-height: 1;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
             border: 1px solid #94a3b8;
             pointer-events: auto;
+            overflow: hidden;
         }
-        
+
         @media (min-width: 768px) {
-            .card { width: 100px; height: 140px; font-size: 1.5rem; padding: 8px; }
+            .card { width: 100px; height: 140px; font-size: 1.35rem; padding: 6px 8px; }
         }
 
         .card.selected {
@@ -55,8 +57,8 @@
         .red-suit { color: #ef4444; }
         .black-suit { color: #1e293b; }
 
-        .card-center { font-size: 2.2rem; align-self: center; opacity: 0.9; }
-        @media (min-width: 768px) { .card-center { font-size: 3.5rem; } }
+        .card-center { font-size: 1.7rem; line-height: 1; align-self: center; opacity: 0.9; }
+        @media (min-width: 768px) { .card-center { font-size: 2.7rem; } }
 
         .card-slot {
             width: 70px;
@@ -275,7 +277,7 @@
         }
         const isSel = state.selected && state.selected.source === source && (source === 'waste' ? state.selected.cardIdx === cardIdx : (state.selected.colIdx === colIdx && cardIdx >= state.selected.cardIdx));
         el.className = `card ${card.color === 'red' ? 'red-suit' : 'black-suit'} ${isSel ? 'selected' : ''}`;
-        el.innerHTML = `<div class="leading-none select-none">${card.rank}<br>${card.suit}</div><div class="card-center select-none">${card.suit}</div><div class="leading-none text-right rotate-180 select-none">${card.rank}<br>${card.suit}</div>`;
+        el.innerHTML = `<div class="leading-none select-none">${card.rank}<br>${card.suit}</div><div class="card-center select-none">${card.suit}</div><div class="leading-none text-left rotate-180 select-none">${card.rank}<br>${card.suit}</div>`;
         el.onclick = (e) => { e.stopPropagation(); handleCardClick(card, source, colIdx, cardIdx); };
         return el;
     }
