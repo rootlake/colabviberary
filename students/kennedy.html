@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter 6 Science Solitaire PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #064e3b; 
+            background-image: radial-gradient(#065f46 2px, transparent 2px); 
+            background-size: 30px 30px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            overflow: hidden;
+        }
+        
+        .card {
+            width: 70px;
+            height: 100px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            border: 1px solid #94a3b8;
+            pointer-events: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .card { width: 100px; height: 140px; font-size: 1.5rem; padding: 8px; }
+        }
+
+        .card.selected {
+            box-shadow: 0 0 20px #fbbf24, 0 8px 25px rgba(0,0,0,0.6);
+            transform: translateY(-15px) scale(1.05);
+            z-index: 100 !important;
+            border-color: #fbbf24;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+            border: 3px solid white;
+        }
+
+        .red-suit { color: #ef4444; }
+        .black-suit { color: #1e293b; }
+
+        .card-center { font-size: 2.2rem; align-self: center; opacity: 0.9; }
+        @media (min-width: 768px) { .card-center { font-size: 3.5rem; } }
+
+        .card-slot {
+            width: 70px;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            background-color: rgba(0,0,0,0.2);
+            position: relative;
+        }
+        @media (min-width: 768px) { .card-slot { width: 100px; height: 140px; } }
+
+        .tableau-col { position: relative; width: 70px; min-height: 300px; }
+        @media (min-width: 768px) { .tableau-col { width: 100px; } }
+        
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <div class="w-full max-w-6xl p-4 flex flex-col h-screen overflow-y-auto">
+        <div class="flex flex-wrap justify-between items-center mb-6 bg-slate-900/80 p-5 rounded-3xl border border-white/20 text-white backdrop-blur-md shadow-2xl gap-4 shrink-0">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tighter">SCIENCE SOLITAIRE</h1>
+                <p class="text-xs font-bold text-slate-400 tracking-widest uppercase">Motion & Forces Master</p>
+            </div>
+
+            <div class="flex gap-4 items-center">
+                <div class="bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Move Streak</p>
+                    <p id="streakDisplay" class="text-xl font-mono font-black text-cyan-400">0/5</p>
+                </div>
+                <div class="bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Score</p>
+                    <p id="scoreDisplay" class="text-xl font-mono font-black text-yellow-400">0</p>
+                </div>
+                <button onclick="startNewGame()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 px-6 rounded-xl transition-all shadow-lg active:scale-95 border-b-4 border-emerald-800">
+                    NEW GAME
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-2 mb-6 justify-center">
+            <button onclick="setDifficulty('beginner')" id="btn-beginner" class="px-4 py-2 rounded-full text-xs font-bold border border-white/20 bg-white/10 text-white hover:bg-white/20 transition-all">VOCAB</button>
+            <button onclick="setDifficulty('intermediate')" id="btn-intermediate" class="px-4 py-2 rounded-full text-xs font-bold border border-emerald-400 bg-emerald-500/20 text-emerald-400 transition-all">LAWS</button>
+            <button onclick="setDifficulty('master')" id="btn-master" class="px-4 py-2 rounded-full text-xs font-bold border border-white/20 bg-white/10 text-white transition-all">CALCS</button>
+        </div>
+
+        <div id="game-board" class="flex flex-col gap-8 grow">
+            <div class="flex justify-between w-full">
+                <div class="flex gap-3">
+                    <div id="stock-pile" class="card-slot cursor-pointer" onclick="drawCard()"></div>
+                    <div id="waste-pile" class="card-slot"></div>
+                </div>
+                <div class="flex gap-3">
+                    <div id="foundation-0" class="card-slot flex items-center justify-center text-4xl text-white/5" onclick="handlePileClick('foundation', 0)">♠</div>
+                    <div id="foundation-1" class="card-slot flex items-center justify-center text-4xl text-white/5" onclick="handlePileClick('foundation', 1)">♥</div>
+                    <div id="foundation-2" class="card-slot flex items-center justify-center text-4xl text-white/5" onclick="handlePileClick('foundation', 2)">♣</div>
+                    <div id="foundation-3" class="card-slot flex items-center justify-center text-4xl text-white/5" onclick="handlePileClick('foundation', 3)">♦</div>
+                </div>
+            </div>
+
+            <div class="flex justify-between w-full mt-4" id="tableau-container">
+                <div class="tableau-col" id="tableau-0" onclick="handlePileClick('tableau', 0)"></div>
+                <div class="tableau-col" id="tableau-1" onclick="handlePileClick('tableau', 1)"></div>
+                <div class="tableau-col" id="tableau-2" onclick="handlePileClick('tableau', 2)"></div>
+                <div class="tableau-col" id="tableau-3" onclick="handlePileClick('tableau', 3)"></div>
+                <div class="tableau-col" id="tableau-4" onclick="handlePileClick('tableau', 4)"></div>
+                <div class="tableau-col" id="tableau-5" onclick="handlePileClick('tableau', 5)"></div>
+                <div class="tableau-col" id="tableau-6" onclick="handlePileClick('tableau', 6)"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="triviaModal" class="fixed inset-0 bg-slate-950/95 hidden items-center justify-center z-[200] backdrop-blur-xl p-4">
+        <div class="bg-slate-900 border-2 border-emerald-500/50 p-8 rounded-3xl max-w-xl w-full text-center shadow-[0_0_50px_rgba(16,185,129,0.2)] animate-pop">
+            <div class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black mb-4 tracking-widest uppercase">Newton's Challenge</div>
+            <h3 id="triviaQuestion" class="text-xl md:text-2xl font-bold text-white mb-8 leading-tight"></h3>
+            <div id="triviaOptions" class="grid grid-cols-1 gap-4"></div>
+            <div id="triviaFeedback" class="text-lg font-black mt-8 h-8 opacity-0 italic"></div>
+        </div>
+    </div>
+
+<script>
+    const questions = {
+        beginner: [
+            { q: "What is an object's tendency to resist any change in motion?", opts: [{a: 'Inertia', c: true}, {a: 'Velocity', c: false}, {a: 'Friction', c: false}, {a: 'Gravity', c: false}] },
+            { q: "A push or pull that acts on an object is called a:", opts: [{a: 'Force', c: true}, {a: 'Mass', c: false}, {a: 'Acceleration', c: false}, {a: 'Momentum', c: false}] },
+            { q: "Friction between surfaces that are not moving past each other is:", opts: [{a: 'Static Friction', c: true}, {a: 'Sliding Friction', c: false}, {a: 'Rolling Friction', c: false}] },
+            { q: "The distance an object travels per unit of time is:", opts: [{a: 'Speed', c: true}, {a: 'Velocity', c: false}, {a: 'Force', c: false}] },
+            { q: "What force opposes the motion of objects that touch as they move past each other?", opts: [{a: 'Friction', c: true}, {a: 'Gravity', c: false}, {a: 'Inertia', c: false}] },
+            { q: "The standard metric unit for measuring force is the:", opts: [{a: 'Newton', c: true}, {a: 'Joule', c: false}, {a: 'Watt', c: false}] },
+            { q: "The amount of matter in an object is called its:", opts: [{a: 'Mass', c: true}, {a: 'Weight', c: false}, {a: 'Volume', c: false}] },
+            { q: "Air resistance is a type of:", opts: [{a: 'Fluid Friction', c: true}, {a: 'Static Friction', c: false}, {a: 'Rolling Friction', c: false}] },
+            { q: "Speed in a specific direction is known as:", opts: [{a: 'Velocity', c: true}, {a: 'Acceleration', c: false}, {a: 'Distance', c: false}] },
+            { q: "A property of moving objects that depends on mass and velocity is:", opts: [{a: 'Momentum', c: true}, {a: 'Inertia', c: false}, {a: 'Speed', c: false}] }
+        ],
+        intermediate: [
+            { q: "Newton's First Law is often called the Law of:", opts: [{a: 'Inertia', c: true}, {a: 'Acceleration', c: false}, {a: 'Action/Reaction', c: false}] },
+            { q: "Which law explains why a climber pulls down on a rope to go up?", opts: [{a: '3rd Law', c: true}, {a: '1st Law', c: false}, {a: '2nd Law', c: false}] },
+            { q: "The force of gravity on an object's mass is called:", opts: [{a: 'Weight', c: true}, {a: 'Density', c: false}, {a: 'Friction', c: false}] },
+            { q: "As the distance between two objects increases, gravity:", opts: [{a: 'Decreases', c: true}, {a: 'Increases', c: false}, {a: 'Stays the same', c: false}] },
+            { q: "Acceleration is defined as the change in velocity divided by:", opts: [{a: 'Time', c: true}, {a: 'Mass', c: false}, {a: 'Force', c: false}] },
+            { q: "An object moving in a circle at constant speed is still accelerating because it is changing:", opts: [{a: 'Direction', c: true}, {a: 'Speed', c: false}, {a: 'Mass', c: false}] },
+            { q: "If net forces are 0, we say the forces are:", opts: [{a: 'Balanced', c: true}, {a: 'Unbalanced', c: false}, {a: 'Inert', c: false}] },
+            { q: "A skydiver reaching maximum speed while falling has reached:", opts: [{a: 'Terminal Velocity', c: true}, {a: 'Inertia Point', c: false}, {a: 'Momentum Max', c: false}] },
+            { q: "Which has more inertia: a 5kg bowling ball or a 10kg medicine ball?", opts: [{a: '10kg Medicine Ball', c: true}, {a: '5kg Bowling Ball', c: false}, {a: 'They are equal', c: false}] }
+        ],
+        master: [
+            { q: "Calculate Force: A 10kg mass accelerating at 5m/s².", opts: [{a: '50 N', c: true}, {a: '2 N', c: false}, {a: '15 N', c: false}, {a: '0.5 N', c: false}] },
+            { q: "What is the momentum of a 2kg ball moving at 10m/s?", opts: [{a: '20 kg·m/s', c: true}, {a: '5 kg·m/s', c: false}, {a: '12 kg·m/s', c: false}] },
+            { q: "If a 50N force acts on a 5kg object, what is the acceleration?", opts: [{a: '10 m/s²', c: true}, {a: '250 m/s²', c: false}, {a: '45 m/s²', c: false}] },
+            { q: "Acceleration of gravity on Earth (g) is approximately:", opts: [{a: '9.8 m/s²', c: true}, {a: '1.6 m/s²', c: false}, {a: '32 m/s²', c: false}] },
+            { q: "Weight (W) = Mass (m) × ____?", opts: [{a: 'Gravity (g)', c: true}, {a: 'Velocity (v)', c: false}, {a: 'Time (t)', c: false}] },
+            { q: "If you move to the Moon, which of these changes?", opts: [{a: 'Weight', c: true}, {a: 'Mass', c: false}, {a: 'Inertia', c: false}] },
+            { q: "A 100kg man and a 50kg boy push off each other on ice. Who accelerates faster?", opts: [{a: 'The boy', c: true}, {a: 'The man', c: false}, {a: 'They are equal', c: false}] },
+            { q: "How much does a 5kg cat weigh on Earth (approx)?", opts: [{a: '49 N', c: true}, {a: '5 N', c: false}, {a: '9.8 N', c: false}] }
+        ]
+    };
+
+    const SUITS = ['♠', '♥', '♣', '♦'];
+    const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const VALUES = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
+
+    let currentDifficulty = 'intermediate';
+    let moveCounter = 0;
+    let state = { stock: [], waste: [], tableau: [[],[],[],[],[],[],[]], foundations: [[],[],[],[]], score: 0, selected: null };
+    let pendingMove = null;
+
+    function setDifficulty(diff) {
+        currentDifficulty = diff;
+        ['beginner', 'intermediate', 'master'].forEach(d => {
+            const btn = document.getElementById(`btn-${d}`);
+            btn.className = d === diff ? "px-4 py-2 rounded-full text-xs font-bold border border-emerald-400 bg-emerald-500/20 text-emerald-400 transition-all" : "px-4 py-2 rounded-full text-xs font-bold border border-white/20 bg-white/10 text-white transition-all";
+        });
+        startNewGame();
+    }
+
+    function initDeck() {
+        let deck = [];
+        SUITS.forEach(suit => {
+            RANKS.forEach(rank => {
+                deck.push({ suit, rank, color: (suit==='♥'||suit==='♦')?'red':'black', value: VALUES[rank], faceUp: false });
+            });
+        });
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
+
+    function startNewGame() {
+        const deck = initDeck();
+        state = { stock: [], waste: [], tableau: [[],[],[],[],[],[],[]], foundations: [[],[],[],[]], score: 0, selected: null };
+        moveCounter = 0;
+        let idx = 0;
+        for (let c = 0; c < 7; c++) {
+            for (let r = 0; r <= c; r++) {
+                let card = deck[idx++];
+                if (r === c) card.faceUp = true;
+                state.tableau[c].push(card);
+            }
+        }
+        while (idx < deck.length) state.stock.push(deck[idx++]);
+        updateScore(0);
+        updateStreakDisplay();
+        renderBoard();
+    }
+
+    function updateStreakDisplay() {
+        document.getElementById('streakDisplay').innerText = `${moveCounter}/5`;
+    }
+
+    function renderBoard() {
+        const stockPile = document.getElementById('stock-pile');
+        stockPile.innerHTML = state.stock.length ? '<div class="card card-back absolute inset-0 m-auto"></div>' : '<div class="absolute inset-0 flex items-center justify-center text-3xl text-white/30">↺</div>';
+
+        const wastePile = document.getElementById('waste-pile');
+        wastePile.innerHTML = '';
+        if (state.waste.length) {
+            const card = state.waste[state.waste.length - 1];
+            wastePile.appendChild(createCardElement(card, 'waste', null, state.waste.length-1, true));
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const f = document.getElementById(`foundation-${i}`);
+            f.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-4xl text-white/5 font-black">${SUITS[i]}</div>`;
+            if (state.foundations[i].length) {
+                const card = state.foundations[i][state.foundations[i].length - 1];
+                const el = createCardElement(card, 'foundation', i, state.foundations[i].length-1, true);
+                el.onclick = (e) => { e.stopPropagation(); handlePileClick('foundation', i); };
+                f.appendChild(el);
+            }
+        }
+
+        const offset = window.innerWidth < 768 ? 22 : 35;
+        for (let col = 0; col < 7; col++) {
+            const t = document.getElementById(`tableau-${col}`);
+            t.innerHTML = '';
+            state.tableau[col].forEach((card, idx) => {
+                const el = createCardElement(card, 'tableau', col, idx, idx === state.tableau[col].length-1);
+                el.style.top = `${idx * offset}px`;
+                el.style.zIndex = idx;
+                t.appendChild(el);
+            });
+        }
+    }
+
+    function createCardElement(card, source, colIdx, cardIdx, isTop) {
+        const el = document.createElement('div');
+        if (!card.faceUp) {
+            el.className = 'card card-back';
+            if (isTop && source === 'tableau') el.onclick = (e) => { e.stopPropagation(); flipTableauCard(colIdx); };
+            return el;
+        }
+        const isSel = state.selected && state.selected.source === source && (source === 'waste' ? state.selected.cardIdx === cardIdx : (state.selected.colIdx === colIdx && cardIdx >= state.selected.cardIdx));
+        el.className = `card ${card.color === 'red' ? 'red-suit' : 'black-suit'} ${isSel ? 'selected' : ''}`;
+        el.innerHTML = `<div class="leading-none select-none">${card.rank}<br>${card.suit}</div><div class="card-center select-none">${card.suit}</div><div class="leading-none text-right rotate-180 select-none">${card.rank}<br>${card.suit}</div>`;
+        el.onclick = (e) => { e.stopPropagation(); handleCardClick(card, source, colIdx, cardIdx); };
+        return el;
+    }
+
+    function drawCard() {
+        state.selected = null;
+        if (state.stock.length) {
+            let c = state.stock.pop(); c.faceUp = true; state.waste.push(c);
+        } else {
+            while (state.waste.length) { let c = state.waste.pop(); c.faceUp = false; state.stock.push(c); }
+        }
+        renderBoard();
+    }
+
+    function flipTableauCard(idx) {
+        const c = state.tableau[idx];
+        if (c.length && !c[c.length-1].faceUp) { 
+            c[c.length-1].faceUp = true; 
+            updateScore(5);
+            renderBoard(); 
+        }
+    }
+
+    function handleCardClick(card, source, colIdx, cardIdx) {
+        if (!card.faceUp) return;
+        if (state.selected) {
+            if (state.selected.source === source && state.selected.colIdx === colIdx && state.selected.cardIdx === cardIdx) {
+                state.selected = null; renderBoard(); return;
+            } else if (source === 'tableau') {
+                attemptMove('tableau', colIdx); return;
+            }
+        }
+        if (source === 'waste' && cardIdx !== state.waste.length - 1) return;
+        state.selected = { source, colIdx, cardIdx, card };
+        renderBoard();
+    }
+
+    function handlePileClick(type, idx) {
+        if (state.selected) attemptMove(type, idx);
+    }
+
+    function attemptMove(type, idx) {
+        const sourceCol = state.selected.source === 'tableau' ? state.tableau[state.selected.colIdx] : state.waste;
+        const cardsToMove = state.selected.source === 'waste' ? [state.waste[state.waste.length-1]] : sourceCol.slice(state.selected.cardIdx);
+        const firstCard = cardsToMove[0];
+
+        let valid = false;
+        let forceTrivia = false;
+
+        if (type === 'tableau') {
+            const target = state.tableau[idx];
+            const topCard = target.length ? target[target.length-1] : null;
+            if (!topCard) { if (firstCard.rank === 'K') valid = true; }
+            else if (firstCard.color !== topCard.color && firstCard.value === topCard.value - 1) valid = true;
+        } else if (type === 'foundation' && cardsToMove.length === 1) {
+            const target = state.foundations[idx];
+            const topCard = target.length ? target[target.length-1] : null;
+            if (firstCard.suit === SUITS[idx]) {
+                if (!topCard && firstCard.rank === 'A') { valid = true; forceTrivia = true; }
+                else if (topCard && firstCard.value === topCard.value + 1) { valid = true; forceTrivia = true; }
+            }
+        }
+
+        if (valid) {
+            pendingMove = { type, idx, cards: cardsToMove, source: state.selected.source, sCol: state.selected.colIdx, sIdx: state.selected.cardIdx };
+            moveCounter++;
+            updateStreakDisplay();
+            if (forceTrivia || moveCounter >= 5) {
+                if (moveCounter >= 5) moveCounter = 0;
+                updateStreakDisplay();
+                triggerTrivia();
+            } else {
+                executeMove();
+            }
+        } else {
+            state.selected = null;
+            renderBoard();
+        }
+    }
+
+    function executeMove() {
+        if (!pendingMove) return;
+        if (pendingMove.source === 'waste') state.waste.pop();
+        else {
+            state.tableau[pendingMove.sCol].splice(pendingMove.sIdx);
+            flipTableauCard(pendingMove.sCol);
+        }
+        if (pendingMove.type === 'tableau') state.tableau[pendingMove.idx].push(...pendingMove.cards);
+        else { state.foundations[pendingMove.idx].push(...pendingMove.cards); updateScore(20); }
+        pendingMove = null; state.selected = null; renderBoard();
+    }
+
+    function triggerTrivia() {
+        const modal = document.getElementById('triviaModal');
+        const qList = questions[currentDifficulty];
+        const q = qList[Math.floor(Math.random() * qList.length)];
+        document.getElementById('triviaQuestion').innerText = q.q;
+        const opts = document.getElementById('triviaOptions');
+        const fb = document.getElementById('triviaFeedback');
+        opts.innerHTML = ''; fb.style.opacity = '0';
+        modal.classList.replace('hidden', 'flex');
+
+        [...q.opts].sort(() => Math.random() - 0.5).forEach(o => {
+            const b = document.createElement('button');
+            b.className = "w-full bg-slate-800 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-2xl border border-white/10 transition-all text-left shadow-lg active:scale-95";
+            b.innerText = o.a;
+            b.onclick = () => {
+                fb.style.opacity = '1';
+                if (o.c) {
+                    fb.innerText = "CORRECT! Newton is impressed."; fb.className = "text-emerald-400 font-black mt-8 italic";
+                    setTimeout(() => { modal.classList.replace('flex', 'hidden'); executeMove(); }, 800);
+                } else {
+                    fb.innerText = "INCORRECT! Force too weak. Move cancelled."; fb.className = "text-red-400 font-black mt-8 italic";
+                    setTimeout(() => { modal.classList.replace('flex', 'hidden'); pendingMove = null; state.selected = null; renderBoard(); }, 1500);
+                }
+            };
+            opts.appendChild(b);
+        });
+    }
+
+    function updateScore(p) { state.score += p; document.getElementById('scoreDisplay').innerText = state.score; }
+
+    window.onload = startNewGame;
+</script>
+</body>
+</html>

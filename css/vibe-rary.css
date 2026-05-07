@@ -608,6 +608,9 @@ body {
   color: var(--ink);
   margin-bottom: 4px;
   letter-spacing: -0.005em;
+  /* Reserve space for two lines so single-line titles still
+     leave the image plate at the same y across cards. */
+  min-height: calc(1.15em * 2);
 }
 
 .cat-card:hover .cat-title-inner {
@@ -620,6 +623,9 @@ body {
   flex-direction: column;
   gap: 2px;
   margin-bottom: 12px;
+  /* Reserve space for both attribution lines (name + school/grade)
+     so cards with a single-line attribution don't pull the plate up. */
+  min-height: calc(15px * 1.25 + 14px * 1.3 + 2px);
 }
 
 .cat-attrib-name {
@@ -700,7 +706,9 @@ body {
     radial-gradient(ellipse at 50% 50%, var(--leather-3), var(--leather-1));
 }
 
-/* Example prompt — IDE-style mono, same cream stock as the card (no inset panel) */
+/* Example prompt — IDE-style mono, same cream stock as the card (no inset panel).
+   `margin-top: auto` anchors the prompt block to the bottom of the card so all
+   prompts share a baseline regardless of title/attribution length. */
 .cat-prompt {
   font-family: 'IBM Plex Mono', ui-monospace, 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
   font-weight: 400;
@@ -711,7 +719,7 @@ body {
   letter-spacing: 0;
   tab-size: 2;
   color: var(--ink);
-  margin: 10px 0 0;
+  margin: auto 0 0;
   padding: 10px 2px 0 0;
   border-top: 1px dashed rgba(120, 90, 50, 0.28);
   text-wrap: pretty;
