@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coverage Query Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #1a2d5a;
+    --navy-lt: #2a4080;
+    --navy-xlt:#3a5aaa;
+    --red:     #a83232;
+    --red-bg:  #fdf0f0;
+    --red-bd:  #e0b0b0;
+    --purple:  #5e3fa3;
+    --purp-bg: #f5f0ff;
+    --purp-bd: #c4aef0;
+    --green:   #22764a;
+    --grn-bg:  #edf8f2;
+    --grn-bd:  #a8d8be;
+    --bg:      #f2f0eb;
+    --card:    #ffffff;
+    --border:  #ddd9d0;
+    --text:    #1a1a1a;
+    --muted:   #72685e;
+    --tag-h:   14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 0 32px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 4px solid var(--purple);
+    min-height: 72px;
+  }
+  .header-accent {
+    width: 6px;
+    background: linear-gradient(180deg, var(--purple) 0%, #a83232 100%);
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+  .header-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 14px 0;
+  }
+  .header-eyebrow {
+    font-size: 10.5px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(255,255,255,.55);
+  }
+  .header-title {
+    font-size: 21px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15;
+  }
+  .header-sub {
+    font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,.6); margin-top: 1px;
+  }
+  .header-badge {
+    margin-left: auto;
+    align-self: center;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,.75);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  /* ── CONTROLS ── */
+  .controls-panel {
+    background: var(--card);
+    border-bottom: 2px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .09em; color: var(--muted);
+  }
+
+  /* Week toggle */
+  .week-toggle {
+    display: flex; border-radius: 7px; overflow: hidden;
+    border: 2px solid var(--navy); background: white;
+  }
+  .week-toggle button {
+    padding: 8px 20px; font-size: 13.5px; font-weight: 700;
+    font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+    background: transparent; color: var(--navy); transition: background .12s, color .12s;
+    white-space: nowrap;
+  }
+  .week-toggle button + button { border-left: 2px solid var(--navy); }
+  .week-toggle button.active { background: var(--navy); color: white; }
+
+  /* Selects */
+  .field select {
+    padding: 8px 12px; font-family: 'Inter', sans-serif;
+    font-size: 13.5px; font-weight: 500;
+    border: 2px solid var(--border); border-radius: 7px;
+    background: white; color: var(--text); cursor: pointer; outline: none;
+    min-width: 175px; transition: border-color .12s;
+  }
+  .field select:focus { border-color: var(--navy-lt); }
+
+  /* Find button */
+  #btnFind {
+    padding: 9px 26px; font-family: 'Inter', sans-serif;
+    font-size: 13.5px; font-weight: 700;
+    background: var(--navy); color: white; border: none;
+    border-radius: 7px; cursor: pointer; transition: background .12s;
+    letter-spacing: .02em; white-space: nowrap;
+  }
+  #btnFind:hover { background: var(--navy-lt); }
+
+  /* ── MAIN ── */
+  main { padding: 24px 32px 40px; }
+
+  .results-meta {
+    font-size: 13px; color: var(--muted); margin-bottom: 16px;
+    display: none; align-items: center; gap: 10px;
+  }
+  .meta-pill {
+    display: inline-block; padding: 3px 10px;
+    background: var(--navy); color: white;
+    border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+
+  /* ── RESULTS GRID ── */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+  }
+  .col-card {
+    background: var(--card); border-radius: 10px;
+    border: 1px solid var(--border); overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .col-header {
+    padding: 11px 16px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .col-header .badge {
+    margin-left: auto; background: rgba(255,255,255,.25);
+    border-radius: 20px; padding: 2px 9px;
+    font-size: 11px; font-weight: 700;
+  }
+  .col-available   .col-header { background: var(--green);  color: white; }
+  .col-flagged     .col-header { background: var(--purple); color: white; }
+  .col-unavailable .col-header { background: var(--red);    color: white; }
+  .col-body { padding: 12px; flex: 1; }
+
+  /* Teacher cards */
+  .teacher-card {
+    padding: 10px 12px; border-radius: 8px;
+    margin-bottom: 8px; border: 1.5px solid transparent;
+    transition: box-shadow .12s;
+  }
+  .teacher-card:last-child { margin-bottom: 0; }
+  .teacher-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .col-available   .teacher-card { background: var(--grn-bg);  border-color: var(--grn-bd); }
+  .col-flagged     .teacher-card { background: var(--purp-bg); border-color: var(--purp-bd); }
+  .col-unavailable .teacher-card { background: var(--red-bg);  border-color: var(--red-bd); }
+
+  .tc-name { font-size: 14.5px; font-weight: 700; }
+  .tc-first { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .tc-flags { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+  .tc-flag {
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; display: inline-block; width: fit-content;
+  }
+  .flag-meeting  { background: #ede5ff; color: var(--purple); }
+  .flag-coverage { background: #fff3d6; color: #7a4e00; }
+
+  /* Assign button */
+  .btn-assign {
+    margin-top: 8px; padding: 4px 11px;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    border-radius: 5px; cursor: pointer; transition: background .1s, color .1s;
+    border: 1.5px solid;
+  }
+  .col-available .btn-assign   { color: var(--green);  border-color: var(--green);  background: white; }
+  .col-available .btn-assign:hover { background: var(--green);  color: white; }
+  .col-flagged   .btn-assign   { color: var(--purple); border-color: var(--purple); background: white; }
+  .col-flagged   .btn-assign:hover { background: var(--purple); color: white; }
+
+  .empty-state { color: var(--muted); font-size: 13px; font-style: italic; padding: 6px 2px; }
+
+  /* ── PLACEHOLDER ── */
+  #placeholder {
+    text-align: center; padding: 56px 20px; color: var(--muted);
+    background: var(--card); border-radius: 10px; border: 1px solid var(--border);
+  }
+  #placeholder .ph-icon { font-size: 36px; margin-bottom: 10px; }
+  #placeholder p { font-size: 14.5px; }
+  #placeholder p strong { color: var(--navy); }
+
+  /* ── COVERAGE LOG ── */
+  #coverageLog {
+    margin-top: 22px;
+    background: var(--card);
+    border: 1.5px solid var(--purp-bd);
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+  }
+  .log-header {
+    background: var(--purple); color: white;
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .btn-reset {
+    padding: 3px 11px; font-family: 'Inter', sans-serif;
+    font-size: 10.5px; font-weight: 700;
+    background: rgba(255,255,255,.15); color: white;
+    border: 1.5px solid rgba(255,255,255,.35); border-radius: 5px;
+    cursor: pointer; transition: background .1s; letter-spacing: .02em;
+  }
+  .btn-reset:hover { background: rgba(255,255,255,.28); }
+  .log-body { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .log-entry {
+    background: var(--purp-bg); border: 1.5px solid var(--purp-bd);
+    border-radius: 6px; padding: 5px 11px;
+    font-size: 12px; font-weight: 500; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .log-entry strong { font-weight: 700; color: var(--purple); }
+  .log-entry .log-meta { color: var(--muted); font-size: 11px; }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    margin-top: 22px; padding: 11px 16px;
+    background: #fffbe8; border: 1px solid #e0cc6a;
+    border-radius: 8px; font-size: 12px; color: #5a4b00;
+    display: flex; align-items: flex-start; gap: 8px; line-height: 1.5;
+  }
+  .disclaimer-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-text">
+    <span class="header-eyebrow">Eastbridge Academy</span>
+    <span class="header-title">Coverage Query Tool</span>
+    <span class="header-sub">English Department · 2025–2026</span>
+  </div>
+  <div class="header-badge">Decision Support</div>
+  <button onclick="downloadFile()" style="margin-left:12px; align-self:center; padding:7px 16px; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; background:rgba(255,255,255,.12); color:white; border:1.5px solid rgba(255,255,255,.3); border-radius:7px; cursor:pointer; letter-spacing:.03em; white-space:nowrap; transition:background .12s;" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">⬇ Download File</button>
+</header>
+
+<div class="controls-panel">
+  <div class="field">
+    <label>Week</label>
+    <div class="week-toggle">
+      <button id="btnA" class="active" onclick="setWeek('A')">Week A</button>
+      <button id="btnB" onclick="setWeek('B')">Week B</button>
+    </div>
+  </div>
+  <div class="field">
+    <label>Day</label>
+    <select id="selDay">
+      <option value="monday">Monday</option>
+      <option value="tuesday">Tuesday</option>
+      <option value="wednesday">Wednesday</option>
+      <option value="thursday">Thursday</option>
+      <option value="friday">Friday</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Period</label>
+    <select id="selPeriod">
+      <option value="1">P1 — 8:20–9:10</option>
+      <option value="2">P2 — 9:10–10:00</option>
+      <option value="3">P3 — 10:15–11:05</option>
+      <option value="4">P4 — 11:05–11:55</option>
+      <option value="5">P5 — 11:55–12:45</option>
+      <option value="6">P6 — 12:55–13:45</option>
+      <option value="7">P7 — 13:45–14:35</option>
+      <option value="8">P8 — 14:35–15:25</option>
+      <option value="9">P9 — 15:25–16:15</option>
+      <option value="10">P10 — 16:15–17:05</option>
+      <option value="11">P11 — 17:05–17:55</option>
+    </select>
+  </div>
+  <button id="btnFind" onclick="runQuery()">Find Available Teachers</button>
+</div>
+
+<main>
+  <div id="resultsMeta" class="results-meta"></div>
+
+  <div id="placeholder">
+    <div class="ph-icon">📋</div>
+    <p>Select a day and period, then click <strong>Find Available Teachers</strong>.</p>
+  </div>
+
+  <div id="resultsGrid" class="results-grid" style="display:none">
+    <div class="col-card col-available">
+      <div class="col-header">✓ Available <span class="badge" id="cntAvail">0</span></div>
+      <div class="col-body" id="listAvail"></div>
+    </div>
+    <div class="col-card col-flagged">
+      <div class="col-header">⚑ Flagged <span class="badge" id="cntFlagged">0</span></div>
+      <div class="col-body" id="listFlagged"></div>
+    </div>
+    <div class="col-card col-unavailable">
+      <div class="col-header">✗ Unavailable <span class="badge" id="cntUnavail">0</span></div>
+      <div class="col-body" id="listUnavail"></div>
+    </div>
+  </div>
+
+  <!-- Coverage log -->
+  <div id="coverageLog">
+    <div class="log-header">
+      <span>📋 Coverage Assigned This Session</span>
+      <button class="btn-reset" onclick="resetSession()">Reset Session</button>
+    </div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+
+  <div class="disclaimer">
+    <span class="disclaimer-icon">⚠️</span>
+    This tool reflects scheduled availability only. Always confirm directly with the teacher before finalizing coverage.
+  </div>
+</main>
+
+<script>
+const SCHEDULES_DATA = {
+  "teachers": [
+    {"lastName":"Anderson","firstName":"James","schedule":{"monday":{"1":"free","2":"busy_every","3":"busy_every","4":"busy_every","5":"busy_every","6":"meeting_every","7":"free","8":"free","9":"free","10":"free","11":"free"},"tuesday":{"1":"free","2":"busy_every","3":"busy_A_only","4":"free","5":"busy_every","6":"free","7":"free","8":"free","9":"free","10":"free","11":"free"},"wednesday":{"1":"free","2":"busy_every","3":"free","4":"free","5":"meeting_every","6":"free","7":"free","8":"free","9":"free","10":"free","11":"free"},"thursday":{"1":"busy_every","2":"free","3":"busy_every","4":"busy_every","5":"free","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"},"friday":{"1":"free","2":"busy_every","3":"free","4":"free","5":"free","6":"busy_every","7":"free","8":"busy_every","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"monday","period":"6","note":"Advisor Meeting","week":"every"},{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"}]},
+    {"lastName":"Bennett","firstName":"Sarah","schedule":{"monday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"free","7":"busy_every","8":"free","9":"busy_A_only","10":"free","11":"free"},"tuesday":{"1":"free","2":"free","3":"busy_A_only","4":"free","5":"free","6":"free","7":"free","8":"free","9":"free","10":"free","11":"free"},"wednesday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"free","7":"free","8":"free","9":"busy_A_only","10":"free","11":"free"},"thursday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"meeting_A_only","6":"free","7":"busy_every","8":"free","9":"busy_A_only","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"busy_every","4":"busy_every","5":"free","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"},{"day":"thursday","period":"5","note":"Advisor Meeting","week":"A_only"}]},
+    {"lastName":"Carter","firstName":"Michael","schedule":{"monday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"meeting_every","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"free","2":"busy_every","3":"busy_A_only","4":"busy_every","5":"busy_every","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"busy_every","6":"busy_every","7":"busy_A_only","8":"free","9":"busy_every","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"meeting_A_only","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"monday","period":"6","note":"Advisor Meeting","week":"every"},{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"},{"day":"friday","period":"5","note":"Dept Coordinators","week":"A_only"}]},
+    {"lastName":"Davis","firstName":"Emily","schedule":{"monday":{"1":"free","2":"busy_every","3":"busy_every","4":"busy_every","5":"free","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"free","2":"busy_every","3":"busy_A_only","4":"free","5":"busy_every","6":"busy_every","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"busy_every","3":"free","4":"free","5":"meeting_every","6":"free","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"busy_every","2":"busy_every","3":"busy_every","4":"free","5":"free","6":"free","7":"busy_every","8":"busy_every","9":"busy_every","10":"free","11":"free"},"friday":{"1":"free","2":"free","3":"free","4":"busy_every","5":"free","6":"meeting_every","7":"busy_every","8":"free","9":"busy_A_only","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"},{"day":"friday","period":"6","note":"Advisor Meeting","week":"every"}]},
+    {"lastName":"Evans","firstName":"Linda","schedule":{"monday":{"1":"busy_every","2":"meeting_every","3":"free","4":"free","5":"free","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"free","2":"free","3":"free","4":"free","5":"free","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"free","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"busy_every","7":"busy_A_only","8":"busy_every","9":"busy_every","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"busy_every","4":"busy_every","5":"free","6":"free","7":"free","8":"free","9":"meeting_A_only","10":"free","11":"free"}},"standing_meetings":[{"day":"monday","period":"2","note":"Assembly","week":"every"},{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"},{"day":"friday","period":"9","note":"Advisor Meeting","week":"A_only"}]},
+    {"lastName":"Foster","firstName":"Robert","schedule":{"monday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"free","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"tuesday":{"1":"busy_every","2":"free","3":"busy_every","4":"busy_every","5":"busy_every","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"busy_every","3":"busy_A_only","4":"busy_every","5":"meeting_every","6":"free","7":"free","8":"free","9":"free","10":"free","11":"free"},"thursday":{"1":"free","2":"busy_every","3":"busy_every","4":"busy_every","5":"free","6":"busy_every","7":"busy_every","8":"busy_A_only","9":"free","10":"free","11":"free"},"friday":{"1":"free","2":"busy_every","3":"busy_every","4":"busy_every","5":"busy_every","6":"busy_every","7":"busy_every","8":"busy_every","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"}]},
+    {"lastName":"Garcia","firstName":"Maria","schedule":{"monday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"free","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"free","2":"busy_every","3":"busy_A_only","4":"free","5":"busy_every","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"free","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"free","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"},{"day":"thursday","period":"5","note":"Advisor Meeting","week":"every"}]},
+    {"lastName":"Harris","firstName":"William","schedule":{"monday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"free","6":"free","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"free","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"meeting_every","6":"busy_A_only","7":"free","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"busy_A_only","2":"free","3":"free","4":"free","5":"free","6":"busy_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"busy_every","6":"free","7":"free","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"}]},
+    {"lastName":"Jackson","firstName":"Patricia","schedule":{"monday":{"1":"busy_every","2":"free","3":"free","4":"free","5":"free","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"tuesday":{"1":"free","2":"free","3":"busy_every","4":"busy_every","5":"free","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"meeting_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"busy_every","6":"busy_every","7":"busy_A_only","8":"free","9":"busy_every","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"busy_every","4":"busy_every","5":"free","6":"meeting_every","7":"free","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"wednesday","period":"6","note":"Dept Meeting","week":"every"},{"day":"friday","period":"6","note":"Advisor Meeting","week":"every"}]},
+    {"lastName":"Kim","firstName":"Thomas","schedule":{"monday":{"1":"free","2":"busy_every","3":"free","4":"free","5":"meeting_A_only","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"},"tuesday":{"1":"free","2":"busy_every","3":"busy_every","4":"free","5":"busy_every","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"wednesday":{"1":"busy_every","2":"busy_every","3":"free","4":"free","5":"free","6":"meeting_every","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"thursday":{"1":"free","2":"busy_every","3":"busy_every","4":"free","5":"free","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"friday":{"1":"busy_every","2":"busy_every","3":"free","4":"free","5":"busy_every","6":"busy_every","7":"free","8":"busy_every","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"monday","period":"5","note":"Advisor Meeting","week":"A_only"},{"day":"wednesday","period":"6","note":"Dept Meeting","week":"every"}]},
+    {"lastName":"Lewis","firstName":"Jennifer","schedule":{"monday":{"1":"busy_every","2":"free","3":"busy_every","4":"free","5":"free","6":"free","7":"free","8":"free","9":"busy_A_only","10":"free","11":"free"},"tuesday":{"1":"free","2":"free","3":"meeting_every","4":"free","5":"free","6":"free","7":"free","8":"busy_every","9":"free","10":"free","11":"free"},"wednesday":{"1":"free","2":"free","3":"free","4":"free","5":"free","6":"meeting_every","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"thursday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"free","6":"busy_every","7":"busy_A_only","8":"free","9":"busy_A_only","10":"free","11":"free"},"friday":{"1":"free","2":"free","3":"busy_every","4":"free","5":"meeting_A_only","6":"meeting_every","7":"free","8":"free","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"tuesday","period":"3","note":"Dept Coordinators","week":"every"},{"day":"wednesday","period":"6","note":"Dept Meeting","week":"every"},{"day":"friday","period":"5","note":"Dept Coordinators","week":"A_only"},{"day":"friday","period":"6","note":"Advisor Meeting","week":"every"}]},
+    {"lastName":"Martinez","firstName":"Sophia","schedule":{"monday":{"1":"free","2":"free","3":"free","4":"free","5":"meeting_A_only","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"tuesday":{"1":"free","2":"free","3":"busy_every","4":"busy_every","5":"busy_every","6":"free","7":"busy_every","8":"free","9":"busy_every","10":"free","11":"free"},"wednesday":{"1":"free","2":"busy_every","3":"busy_A_only","4":"free","5":"meeting_every","6":"free","7":"busy_every","8":"free","9":"free","10":"free","11":"free"},"thursday":{"1":"free","2":"busy_every","3":"busy_every","4":"free","5":"busy_every","6":"busy_every","7":"free","8":"free","9":"free","10":"free","11":"free"},"friday":{"1":"busy_every","2":"free","3":"free","4":"busy_every","5":"free","6":"free","7":"free","8":"busy_every","9":"free","10":"free","11":"free"}},"standing_meetings":[{"day":"monday","period":"5","note":"Advisor Meeting","week":"A_only"},{"day":"wednesday","period":"5","note":"Dept Meeting","week":"every"}]}
+  ]
+};
+
+// ── DOWNLOAD ─────────────────────────────────────────────────────
+function downloadFile() {
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'coverage_tool.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── STATE ────────────────────────────────────────────────────────
+let selectedWeek = 'A';
+const teachers = JSON.parse(JSON.stringify(SCHEDULES_DATA.teachers))
+  .map(t => ({ ...t, session_coverage_count: 0 }));
+
+// Coverage log entries: { name, day, period, week, timestamp }
+const coverageLog = [];
+
+const DAY_LABELS = { monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday' };
+
+// ── WEEK TOGGLE ──────────────────────────────────────────────────
+function setWeek(w) {
+  selectedWeek = w;
+  document.getElementById('btnA').classList.toggle('active', w === 'A');
+  document.getElementById('btnB').classList.toggle('active', w === 'B');
+}
+
+// ── AVAILABILITY LOGIC ───────────────────────────────────────────
+function getStatus(teacher, day, period, week) {
+  const slot = teacher.schedule[day]?.[period] ?? 'free';
+  let avail = false, unavail = false;
+
+  if      (slot === 'free')          avail = true;
+  else if (slot === 'busy_every')    unavail = true;
+  else if (slot === 'busy_A_only')   { avail = week==='B'; unavail = week==='A'; }
+  else if (slot === 'busy_B_only')   { avail = week==='A'; unavail = week==='B'; }
+  else if (slot === 'meeting_every') unavail = true;
+  else if (slot === 'meeting_A_only'){ avail = week==='B'; unavail = week==='A'; }
+  else if (slot === 'meeting_B_only'){ avail = week==='A'; unavail = week==='B'; }
+
+  if (unavail) return { cat: 'unavailable', flags: [] };
+
+  const flags = [];
+  for (const sm of teacher.standing_meetings) {
+    if (sm.day !== day || sm.period !== period) continue;
+    const match = sm.week === 'every'
+      || (sm.week === 'A_only' && week === 'A')
+      || (sm.week === 'B_only' && week === 'B');
+    if (match) flags.push({ type: 'meeting', note: sm.note });
+  }
+  if (teacher.session_coverage_count > 0)
+    flags.push({ type: 'coverage', note: `Covered ${teacher.session_coverage_count}× this session` });
+
+  return { cat: flags.length ? 'flagged' : 'available', flags };
+}
+
+// ── ASSIGN COVERAGE ──────────────────────────────────────────────
+function assignCoverage(lastName) {
+  const t = teachers.find(t => t.lastName === lastName);
+  if (!t) return;
+  t.session_coverage_count++;
+
+  const day    = document.getElementById('selDay').value;
+  const period = document.getElementById('selPeriod').value;
+  coverageLog.push({
+    name: `${t.firstName} ${t.lastName}`,
+    day, period, week: selectedWeek
+  });
+
+  renderLog();
+  runQuery();
+}
+
+// ── RESET SESSION ────────────────────────────────────────────────
+function resetSession() {
+  teachers.forEach(t => t.session_coverage_count = 0);
+  coverageLog.length = 0;
+  renderLog();
+  runQuery();
+}
+
+// ── RENDER LOG ───────────────────────────────────────────────────
+function renderLog() {
+  const logEl = document.getElementById('coverageLog');
+  const body  = document.getElementById('logBody');
+
+  if (coverageLog.length === 0) {
+    logEl.style.display = 'none';
+    return;
+  }
+  logEl.style.display = 'block';
+
+  body.innerHTML = coverageLog.map((e, i) =>
+    `<div class="log-entry">
+      <strong>${e.name}</strong>
+      <span class="log-meta">— ${DAY_LABELS[e.day]}, P${e.period} &middot; Wk ${e.week}</span>
+    </div>`
+  ).join('');
+}
+
+// ── QUERY + RENDER ───────────────────────────────────────────────
+function runQuery() {
+  const day    = document.getElementById('selDay').value;
+  const period = document.getElementById('selPeriod').value;
+  const week   = selectedWeek;
+
+  const avail = [], flagged = [], unavail = [];
+  for (const t of teachers) {
+    const res = getStatus(t, day, period, week);
+    const entry = { teacher: t, flags: res.flags };
+    if      (res.cat === 'available')    avail.push(entry);
+    else if (res.cat === 'flagged')      flagged.push(entry);
+    else                                 unavail.push(entry);
+  }
+
+  const byName = (a, b) => a.teacher.lastName.localeCompare(b.teacher.lastName);
+  avail.sort(byName); flagged.sort(byName); unavail.sort(byName);
+
+  // Meta line
+  const meta = document.getElementById('resultsMeta');
+  meta.style.display = 'flex';
+  meta.innerHTML = `
+    <span class="meta-pill">${DAY_LABELS[day]}</span>
+    <span class="meta-pill">P${period}</span>
+    <span class="meta-pill">Week ${week}</span>
+    <span style="color:var(--muted); font-size:12px; margin-left:4px">
+      ${avail.length} available · ${flagged.length} flagged · ${unavail.length} unavailable
+    </span>`;
+
+  renderCol('listAvail',    'cntAvail',   avail,   false);
+  renderCol('listFlagged',  'cntFlagged', flagged, false);
+  renderCol('listUnavail',  'cntUnavail', unavail, true);
+
+  document.getElementById('placeholder').style.display   = 'none';
+  document.getElementById('resultsGrid').style.display   = 'grid';
+}
+
+function renderCol(listId, cntId, entries, isUnavail) {
+  document.getElementById(cntId).textContent = entries.length;
+  const el = document.getElementById(listId);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state">None</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(({ teacher: t, flags }) => {
+    const flagsHTML = flags.map(f =>
+      `<span class="tc-flag flag-${f.type}">${f.type==='meeting'?'📅':'🔁'} ${f.note}</span>`
+    ).join('');
+    const assignBtn = isUnavail ? '' :
+      `<button class="btn-assign" onclick="assignCoverage('${t.lastName}')">+ Assign Coverage</button>`;
+
+    return `<div class="teacher-card">
+      <div class="tc-name">${t.lastName} <span class="tc-first">${t.firstName}</span></div>
+      ${flags.length ? `<div class="tc-flags">${flagsHTML}</div>` : ''}
+      ${assignBtn}
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
