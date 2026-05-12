@@ -1,2 +1,6 @@
 # Local only — not published to GitHub Pages
 archive/
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
