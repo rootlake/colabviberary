@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual DNA Extraction Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #FAFAF8;
+    --off-white: #F2F1EE;
+    --light-gray: #E5E4E0;
+    --mid-gray: #9B9A96;
+    --dark-gray: #3A3935;
+    --near-black: #1C1C1A;
+    --blue-muted: #4A7FA5;
+    --blue-light: #D6E8F4;
+    --blue-pale: #EBF4FA;
+    --teal: #3D8B8B;
+    --teal-light: #C8E6E6;
+    --accent: #2C6E8A;
+    --accent-hover: #1D5470;
+    --success: #4A7A5C;
+    --warning: #8A6A2C;
+    --error-color: #8A3A3A;
+    --card-bg: #FFFFFF;
+    --border: #DDDCDA;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--near-black);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* ── TOP NAV ── */
+  #top-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(250,250,248,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem; font-weight: 500;
+    color: var(--mid-gray); letter-spacing: 0.12em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+  .nav-steps {
+    display: flex; gap: 0; align-items: center;
+  }
+  .nav-step {
+    font-size: 0.72rem; font-weight: 500; color: var(--mid-gray);
+    letter-spacing: 0.04em; padding: 0.25rem 0.8rem;
+    border-radius: 99px; cursor: default;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-step.active {
+    background: var(--accent); color: white;
+  }
+  .nav-step.completed {
+    color: var(--teal);
+  }
+  .nav-step.locked { color: var(--light-gray); cursor: not-allowed; }
+  .nav-divider { width: 24px; height: 1px; background: var(--light-gray); flex-shrink: 0; }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    position: fixed;
+    top: 56px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    background: var(--off-white);
+  }
+  .screen.active { display: block; }
+
+  /* ── SCREEN 1: INTRO ── */
+  #screen-1 {
+    display: none;
+  }
+  #screen-1.active {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  .intro-left {
+    background: var(--near-black);
+    padding: 5rem 4rem 4rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .intro-left::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(61,139,139,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(44,110,138,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .intro-left-content { position: relative; z-index: 1; }
+
+  .lab-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px; padding: 0.3rem 0.9rem;
+    font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.6);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2rem;
+  }
+  .lab-badge .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--teal); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .intro-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    color: white; line-height: 1.15; margin-bottom: 1.5rem;
+  }
+  .intro-headline em { font-style: italic; color: rgba(61,139,139,0.9); }
+
+  .intro-desc {
+    font-size: 1rem; color: rgba(255,255,255,0.6);
+    line-height: 1.7; max-width: 380px; margin-bottom: 2.5rem;
+  }
+
+  .opening-question {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 8px 8px 0; padding: 1.1rem 1.4rem;
+    font-size: 0.95rem; color: rgba(255,255,255,0.8);
+    font-style: italic; margin-bottom: 3rem;
+  }
+
+  .intro-cta {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--teal); color: white;
+    border: none; border-radius: 8px;
+    padding: 0.85rem 1.8rem; font-size: 0.95rem; font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s; text-decoration: none;
+    align-self: flex-start;
+  }
+  .intro-cta:hover { background: #2d6f6f; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(61,139,139,0.3); }
+  .intro-cta svg { width: 16px; height: 16px; transition: transform 0.2s; }
+  .intro-cta:hover svg { transform: translateX(3px); }
+
+  .intro-footer {
+    position: relative; z-index: 1;
+    font-size: 0.75rem; color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  .intro-right {
+    background: var(--off-white);
+    padding: 5rem 4rem 4rem;
+    display: flex; flex-direction: column; gap: 2rem;
+  }
+
+  .context-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; font-weight: 500; color: var(--mid-gray);
+    letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+
+  .context-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem; color: var(--dark-gray); margin-bottom: 1rem;
+  }
+
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  }
+  .stat-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem 1.4rem;
+  }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem; color: var(--accent); margin-bottom: 0.2rem;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--mid-gray); line-height: 1.4; }
+
+  .journey-list { display: flex; flex-direction: column; gap: 0; }
+  .journey-item {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 0.9rem 0; border-bottom: 1px solid var(--border);
+  }
+  .journey-item:last-child { border-bottom: none; }
+  .journey-num {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--mid-gray); min-width: 1.5rem; padding-top: 0.05rem;
+  }
+  .journey-text { font-size: 0.9rem; color: var(--dark-gray); }
+
+  .info-box {
+    background: var(--blue-pale); border: 1px solid var(--blue-light);
+    border-radius: 10px; padding: 1.1rem 1.4rem;
+    font-size: 0.875rem; color: var(--accent); line-height: 1.6;
+  }
+  .info-box strong { display: block; margin-bottom: 0.3rem; }
+
+  /* ── SCREEN 2: WHY DNA ── */
+  #screen-2.active { display: block; }
+
+  .section-hero {
+    background: var(--near-black);
+    padding: 4rem;
+    text-align: center;
+  }
+  .section-hero .context-label { color: rgba(255,255,255,0.4); margin-bottom: 0.8rem; }
+  .section-hero h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem); color: white;
+    margin-bottom: 1rem;
+  }
+  .section-hero p {
+    font-size: 1rem; color: rgba(255,255,255,0.55); max-width: 520px; margin: 0 auto;
+  }
+
+  .section-body {
+    max-width: 1100px; margin: 0 auto; padding: 3rem 2rem;
+  }
+
+  .instruction-bar {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.5rem;
+    font-size: 0.9rem; color: var(--dark-gray);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .instruction-bar .icon { font-size: 1.1rem; }
+
+  .counter-bar {
+    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    color: var(--mid-gray); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .counter-fill {
+    display: inline-block; background: var(--teal);
+    height: 3px; border-radius: 99px;
+    transition: width 0.4s ease; vertical-align: middle;
+    margin: 0 0.5rem;
+  }
+
+  .app-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .app-card {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 1.6rem;
+    cursor: pointer; transition: all 0.2s; position: relative;
+    overflow: hidden;
+  }
+  .app-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent); transform: scaleX(0);
+    transform-origin: left; transition: transform 0.3s;
+  }
+  .app-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44,110,138,0.1); }
+  .app-card:hover::before { transform: scaleX(1); }
+  .app-card.selected {
+    border-color: var(--teal); background: var(--teal-light);
+    transform: translateY(-2px);
+  }
+  .app-card.selected::before { transform: scaleX(1); background: var(--teal); }
+
+  .app-card-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .app-card-title {
+    font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem;
+    color: var(--near-black);
+  }
+  .app-card-desc { font-size: 0.82rem; color: var(--mid-gray); line-height: 1.5; }
+
+  .app-card-detail {
+    margin-top: 0.9rem; padding-top: 0.9rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem; color: var(--accent); line-height: 1.5;
+    display: none;
+  }
+  .app-card.selected .app-card-detail { display: block; }
+
+  .selected-check {
+    position: absolute; top: 0.9rem; right: 0.9rem;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--teal); color: white;
+    display: none; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+  }
+  .app-card.selected .selected-check { display: flex; }
+
+  .proceed-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem 1.5rem;
+  }
+  .proceed-hint { font-size: 0.875rem; color: var(--mid-gray); }
+  .proceed-hint strong { color: var(--dark-gray); }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--accent); color: white;
+    border: none; border-radius: 8px;
+    padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    opacity: 0.4; pointer-events: none;
+  }
+  .btn-primary.ready { opacity: 1; pointer-events: all; }
+  .btn-primary.ready:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+  /* ── PLACEHOLDER SCREENS ── */
+  .placeholder-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: calc(100vh - 56px);
+    flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
+  }
+  .placeholder-icon { font-size: 3rem; }
+  .placeholder-screen h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem; color: var(--dark-gray);
+  }
+  .placeholder-screen p { color: var(--mid-gray); max-width: 400px; }
+  .placeholder-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--mid-gray); letter-spacing: 0.1em;
+    background: var(--light-gray); border-radius: 99px;
+    padding: 0.25rem 0.9rem;
+  }
+
+  /* ── SCREEN 3: LAB TOOLS ── */
+  .tools-layout {
+    max-width: 1100px; margin: 0 auto; padding: 3rem 2rem;
+    display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;
+  }
+
+  .tools-sidebar {
+    position: sticky; top: 0;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .tools-sidebar-header {
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    color: var(--mid-gray); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .tool-nav-item {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.85rem 1.2rem; cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s; font-size: 0.875rem;
+    color: var(--dark-gray); border-left: 3px solid transparent;
+  }
+  .tool-nav-item:last-child { border-bottom: none; }
+  .tool-nav-item:hover { background: var(--off-white); }
+  .tool-nav-item.active {
+    background: var(--blue-pale); border-left-color: var(--accent);
+    color: var(--accent); font-weight: 500;
+  }
+  .tool-nav-item.mastered {
+    border-left-color: var(--teal);
+  }
+  .tool-nav-icon { font-size: 1.1rem; min-width: 1.4rem; text-align: center; }
+  .tool-nav-check {
+    margin-left: auto; width: 18px; height: 18px;
+    border-radius: 50%; border: 1.5px solid var(--light-gray);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: white; flex-shrink: 0; transition: all 0.2s;
+  }
+  .tool-nav-item.mastered .tool-nav-check {
+    background: var(--teal); border-color: var(--teal);
+  }
+
+  .tools-main { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .tool-card-large {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .tool-card-large.highlight { box-shadow: 0 0 0 2px var(--accent); }
+
+  .tool-card-top {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 0; align-items: stretch;
+  }
+  .tool-visual {
+    width: 130px; background: var(--off-white);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1.5rem 1rem; gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .tool-emoji { font-size: 2.8rem; line-height: 1; }
+  .tool-type-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--mid-gray); text-align: center;
+  }
+
+  .tool-info { padding: 1.4rem 1.6rem; }
+  .tool-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem; margin-bottom: 0.3rem; color: var(--near-black);
+  }
+  .tool-subtitle {
+    font-size: 0.8rem; color: var(--mid-gray);
+    font-family: 'DM Mono', monospace; margin-bottom: 0.8rem;
+  }
+  .tool-description { font-size: 0.9rem; color: var(--dark-gray); line-height: 1.7; }
+
+  .tool-question-zone {
+    border-top: 1px solid var(--border);
+    padding: 1.4rem 1.6rem;
+    background: var(--off-white);
+  }
+  .question-label {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--mid-gray); margin-bottom: 0.9rem;
+  }
+  .question-text {
+    font-size: 0.95rem; font-weight: 500; color: var(--dark-gray);
+    margin-bottom: 1rem; line-height: 1.5;
+  }
+  .answer-options {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .answer-option {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 0.75rem 1rem;
+    cursor: pointer; transition: all 0.15s; font-size: 0.875rem;
+    color: var(--dark-gray); text-align: left;
+    font-family: 'DM Sans', sans-serif; width: 100%;
+  }
+  .answer-option:hover:not(:disabled) { border-color: var(--accent); background: var(--blue-pale); }
+  .answer-option.correct { border-color: var(--success); background: #EBF5EF; color: var(--success); }
+  .answer-option.incorrect { border-color: var(--error-color); background: #F5EBEB; color: var(--error-color); }
+  .answer-option:disabled { cursor: default; }
+  .option-letter {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    min-width: 1.4rem; color: var(--mid-gray); padding-top: 0.05rem;
+  }
+  .answer-option.correct .option-letter { color: var(--success); }
+  .answer-option.incorrect .option-letter { color: var(--error-color); }
+
+  .feedback-box {
+    display: none; border-radius: 8px; padding: 1rem 1.1rem;
+    font-size: 0.875rem; line-height: 1.6; margin-bottom: 0.8rem;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: #EBF5EF; border: 1px solid var(--success); color: #2D5C3A; }
+  .feedback-box.incorrect-fb { background: #F5EBEB; border: 1px solid var(--error-color); color: #5C2D2D; }
+  .feedback-box strong { display: block; margin-bottom: 0.3rem; }
+
+  .next-tool-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--accent); color: white; border: none;
+    border-radius: 7px; padding: 0.6rem 1.2rem;
+    font-size: 0.875rem; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s; display: none;
+  }
+  .next-tool-btn.show { display: inline-flex; }
+  .next-tool-btn:hover { background: var(--accent-hover); }
+
+  .tools-progress-bar {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .tpb-left { display: flex; flex-direction: column; gap: 0.4rem; }
+  .tpb-label { font-size: 0.8rem; color: var(--mid-gray); }
+  .tpb-track {
+    width: 200px; height: 5px; background: var(--light-gray);
+    border-radius: 99px; overflow: hidden;
+  }
+  .tpb-fill {
+    height: 100%; background: var(--teal); border-radius: 99px;
+    transition: width 0.4s ease; width: 0%;
+  }
+
+  @media (max-width: 860px) {
+    .tools-layout { grid-template-columns: 1fr; }
+    .tools-sidebar { position: static; }
+    .tool-card-top { grid-template-columns: 100px 1fr; }
+    .tool-visual { width: 100px; }
+  }
+
+  /* ── SCREEN 4: PROCEDURE SEQUENCING ── */
+  .seq-layout {
+    max-width: 960px; margin: 0 auto; padding: 3rem 2rem;
+    display: flex; flex-direction: column; gap: 2rem;
+  }
+
+  .seq-intro {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.4rem 1.6rem;
+    display: flex; gap: 1.2rem; align-items: flex-start;
+  }
+  .seq-intro-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .seq-intro h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .seq-intro p { font-size: 0.875rem; color: var(--mid-gray); line-height: 1.6; }
+
+  .seq-columns {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; align-items: start;
+  }
+
+  .seq-panel-label {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--mid-gray); margin-bottom: 0.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .seq-panel-count {
+    background: var(--light-gray); border-radius: 99px;
+    padding: 0.1rem 0.55rem; font-size: 0.65rem; color: var(--mid-gray);
+  }
+
+  .seq-source-zone {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 12px; min-height: 340px; padding: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    transition: border-color 0.2s;
+  }
+  .seq-source-zone.drag-over { border-color: var(--accent); background: var(--blue-pale); }
+
+  .seq-target-zone {
+    background: var(--off-white); border: 1.5px dashed var(--border);
+    border-radius: 12px; min-height: 340px; padding: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .seq-target-zone.drag-over { border-color: var(--teal); background: var(--teal-light); }
+  .seq-target-zone.drop-hint {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mid-gray); font-size: 0.875rem; text-align: center;
+  }
+
+  .seq-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding-top: 2.5rem; color: var(--mid-gray);
+  }
+
+  .step-card {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 9px; padding: 0.85rem 1rem;
+    cursor: grab; user-select: none;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+    font-size: 0.875rem; color: var(--dark-gray);
+    position: relative;
+  }
+  .step-card:active { cursor: grabbing; }
+  .step-card.dragging {
+    opacity: 0.4; border-style: dashed;
+  }
+  .step-card.placed {
+    background: var(--card-bg); border-color: var(--border);
+    cursor: grab;
+  }
+  .step-card.correct-pos {
+    border-color: var(--success); background: #EBF5EF;
+  }
+  .step-card.wrong-pos {
+    border-color: var(--error-color); background: #F5EBEB;
+  }
+  .step-card:hover:not(.dragging) {
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1); border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .step-card .drag-handle {
+    color: var(--light-gray); font-size: 0.9rem; padding-top: 0.05rem;
+    flex-shrink: 0; line-height: 1;
+  }
+  .step-card .step-label { font-weight: 500; line-height: 1.4; }
+  .step-card .step-hint {
+    font-size: 0.77rem; color: var(--mid-gray); margin-top: 0.2rem; line-height: 1.4;
+  }
+  .step-card .step-num {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--mid-gray); min-width: 1.4rem; flex-shrink: 0; padding-top: 0.1rem;
+  }
+  .step-card.correct-pos .step-num { color: var(--success); font-weight: 600; }
+  .step-card.wrong-pos .step-num { color: var(--error-color); }
+
+  .target-slot {
+    border: 1.5px dashed var(--light-gray); border-radius: 9px;
+    min-height: 62px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: var(--light-gray); font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em; padding: 0.5rem; transition: all 0.15s;
+    position: relative;
+  }
+  .target-slot.drag-over {
+    border-color: var(--teal); background: var(--teal-light); color: var(--teal);
+  }
+  .target-slot.filled { border: none; padding: 0; min-height: unset; }
+
+  .seq-check-bar {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .seq-check-hint { font-size: 0.875rem; color: var(--mid-gray); }
+
+  .btn-check {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--dark-gray); color: white; border: none;
+    border-radius: 8px; padding: 0.7rem 1.4rem;
+    font-size: 0.875rem; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-check:hover { background: var(--near-black); }
+  .btn-check:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-reset {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: var(--mid-gray);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.7rem 1.2rem; font-size: 0.875rem; font-weight: 500;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--dark-gray); color: var(--dark-gray); }
+
+  .seq-result-panel {
+    display: none; border-radius: 12px; padding: 1.5rem;
+    border: 1px solid; animation: fadeIn 0.3s ease;
+  }
+  .seq-result-panel.show { display: block; }
+  .seq-result-panel.perfect { border-color: var(--success); background: #EBF5EF; }
+  .seq-result-panel.partial { border-color: var(--warning); background: #F5EFE0; }
+  .seq-result-panel h4 {
+    font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 0.6rem;
+  }
+  .seq-result-panel.perfect h4 { color: var(--success); }
+  .seq-result-panel.partial h4 { color: var(--warning); }
+  .seq-result-panel p { font-size: 0.875rem; line-height: 1.7; color: var(--dark-gray); }
+  .seq-result-panel ul {
+    margin: 0.75rem 0 0 1.2rem; font-size: 0.875rem; color: var(--dark-gray);
+    display: flex; flex-direction: column; gap: 0.35rem;
+  }
+
+  .step-rationale {
+    margin-top: 0.4rem; font-size: 0.78rem; color: var(--success);
+    display: none; line-height: 1.5;
+  }
+  .step-card.correct-pos .step-rationale { display: block; }
+  .step-card.wrong-pos .step-rationale { display: none; }
+
+  @media (max-width: 750px) {
+    .seq-columns { grid-template-columns: 1fr; }
+    .seq-arrow { transform: rotate(90deg); padding: 0; }
+  }
+
+  /* ── SCREEN 5: SIMULATION ── */
+  .sim-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 56px);
+    align-items: start;
+  }
+
+  /* Left sidebar: step tracker */
+  .sim-sidebar {
+    background: var(--near-black);
+    min-height: calc(100vh - 56px);
+    padding: 2rem 0;
+    position: sticky; top: 0;
+  }
+  .sim-sidebar-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); padding: 0 1.4rem 1rem;
+  }
+  .sim-step-nav {
+    display: flex; flex-direction: column;
+  }
+  .sim-step-item {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    padding: 0.8rem 1.4rem; border-left: 3px solid transparent;
+    transition: all 0.2s; cursor: default;
+  }
+  .sim-step-item.active-step {
+    border-left-color: var(--teal); background: rgba(255,255,255,0.05);
+  }
+  .sim-step-item.done-step { border-left-color: rgba(61,139,139,0.4); }
+  .sim-step-item.error-step { border-left-color: rgba(138,58,58,0.6); }
+  .sim-step-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.4); margin-top: 0.1rem;
+    transition: all 0.3s;
+  }
+  .sim-step-item.active-step .sim-step-dot {
+    border-color: var(--teal); background: var(--teal); color: white;
+  }
+  .sim-step-item.done-step .sim-step-dot {
+    border-color: var(--teal); background: rgba(61,139,139,0.3);
+    color: var(--teal);
+  }
+  .sim-step-item.error-step .sim-step-dot {
+    border-color: #8A3A3A; background: rgba(138,58,58,0.3); color: #e07a7a;
+  }
+  .sim-step-text { flex: 1; }
+  .sim-step-name {
+    font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.4;
+    transition: color 0.2s;
+  }
+  .sim-step-item.active-step .sim-step-name { color: white; font-weight: 500; }
+  .sim-step-item.done-step .sim-step-name { color: rgba(255,255,255,0.4); }
+  .sim-step-status {
+    font-size: 0.68rem; font-family: 'DM Mono', monospace;
+    margin-top: 0.15rem;
+  }
+  .sim-step-item.done-step .sim-step-status { color: var(--teal); }
+  .sim-step-item.error-step .sim-step-status { color: #e07a7a; }
+
+  .sim-yield-meter {
+    margin: 2rem 1.4rem 0;
+    border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;
+  }
+  .sim-yield-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); margin-bottom: 0.6rem;
+  }
+  .sim-yield-bar-bg {
+    background: rgba(255,255,255,0.08); border-radius: 99px;
+    height: 6px; overflow: hidden; margin-bottom: 0.4rem;
+  }
+  .sim-yield-bar-fill {
+    height: 100%; border-radius: 99px;
+    background: var(--teal); transition: width 0.6s ease, background 0.4s;
+    width: 100%;
+  }
+  .sim-yield-bar-fill.low { background: #8A3A3A; }
+  .sim-yield-bar-fill.medium { background: var(--warning); }
+  .sim-yield-bar-fill.high { background: var(--teal); }
+  .sim-yield-value {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Main simulation panel */
+  .sim-main {
+    padding: 2.5rem 3rem;
+    max-width: 740px;
+  }
+
+  .sim-step-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .sim-step-badge {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--off-white); border: 1px solid var(--border);
+    color: var(--mid-gray); border-radius: 99px; padding: 0.25rem 0.8rem;
+  }
+  .sim-step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem; color: var(--near-black);
+    margin-bottom: 0.5rem; line-height: 1.2;
+  }
+  .sim-step-desc {
+    font-size: 0.95rem; color: var(--dark-gray); line-height: 1.7;
+    margin-bottom: 1.8rem;
+  }
+
+  /* Variable decision card */
+  .sim-decision {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .sim-decision-header {
+    background: var(--off-white); border-bottom: 1px solid var(--border);
+    padding: 0.9rem 1.3rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .sim-decision-header .dec-icon { font-size: 1rem; }
+  .sim-decision-header .dec-label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-gray);
+  }
+  .sim-decision-body { padding: 1.3rem; }
+  .sim-decision-q {
+    font-size: 0.95rem; font-weight: 600; color: var(--dark-gray);
+    margin-bottom: 1rem; line-height: 1.5;
+  }
+  .sim-options {
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .sim-option {
+    display: flex; align-items: flex-start; gap: 0.9rem;
+    background: var(--off-white); border: 1.5px solid var(--border);
+    border-radius: 9px; padding: 0.85rem 1rem;
+    cursor: pointer; transition: all 0.15s; text-align: left;
+    font-size: 0.875rem; color: var(--dark-gray); width: 100%;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sim-option:hover:not(:disabled) {
+    border-color: var(--accent); background: var(--blue-pale);
+  }
+  .sim-option:disabled { cursor: default; }
+  .sim-option.chosen-correct {
+    border-color: var(--success); background: #EBF5EF; color: var(--success);
+  }
+  .sim-option.chosen-error {
+    border-color: var(--error-color); background: #F5EBEB; color: var(--error-color);
+  }
+  .sim-option.was-correct {
+    border-color: var(--success); background: #EBF5EF; color: var(--success);
+    opacity: 0.7;
+  }
+  .sim-opt-key {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    min-width: 1.4rem; color: var(--mid-gray); padding-top: 0.05rem;
+  }
+  .sim-option.chosen-correct .sim-opt-key,
+  .sim-option.was-correct .sim-opt-key { color: var(--success); }
+  .sim-option.chosen-error .sim-opt-key { color: var(--error-color); }
+
+  /* Feedback panel */
+  .sim-feedback {
+    border-radius: 10px; padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem; display: none; animation: fadeIn 0.3s ease;
+    font-size: 0.9rem; line-height: 1.7;
+  }
+  .sim-feedback.show { display: block; }
+  .sim-feedback.fb-good {
+    background: #EBF5EF; border: 1px solid var(--success); color: #2D5C3A;
+  }
+  .sim-feedback.fb-warn {
+    background: #F5EFE0; border: 1px solid var(--warning); color: #5C4020;
+  }
+  .sim-feedback.fb-bad {
+    background: #F5EBEB; border: 1px solid var(--error-color); color: #5C2D2D;
+  }
+  .sim-feedback strong { display: block; margin-bottom: 0.4rem; font-size: 1rem; }
+  .sim-feedback .impact-tag {
+    display: inline-block; font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.2rem 0.6rem; border-radius: 99px; margin-top: 0.6rem;
+  }
+  .fb-good .impact-tag { background: rgba(74,122,92,0.15); color: var(--success); }
+  .fb-warn .impact-tag { background: rgba(138,106,44,0.15); color: var(--warning); }
+  .fb-bad .impact-tag { background: rgba(138,58,58,0.15); color: var(--error-color); }
+
+  .sim-next-btn {
+    display: none; align-items: center; gap: 0.6rem;
+    background: var(--accent); color: white; border: none;
+    border-radius: 8px; padding: 0.8rem 1.6rem;
+    font-size: 0.9rem; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .sim-next-btn.show { display: inline-flex; }
+  .sim-next-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+  .sim-complete-panel {
+    display: none; background: var(--near-black); border-radius: 14px;
+    padding: 2.5rem; text-align: center; animation: fadeIn 0.4s ease;
+  }
+  .sim-complete-panel.show { display: block; }
+  .sim-complete-panel h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem; color: white; margin-bottom: 0.8rem;
+  }
+  .sim-complete-panel p {
+    font-size: 0.95rem; color: rgba(255,255,255,0.6);
+    margin-bottom: 1.5rem; line-height: 1.7; max-width: 480px; margin-inline: auto;
+  }
+
+  @media (max-width: 800px) {
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-sidebar { min-height: unset; position: static; display: flex; flex-wrap: wrap; padding: 1rem; gap: 0.5rem; }
+    .sim-sidebar-label { width: 100%; padding: 0 0 0.5rem; }
+    .sim-step-nav { flex-direction: row; flex-wrap: wrap; gap: 0.3rem; }
+    .sim-step-item { padding: 0.4rem 0.7rem; border-left: none; border-bottom: 2px solid transparent; }
+    .sim-step-item.active-step { border-bottom-color: var(--teal); background: rgba(255,255,255,0.05); }
+    .sim-step-text { display: none; }
+    .sim-yield-meter { display: none; }
+    .sim-main { padding: 1.5rem; }
+  }
+
+  /* ── SCREEN 6: RESULTS & ANALYSIS ── */
+  .results-layout { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; display: flex; flex-direction: column; gap: 2rem; }
+
+  .yield-hero {
+    background: var(--near-black); border-radius: 16px;
+    padding: 2.5rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
+  }
+  .yield-hero-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.5rem; }
+  .yield-hero-value { font-family: 'DM Serif Display', serif; font-size: 2.4rem; color: white; margin-bottom: 0.4rem; }
+  .yield-hero-sub { font-size: 0.875rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .yield-big-bar-bg { width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; margin: 1rem 0 0.5rem; }
+  .yield-big-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+  .yield-score-box { text-align: center; background: rgba(255,255,255,0.06); border-radius: 12px; padding: 1.5rem 2rem; }
+  .yield-score-num { font-family: 'DM Serif Display', serif; font-size: 3rem; margin-bottom: 0.2rem; }
+  .yield-score-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.06em; }
+
+  .decision-log { display: flex; flex-direction: column; gap: 0.75rem; }
+  .decision-log-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--near-black); margin-bottom: 0.25rem; }
+  .decision-log-sub { font-size: 0.875rem; color: var(--mid-gray); margin-bottom: 1rem; }
+
+  .log-entry {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; display: grid; grid-template-columns: 4px 1fr; 
+  }
+  .log-entry-stripe { width: 4px; }
+  .log-entry-stripe.good { background: var(--success); }
+  .log-entry-stripe.warn { background: var(--warning); }
+  .log-entry-stripe.bad  { background: var(--error-color); }
+  .log-entry-body { padding: 1rem 1.2rem; }
+  .log-entry-top { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+  .log-step-name { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-gray); }
+  .log-grade { font-weight: 600; font-size: 0.9rem; }
+  .log-grade.good { color: var(--success); }
+  .log-grade.warn { color: var(--warning); }
+  .log-grade.bad  { color: var(--error-color); }
+  .log-choice { font-size: 0.85rem; color: var(--dark-gray); margin-bottom: 0.4rem; font-style: italic; }
+  .log-impact { font-size: 0.8rem; color: var(--mid-gray); line-height: 1.5; }
+  .log-delta { font-family: 'DM Mono', monospace; font-size: 0.72rem; margin-left: auto; padding: 0.15rem 0.55rem; border-radius: 99px; white-space: nowrap; }
+  .log-delta.good { background: #EBF5EF; color: var(--success); }
+  .log-delta.warn { background: #F5EFE0; color: var(--warning); }
+  .log-delta.bad  { background: #F5EBEB; color: var(--error-color); }
+
+  /* ── SCREEN 7: COMPARISON ── */
+  .compare-layout { max-width: 960px; margin: 0 auto; padding: 3rem 2rem; display: flex; flex-direction: column; gap: 2.5rem; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .compare-col-header {
+    border-radius: 12px 12px 0 0; padding: 1.2rem 1.5rem;
+    font-family: 'DM Serif Display', serif; font-size: 1.1rem;
+  }
+  .compare-col-header.pro { background: var(--near-black); color: white; }
+  .compare-col-header.classroom { background: var(--teal-light); color: var(--near-black); }
+  .compare-col-header .col-sub { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; opacity: 0.6; margin-top: 0.2rem; font-style: normal; }
+
+  .compare-table { display: flex; flex-direction: column; gap: 0; }
+  .compare-row { display: grid; grid-template-columns: 140px 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-row-label {
+    background: var(--off-white); padding: 1rem 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray);
+    display: flex; align-items: center; border-right: 1px solid var(--border);
+  }
+  .compare-cell {
+    padding: 1rem 1.2rem; font-size: 0.875rem; color: var(--dark-gray);
+    line-height: 1.5; display: flex; align-items: center;
+  }
+  .compare-cell.pro-cell { border-right: 1px solid var(--border); background: rgba(28,28,26,0.02); }
+  .compare-cell.classroom-cell { background: rgba(61,139,139,0.03); }
+  .compare-chip {
+    display: inline-block; font-size: 0.72rem; padding: 0.15rem 0.55rem;
+    border-radius: 99px; margin-left: 0.5rem; white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+  }
+  .chip-high { background: #EBF5EF; color: var(--success); }
+  .chip-low  { background: #F5EBEB; color: var(--error-color); }
+  .chip-med  { background: #F5EFE0; color: var(--warning); }
+
+  .compare-table-wrap {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+
+  .compare-question {
+    background: var(--blue-pale); border: 1px solid var(--blue-light); border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+  }
+  .compare-question .q-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+  .compare-question .q-text { font-size: 1rem; font-weight: 600; color: var(--near-black); margin-bottom: 1rem; line-height: 1.5; }
+  .compare-answer-area {
+    width: 100%; min-height: 80px; border: 1.5px solid var(--blue-light);
+    border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif; color: var(--dark-gray);
+    background: white; resize: vertical; line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .compare-answer-area:focus { outline: none; border-color: var(--accent); }
+  .compare-answer-area::placeholder { color: var(--mid-gray); }
+
+  /* ── SCREEN 8: REFLECTION ── */
+  .reflect-layout { max-width: 860px; margin: 0 auto; padding: 3rem 2rem; display: flex; flex-direction: column; gap: 2.5rem; }
+
+  .reflect-intro { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 1.8rem; }
+  .reflect-intro h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; }
+  .reflect-intro p { font-size: 0.9rem; color: var(--mid-gray); line-height: 1.7; }
+
+  .reflect-prompts { display: flex; flex-direction: column; gap: 1.2rem; }
+  .reflect-prompt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .reflect-prompt-header { padding: 1rem 1.4rem; background: var(--off-white); border-bottom: 1px solid var(--border); display: flex; gap: 0.8rem; align-items: flex-start; }
+  .reflect-prompt-num { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--mid-gray); min-width: 1.5rem; padding-top: 0.1rem; }
+  .reflect-prompt-q { font-size: 0.95rem; font-weight: 500; color: var(--dark-gray); line-height: 1.5; }
+  .reflect-prompt-body { padding: 1rem 1.4rem; }
+  .reflect-textarea {
+    width: 100%; min-height: 90px; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.875rem;
+    font-family: 'DM Sans', sans-serif; color: var(--dark-gray);
+    background: var(--off-white); resize: vertical; line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .reflect-textarea:focus { outline: none; border-color: var(--accent); background: white; }
+  .reflect-textarea::placeholder { color: var(--mid-gray); }
+  .reflect-char-count { font-size: 0.72rem; color: var(--mid-gray); margin-top: 0.4rem; text-align: right; font-family: 'DM Mono', monospace; }
+
+  .procedure-builder { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .procedure-builder-header { padding: 1.2rem 1.5rem; background: var(--near-black); }
+  .procedure-builder-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: white; margin-bottom: 0.2rem; }
+  .procedure-builder-header p { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+
+  .materials-panel {
+    padding: 1.2rem 1.5rem;
+    background: var(--off-white); border-bottom: 1px solid var(--border);
+  }
+  .materials-label {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--mid-gray); margin-bottom: 0.75rem;
+  }
+  .materials-grid {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .material-chip {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 99px; padding: 0.3rem 0.85rem;
+    font-size: 0.82rem; color: var(--dark-gray);
+    white-space: nowrap;
+  }
+  .procedure-builder-body { padding: 1.4rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .procedure-step-row { display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.75rem; align-items: center; }
+  .procedure-step-num { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--mid-gray); text-align: center; }
+  .procedure-step-input {
+    border: 1.5px solid var(--border); border-radius: 7px; padding: 0.65rem 0.9rem;
+    font-size: 0.875rem; font-family: 'DM Sans', sans-serif; color: var(--dark-gray);
+    background: var(--off-white); width: 100%; transition: border-color 0.2s;
+  }
+  .procedure-step-input:focus { outline: none; border-color: var(--accent); background: white; }
+  .procedure-step-input::placeholder { color: var(--mid-gray); }
+  .rationale-toggle {
+    font-size: 0.72rem; color: var(--mid-gray); background: var(--off-white);
+    border: 1px solid var(--border); border-radius: 5px; padding: 0.3rem 0.6rem;
+    cursor: pointer; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .rationale-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .rationale-row { display: none; padding: 0 0 0.5rem 2.75rem; }
+  .rationale-row.open { display: block; }
+  .rationale-input {
+    width: 100%; border: 1px solid var(--border); border-radius: 7px;
+    padding: 0.55rem 0.85rem; font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+    color: var(--mid-gray); background: var(--blue-pale); resize: none; height: 54px;
+    transition: border-color 0.2s;
+  }
+  .rationale-input:focus { outline: none; border-color: var(--accent); }
+  .rationale-input::placeholder { color: #b0aeb8; }
+
+  .export-bar {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.4rem 1.8rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  .export-bar-text h4 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.25rem; }
+  .export-bar-text p { font-size: 0.85rem; color: var(--mid-gray); }
+  .btn-export {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--near-black); color: white; border: none;
+    border-radius: 8px; padding: 0.8rem 1.5rem; font-size: 0.875rem;
+    font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-export:hover { background: #333; transform: translateY(-1px); }
+
+  @media (max-width: 700px) {
+    .yield-hero { grid-template-columns: 1fr; }
+    .compare-row { grid-template-columns: 100px 1fr 1fr; }
+    .compare-row-label { font-size: 0.62rem; }
+  }
+
+  /* ── TRANSITIONS ── */
+  .screen.active { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #screen-1.active { grid-template-columns: 1fr; }
+    .intro-left, .intro-right { padding: 3rem 2rem; }
+    .intro-right { padding-top: 2rem; }
+    .app-cards { grid-template-columns: repeat(2, 1fr); }
+    .nav-steps { display: none; }
+    .section-hero { padding: 3rem 2rem; }
+  }
+  @media (max-width: 600px) {
+    .app-cards { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="top-nav" role="navigation" aria-label="Lab sections">
+  <div class="nav-logo">
+    <span class="dot" aria-hidden="true"></span>
+    Virtual DNA Extraction Lab
+  </div>
+  <div class="nav-steps" id="nav-steps" aria-label="Progress">
+    <span class="nav-step active" data-screen="1">Introduction</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="2">Why Extract?</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="3">Lab Tools</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="4">Procedure</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="5">Simulation</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="6">Analysis</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="7">Compare</span>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-step locked" data-screen="8">Reflect</span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 · INTRODUCTION
+════════════════════════════════════════════ -->
+<section id="screen-1" class="screen active" aria-label="Introduction">
+
+  <div class="intro-left">
+    <div class="intro-left-content">
+      <div class="lab-badge">
+        <span class="pulse" aria-hidden="true"></span>
+        9th Grade Biology · Pre-Lab Experience
+      </div>
+
+      <h1 class="intro-headline">
+        Unlocking the<br><em>Language of Life</em>
+      </h1>
+
+      <p class="intro-desc">
+        Before you extract DNA from a strawberry in the lab, explore the science behind the process — every step, every reagent, every reason.
+      </p>
+
+      <blockquote class="opening-question" aria-label="Opening question">
+        "What became possible once scientists could isolate DNA from cells?"
+      </blockquote>
+
+      <button class="intro-cta" onclick="goToScreen(2)" aria-label="Begin the virtual lab">
+        Begin Lab
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="intro-footer">Virtual Lab · No login required · Session only</p>
+  </div>
+
+  <div class="intro-right" role="complementary" aria-label="Lab overview">
+    <div>
+      <p class="context-label">About This Lab</p>
+      <h2 class="context-title">What you'll explore</h2>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-num">8</div>
+          <div class="stat-label">Lab sections to work through</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">7</div>
+          <div class="stat-label">Procedural steps to master</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">~25</div>
+          <div class="stat-label">Minutes estimated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Mistakes are learning opportunities</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="context-label">Your Journey</p>
+      <div class="journey-list" aria-label="Lab sections list">
+        <div class="journey-item"><span class="journey-num">01</span><span class="journey-text">Explore why DNA extraction matters across science</span></div>
+        <div class="journey-item"><span class="journey-num">02</span><span class="journey-text">Identify lab tools, reagents, and their roles</span></div>
+        <div class="journey-item"><span class="journey-num">03</span><span class="journey-text">Sequence the extraction procedure</span></div>
+        <div class="journey-item"><span class="journey-num">04</span><span class="journey-text">Run the interactive simulation — errors included</span></div>
+        <div class="journey-item"><span class="journey-num">05</span><span class="journey-text">Analyze your results and DNA yield</span></div>
+        <div class="journey-item"><span class="journey-num">06</span><span class="journey-text">Compare lab methods and reflect on technique</span></div>
+        <div class="journey-item"><span class="journey-num">07</span><span class="journey-text">Build your strawberry extraction plan</span></div>
+      </div>
+    </div>
+
+    <div class="info-box" role="note" aria-label="Partner note">
+      <strong>🧪 Working with a partner?</strong>
+      This simulation is designed for paired exploration. Take turns driving the interactions and discuss your reasoning as you go.
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 · WHY EXTRACT DNA?
+════════════════════════════════════════════ -->
+<section id="screen-2" class="screen" aria-label="Why extract DNA?">
+
+  <div class="section-hero">
+    <p class="context-label">Section 01</p>
+    <h2>Why Do Scientists Extract DNA?</h2>
+    <p>DNA isolation is the foundation of modern biology. Before exploring how, understand <em>why</em>.</p>
+  </div>
+
+  <div class="section-body">
+
+    <div class="instruction-bar" role="note">
+      <span class="icon" aria-hidden="true">👆</span>
+      <span>Select <strong>at least 2 application areas</strong> below that interest you. Read each one before continuing.</span>
+    </div>
+
+    <div class="counter-bar" aria-live="polite" id="counter-bar">
+      Selected: <span id="selected-count">0</span>&nbsp;of&nbsp;6
+      &nbsp;<span class="counter-fill" id="counter-fill" style="width:0px"></span>&nbsp;
+      (choose at least 2)
+    </div>
+
+    <div class="app-cards" role="list" aria-label="Application areas">
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="forensics">
+        <span class="selected-check" aria-hidden="true">✓</span>
+        <div class="app-card-icon" aria-hidden="true">🔬</div>
+        <div class="app-card-title">Forensics &amp; Criminal Justice</div>
+        <div class="app-card-desc">DNA evidence has transformed criminal investigations — both solving crimes and exonerating the wrongly convicted.</div>
+        <div class="app-card-detail">
+          The Innocence Project has used DNA evidence to exonerate more than 375 wrongfully convicted people in the U.S. since 1992. Extraction is the essential first step before any genetic comparison is possible.
+        </div>
+      </div>
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="disease">
+        <span class="selected-check" aria-hidden="true">✓</span>
+        <div class="app-card-icon" aria-hidden="true">🧬</div>
+        <div class="app-card-title">Disease Diagnosis</div>
+        <div class="app-card-desc">Genetic diseases, viral infections, and cancers can be identified by analyzing extracted DNA and RNA.</div>
+        <div class="app-card-detail">
+          COVID-19 PCR tests work by extracting genetic material from a sample. Many cancers are now diagnosed by identifying specific mutations in extracted tumor DNA — enabling targeted therapies.
+        </div>
+      </div>
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="evolution">
+        <span class="selected-check" aria-hidden="true">🦕</span>
+        <div class="app-card-icon" aria-hidden="true">🦕</div>
+        <div class="app-card-title">Evolutionary Biology</div>
+        <div class="app-card-desc">Comparing DNA across species reveals evolutionary relationships and ancestry in ways fossils alone cannot.</div>
+        <div class="app-card-detail">
+          Researchers have extracted ancient DNA from Neanderthal bones, revealing that modern humans and Neanderthals interbred. Humans today carry approximately 1–4% Neanderthal DNA.
+        </div>
+      </div>
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="agriculture">
+        <span class="selected-check" aria-hidden="true">✓</span>
+        <div class="app-card-icon" aria-hidden="true">🌾</div>
+        <div class="app-card-title">Agriculture &amp; Food Science</div>
+        <div class="app-card-desc">Crop improvement, disease resistance, and food safety testing all depend on DNA extraction and analysis.</div>
+        <div class="app-card-detail">
+          Plant breeders use DNA extraction to select for disease-resistant traits without decades of cross-breeding. DNA testing also verifies food labeling — detecting species mislabeling in seafood and other products.
+        </div>
+      </div>
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="conservation">
+        <span class="selected-check" aria-hidden="true">✓</span>
+        <div class="app-card-icon" aria-hidden="true">🐘</div>
+        <div class="app-card-title">Conservation Biology</div>
+        <div class="app-card-desc">Tracking genetic diversity in endangered populations helps conservation programs make better decisions.</div>
+        <div class="app-card-detail">
+          Wildlife biologists extract DNA from non-invasive samples like hair or scat to identify individuals, track migration, and assess genetic health — all without capturing or disturbing animals.
+        </div>
+      </div>
+
+      <div class="app-card" role="listitem" tabindex="0" onclick="selectCard(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectCard(this)"
+           aria-pressed="false" data-id="pathogens">
+        <span class="selected-check" aria-hidden="true">✓</span>
+        <div class="app-card-icon" aria-hidden="true">🦠</div>
+        <div class="app-card-title">Pathogen Tracking</div>
+        <div class="app-card-desc">Sequencing pathogen DNA reveals how diseases spread, evolve, and develop drug resistance.</div>
+        <div class="app-card-detail">
+          During the COVID-19 pandemic, genomic sequencing of extracted viral RNA allowed scientists to track variant emergence in near real-time — directly informing vaccine updates and public health decisions.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="proceed-bar">
+      <p class="proceed-hint" id="proceed-hint">
+        <strong>Select at least 2 areas</strong> to unlock the next section.
+      </p>
+      <button class="btn-primary" id="to-screen-3" onclick="goToScreen(3)" aria-label="Continue to Lab Orientation">
+        Continue to Lab Tools
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SCREENS 3–8 · PLACEHOLDERS
+════════════════════════════════════════════ -->
+<section id="screen-3" class="screen" aria-label="Lab Tools and Reagents">
+
+  <div class="section-hero">
+    <p class="context-label">Section 02</p>
+    <h2>Lab Tools &amp; Reagents</h2>
+    <p>Before running the procedure, learn what each tool does — and <em>why</em> it matters.</p>
+  </div>
+
+  <div class="tools-layout">
+
+    <!-- Sidebar nav -->
+    <aside class="tools-sidebar" aria-label="Tools list">
+      <div class="tools-sidebar-header">Lab Inventory</div>
+
+      <div class="tool-nav-item active" data-tool="0" onclick="showTool(0)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(0)">
+        <span class="tool-nav-icon" aria-hidden="true">🧤</span> Gloves &amp; Goggles
+        <span class="tool-nav-check" id="check-0" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="1" onclick="showTool(1)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(1)">
+        <span class="tool-nav-icon" aria-hidden="true">🫧</span> Detergent (SDS)
+        <span class="tool-nav-check" id="check-1" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="2" onclick="showTool(2)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(2)">
+        <span class="tool-nav-icon" aria-hidden="true">🧂</span> Salt Solution (NaCl)
+        <span class="tool-nav-check" id="check-2" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="3" onclick="showTool(3)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(3)">
+        <span class="tool-nav-icon" aria-hidden="true">🥶</span> Cold Ethanol
+        <span class="tool-nav-check" id="check-3" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="4" onclick="showTool(4)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(4)">
+        <span class="tool-nav-icon" aria-hidden="true">💧</span> Pipette
+        <span class="tool-nav-check" id="check-4" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="5" onclick="showTool(5)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(5)">
+        <span class="tool-nav-icon" aria-hidden="true">🔬</span> Centrifuge
+        <span class="tool-nav-check" id="check-5" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="6" onclick="showTool(6)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(6)">
+        <span class="tool-nav-icon" aria-hidden="true">🧫</span> Microcentrifuge Tube
+        <span class="tool-nav-check" id="check-6" aria-label="not yet mastered">·</span>
+      </div>
+      <div class="tool-nav-item" data-tool="7" onclick="showTool(7)" tabindex="0" onkeydown="if(event.key==='Enter')showTool(7)">
+        <span class="tool-nav-icon" aria-hidden="true">🗂️</span> Filter / Cheesecloth
+        <span class="tool-nav-check" id="check-7" aria-label="not yet mastered">·</span>
+      </div>
+    </aside>
+
+    <!-- Main panel -->
+    <div class="tools-main">
+
+      <!-- Progress bar -->
+      <div class="tools-progress-bar">
+        <div class="tpb-left">
+          <span class="tpb-label"><span id="tools-mastered-count">0</span> of 8 tools understood</span>
+          <div class="tpb-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="8" aria-label="Tools mastered">
+            <div class="tpb-fill" id="tools-progress-fill"></div>
+          </div>
+        </div>
+        <button class="btn-primary" id="to-screen-4" onclick="goToScreen(4)" aria-label="Continue to Procedure Sequencing">
+          Continue to Procedure
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Tool cards (shown one at a time) -->
+      <div id="tool-display" aria-live="polite"></div>
+
+    </div>
+  </div>
+</section>
+
+<section id="screen-4" class="screen" aria-label="Procedure Sequencing">
+
+  <div class="section-hero">
+    <p class="context-label">Section 03</p>
+    <h2>Sequence the Procedure</h2>
+    <p>Drag the steps into the correct order before running the simulation. Reasoning through sequence <em>is</em> the science.</p>
+  </div>
+
+  <div class="seq-layout">
+
+    <div class="seq-intro">
+      <div class="seq-intro-icon" aria-hidden="true">🧠</div>
+      <div>
+        <h3>Think before you act</h3>
+        <p>In real labs, following steps out of order can destroy a sample, contaminate results, or waste hours of work. Use what you learned about the tools and reagents to reason through the correct sequence. You can check your work when all 7 steps are placed.</p>
+      </div>
+    </div>
+
+    <div class="seq-columns">
+
+      <!-- Source pool -->
+      <div>
+        <div class="seq-panel-label">
+          Unordered Steps
+          <span class="seq-panel-count" id="source-count">7 remaining</span>
+        </div>
+        <div class="seq-source-zone" id="source-zone"
+             ondragover="handleZoneDragOver(event,'source')"
+             ondrop="handleZoneDrop(event,'source')"
+             ondragleave="handleZoneDragLeave(event,'source')"
+             aria-label="Unordered steps pool"
+             role="list">
+          <!-- Cards inserted by JS -->
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="seq-arrow" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--light-gray)" stroke-width="2">
+          <path d="M6 14h16M16 8l6 6-6 6"/>
+        </svg>
+      </div>
+
+      <!-- Target sequence -->
+      <div>
+        <div class="seq-panel-label">
+          Your Sequence — Step by Step
+          <span class="seq-panel-count" id="placed-count">0 / 7 placed</span>
+        </div>
+        <div class="seq-target-zone" id="target-zone"
+             aria-label="Your ordered sequence"
+             role="list">
+          <!-- Slots inserted by JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Result panel -->
+    <div class="seq-result-panel" id="seq-result" role="alert" aria-live="assertive"></div>
+
+    <!-- Action bar -->
+    <div class="seq-check-bar">
+      <span class="seq-check-hint" id="seq-check-hint">Place all 7 steps to check your sequence.</span>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+        <button class="btn-reset" onclick="resetSequence()" aria-label="Reset and start over">↺ Reset</button>
+        <button class="btn-check" id="seq-check-btn" onclick="checkSequence()" disabled aria-label="Check your sequence">
+          Check Sequence
+        </button>
+        <button class="btn-primary" id="to-screen-5" onclick="goToScreen(5)" style="display:none" aria-label="Continue to simulation">
+          Run the Simulation
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="screen-5" class="screen" aria-label="Interactive Extraction Simulation">
+  <div class="sim-layout">
+
+    <!-- Left: step tracker sidebar -->
+    <aside class="sim-sidebar" aria-label="Extraction steps progress">
+      <div class="sim-sidebar-label">Extraction Steps</div>
+      <nav class="sim-step-nav" id="sim-step-nav" aria-label="Step progress"></nav>
+
+      <div class="sim-yield-meter" aria-label="DNA yield meter">
+        <div class="sim-yield-label">Estimated DNA Yield</div>
+        <div class="sim-yield-bar-bg">
+          <div class="sim-yield-bar-fill high" id="sim-yield-fill" style="width:100%"></div>
+        </div>
+        <div class="sim-yield-value" id="sim-yield-value">High Quality</div>
+      </div>
+    </aside>
+
+    <!-- Right: active step panel -->
+    <main class="sim-main" id="sim-main-panel" aria-live="polite">
+      <!-- rendered by JS -->
+    </main>
+
+  </div>
+</section>
+
+<section id="screen-6" class="screen" aria-label="Results and Analysis">
+  <div class="section-hero">
+    <p class="context-label">Section 05</p>
+    <h2>Your Results &amp; Analysis</h2>
+    <p>Review every decision you made — and what it cost (or preserved) in your DNA sample.</p>
+  </div>
+  <div class="results-layout" id="results-layout">
+    <!-- Rendered by JS when screen 6 loads -->
+    <div style="text-align:center;padding:3rem;color:var(--mid-gray)">Complete the simulation to see your results.</div>
+  </div>
+</section>
+
+<!-- ══ SCREEN 7 ══ -->
+<section id="screen-7" class="screen" aria-label="Professional vs Strawberry Lab Comparison">
+  <div class="section-hero">
+    <p class="context-label">Section 06</p>
+    <h2>Professional Lab vs. Strawberry Extraction</h2>
+    <p>The same biology, different tools. Understanding why the methods differ is as important as knowing the steps.</p>
+  </div>
+
+  <div class="compare-layout">
+
+    <div class="compare-table-wrap">
+      <div class="compare-row" style="background:var(--off-white)">
+        <div class="compare-row-label" style="background:transparent;font-weight:600;color:var(--dark-gray);font-family:'DM Sans',sans-serif;font-size:0.8rem;text-transform:none;letter-spacing:0">Category</div>
+        <div class="compare-cell pro-cell" style="background:var(--near-black);color:white;font-weight:600;font-size:0.9rem">
+          🏥 Professional Laboratory
+        </div>
+        <div class="compare-cell classroom-cell" style="background:var(--teal-light);font-weight:600;font-size:0.9rem">
+          🍓 Classroom Strawberry Lab
+        </div>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-row-label">Precision</div>
+        <div class="compare-cell pro-cell">Micropipettes measure volumes to ±0.1 µL. Every reagent is weighed or volumetrically measured. <span class="compare-chip chip-high">Very High</span></div>
+        <div class="compare-cell classroom-cell">Measurement is approximate — teaspoons, pinches, estimation. <span class="compare-chip chip-low">Low</span></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">DNA Purity</div>
+        <div class="compare-cell pro-cell">Multiple purification steps remove proteins, RNA, and contaminants. Purity verified by spectrophotometry. <span class="compare-chip chip-high">High</span></div>
+        <div class="compare-cell classroom-cell">DNA is present but mixed with proteins, sugars, and other cell contents. <span class="compare-chip chip-low">Low</span></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">Equipment</div>
+        <div class="compare-cell pro-cell">Microcentrifuge, thermocycler, spectrophotometer, laminar flow hood, fume hood.</div>
+        <div class="compare-cell classroom-cell">Plastic cups, cheesecloth, dish soap, salt, rubbing alcohol, wooden skewer.</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">Cost</div>
+        <div class="compare-cell pro-cell">Professional DNA extraction kits cost $200–$500 per 50 samples. Equipment costs tens of thousands. <span class="compare-chip chip-low">Very High</span></div>
+        <div class="compare-cell classroom-cell">Entire lab costs under $5 of household materials. <span class="compare-chip chip-high">Very Low</span></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">Time</div>
+        <div class="compare-cell pro-cell">Full extraction + purification + quality check: 2–4 hours.</div>
+        <div class="compare-cell classroom-cell">Visible DNA in about 15–20 minutes.</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">DNA Use</div>
+        <div class="compare-cell pro-cell">DNA is suitable for PCR, sequencing, cloning, diagnostic testing. <span class="compare-chip chip-high">Analysis-ready</span></div>
+        <div class="compare-cell classroom-cell">DNA is visible but not suitable for most downstream analysis. <span class="compare-chip chip-med">Demonstration only</span></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-row-label">Reproducibility</div>
+        <div class="compare-cell pro-cell">Standardized protocols produce consistent, comparable results across labs worldwide.</div>
+        <div class="compare-cell classroom-cell">Results vary with technique, temperature, and materials — each group's extraction is different.</div>
+      </div>
+      <div class="compare-row" style="border-bottom:none">
+        <div class="compare-row-label">Why Strawberries?</div>
+        <div class="compare-cell pro-cell" style="grid-column:span 2;border-right:none">
+          Strawberries are <strong>octoploid</strong> — they have 8 copies of each chromosome (most organisms have 2). This means each strawberry cell contains 4× more DNA than a typical diploid cell, making extraction dramatically more visible. Strawberries are also soft, easy to crush, and their large cells lyse readily with gentle detergent. They are scientifically ideal for classroom demonstration.
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-question">
+      <div class="q-label">Reflection Question</div>
+      <p class="q-text">Why might a classroom strawberry extraction still be scientifically valuable, even though the DNA is impure and cannot be used for sequencing or PCR?</p>
+      <textarea class="compare-answer-area" id="compare-reflect"
+        placeholder="Think about what the strawberry lab demonstrates about biology, scientific process, and the physical reality of DNA..."
+        rows="4" aria-label="Your answer to the reflection question"></textarea>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn-primary ready" onclick="goToScreen(8)" aria-label="Continue to Reflection">
+        Continue to Reflection
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCREEN 8 ══ -->
+<section id="screen-8" class="screen" aria-label="Reflection and Strawberry Lab Plan">
+  <div class="section-hero">
+    <p class="context-label">Section 07</p>
+    <h2>Reflect &amp; Plan Your Strawberry Extraction</h2>
+    <p>Synthesis is where learning becomes durable. Take your time with each prompt.</p>
+  </div>
+
+  <div class="reflect-layout">
+
+    <div class="reflect-intro">
+      <h3>Before you go to the lab…</h3>
+      <p>Answer the reflection prompts below using what you've learned from the simulation. Then build your strawberry extraction procedure — a written plan your group will refer to during the physical lab. There are no perfectly right answers here; what matters is your reasoning.</p>
+    </div>
+
+    <!-- Reflection prompts -->
+    <div class="reflect-prompts" aria-label="Reflection prompts">
+
+      <div class="reflect-prompt-card">
+        <div class="reflect-prompt-header">
+          <span class="reflect-prompt-num">01</span>
+          <span class="reflect-prompt-q">Which step in the DNA extraction do you think is most critical — and why? What would happen if it were skipped or done incorrectly?</span>
+        </div>
+        <div class="reflect-prompt-body">
+          <textarea class="reflect-textarea" id="ref-1" placeholder="Think about which step has the biggest consequence for the final result…" oninput="updateCharCount('ref-1','cc-1')" aria-label="Reflection answer 1"></textarea>
+          <div class="reflect-char-count" id="cc-1">0 characters</div>
+        </div>
+      </div>
+
+      <div class="reflect-prompt-card">
+        <div class="reflect-prompt-header">
+          <span class="reflect-prompt-num">02</span>
+          <span class="reflect-prompt-q">How does procedural precision affect scientific reliability? Use a specific example from the simulation to support your answer.</span>
+        </div>
+        <div class="reflect-prompt-body">
+          <textarea class="reflect-textarea" id="ref-2" placeholder="Consider the decisions you made that had the largest impact on DNA yield…" oninput="updateCharCount('ref-2','cc-2')" aria-label="Reflection answer 2"></textarea>
+          <div class="reflect-char-count" id="cc-2">0 characters</div>
+        </div>
+      </div>
+
+      <div class="reflect-prompt-card">
+        <div class="reflect-prompt-header">
+          <span class="reflect-prompt-num">03</span>
+          <span class="reflect-prompt-q">What should your group prioritize during the physical strawberry extraction to maximize DNA yield and minimize errors?</span>
+        </div>
+        <div class="reflect-prompt-body">
+          <textarea class="reflect-textarea" id="ref-3" placeholder="Think about what you'd do differently knowing what you know now…" oninput="updateCharCount('ref-3','cc-3')" aria-label="Reflection answer 3"></textarea>
+          <div class="reflect-char-count" id="cc-3">0 characters</div>
+        </div>
+      </div>
+
+      <div class="reflect-prompt-card">
+        <div class="reflect-prompt-header">
+          <span class="reflect-prompt-num">04</span>
+          <span class="reflect-prompt-q">How would you explain DNA extraction — and why it matters — to a student who has never heard of it before?</span>
+        </div>
+        <div class="reflect-prompt-body">
+          <textarea class="reflect-textarea" id="ref-4" placeholder="Avoid jargon — explain it the way you'd tell a younger student…" oninput="updateCharCount('ref-4','cc-4')" aria-label="Reflection answer 4"></textarea>
+          <div class="reflect-char-count" id="cc-4">0 characters</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Procedure builder -->
+    <div class="procedure-builder">
+      <div class="procedure-builder-header">
+        <h3>Your Strawberry Extraction Procedure</h3>
+        <p>Using the materials listed below, write your group's step-by-step extraction plan. Add a scientific rationale for each step using the "Why?" toggle.</p>
+      </div>
+
+      <!-- Materials list -->
+      <div class="materials-panel">
+        <div class="materials-label">Available Materials</div>
+        <div class="materials-grid">
+          <div class="material-chip">🍓 Fresh strawberries (2–3)</div>
+          <div class="material-chip">🛍️ Zip-lock bag</div>
+          <div class="material-chip">🧴 Dish soap (liquid)</div>
+          <div class="material-chip">🧂 Table salt (NaCl)</div>
+          <div class="material-chip">💧 Water</div>
+          <div class="material-chip">🥃 Rubbing alcohol (isopropanol) — ice cold</div>
+          <div class="material-chip">🧻 Cheesecloth or coffee filter</div>
+          <div class="material-chip">🥤 Clear plastic cup (×2)</div>
+          <div class="material-chip">🥄 Measuring spoon (teaspoon)</div>
+          <div class="material-chip">🩺 Graduated cylinder or measuring cup</div>
+          <div class="material-chip">🪵 Wooden skewer or toothpick</div>
+          <div class="material-chip">🧤 Gloves</div>
+        </div>
+      </div>
+
+      <div class="procedure-builder-body" id="procedure-body">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Export bar -->
+    <div class="export-bar">
+      <div class="export-bar-text">
+        <h4>Save your work</h4>
+        <p>Print this page or use your browser's "Save as PDF" to keep your reflection and procedure for the physical lab.</p>
+      </div>
+      <button class="btn-export" onclick="window.print()" aria-label="Print or save as PDF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  // ── State ──
+  let currentScreen = 1;
+  let selectedCards = new Set();
+  const totalScreens = 8;
+  const SCREENS_UNLOCKED = [1]; // screens user can navigate to
+
+  // ── Navigation ──
+  function goToScreen(n) {
+    if (n < 1 || n > totalScreens) return;
+    document.querySelector('.screen.active')?.classList.remove('active');
+    const next = document.getElementById('screen-' + n);
+    if (next) {
+      next.classList.add('active');
+      currentScreen = n;
+      next.scrollTop = 0; // scroll the screen's own container, not the document
+    }
+    updateNav(n);
+    if (n === 6) { renderResults(); }
+  }
+
+  function updateNav(active) {
+    document.querySelectorAll('.nav-step').forEach(el => {
+      const n = parseInt(el.dataset.screen);
+      el.classList.remove('active','completed','locked');
+      if (n === active) el.classList.add('active');
+      else if (n < active) el.classList.add('completed');
+      else el.classList.add('locked');
+    });
+  }
+
+  // ── Card selection (Screen 2) ──
+  function selectCard(card) {
+    const id = card.dataset.id;
+    if (selectedCards.has(id)) {
+      selectedCards.delete(id);
+      card.classList.remove('selected');
+      card.setAttribute('aria-pressed', 'false');
+    } else {
+      selectedCards.add(id);
+      card.classList.add('selected');
+      card.setAttribute('aria-pressed', 'true');
+    }
+    updateCounter();
+  }
+
+  function updateCounter() {
+    const count = selectedCards.size;
+    const countEl = document.getElementById('selected-count');
+    const fillEl = document.getElementById('counter-fill');
+    const btn = document.getElementById('to-screen-3');
+    const hint = document.getElementById('proceed-hint');
+
+    if (countEl) countEl.textContent = count;
+
+    // Fill bar: max at 6 cards
+    const pct = Math.min(count / 6, 1);
+    if (fillEl) fillEl.style.width = (pct * 120) + 'px';
+
+    // Unlock button at 2+
+    if (count >= 2) {
+      btn?.classList.add('ready');
+      if (hint) hint.innerHTML = `<strong>Great!</strong> You've selected ${count} area${count>1?'s':''}. Continue when ready.`;
+    } else {
+      btn?.classList.remove('ready');
+      if (hint) hint.innerHTML = `<strong>Select at least 2 areas</strong> to unlock the next section.`;
+    }
+  }
+
+  // ── Init ──
+  updateNav(1);
+
+  // ══════════════════════════════════════════
+  // SCREEN 3 · LAB TOOLS
+  // ══════════════════════════════════════════
+  const TOOLS = [
+    {
+      emoji: '🧤', type: 'Safety Equipment',
+      name: 'Gloves & Safety Goggles',
+      subtitle: 'Personal Protective Equipment (PPE)',
+      description: 'Lab safety begins before any procedure starts. Gloves prevent skin contact with chemical reagents like ethanol and detergent, and also prevent contamination of samples with DNA from your own skin. Goggles protect eyes from splashes. In a professional lab, PPE is non-negotiable and required by safety protocols.',
+      question: 'Why is wearing gloves especially important during DNA extraction — beyond basic safety?',
+      options: [
+        { letter: 'A', text: 'To keep hands warm during cold ethanol steps', correct: false },
+        { letter: 'B', text: 'To prevent contaminating the sample with your own DNA', correct: true },
+        { letter: 'C', text: 'To make it easier to handle small tubes', correct: false },
+        { letter: 'D', text: 'To avoid staining your hands with food dye', correct: false },
+      ],
+      feedbackCorrect: 'Correct. Human skin constantly sheds DNA-containing cells. Without gloves, your own genetic material could contaminate the sample — making results unreliable or uninterpretable. This is critical in forensic labs, where a technician\'s DNA must never appear in evidence.',
+      feedbackIncorrect: 'Not quite. The key reason gloves matter in DNA work is contamination prevention. Your skin constantly sheds cells — and their DNA. If your DNA mixes with the sample, results become unreliable. This is why forensic labs follow strict PPE protocols.'
+    },
+    {
+      emoji: '🫧', type: 'Reagent · Surfactant',
+      name: 'Detergent (SDS)',
+      subtitle: 'Sodium Dodecyl Sulfate — Cell Lysis Agent',
+      description: 'Detergent (like dish soap or laboratory-grade SDS) works by disrupting the phospholipid bilayer of cell membranes. The hydrophobic tails of the detergent molecules insert into the lipid membrane and break it apart — a process called cell lysis. This releases the contents of the cell, including DNA, into solution. Without this step, DNA remains locked inside intact cells.',
+      question: 'What does detergent specifically break down during DNA extraction?',
+      options: [
+        { letter: 'A', text: 'The DNA strand itself', correct: false },
+        { letter: 'B', text: 'The phospholipid membranes surrounding cells', correct: true },
+        { letter: 'C', text: 'The salt bonds holding DNA together', correct: false },
+        { letter: 'D', text: 'The proteins attached to the test tube walls', correct: false },
+      ],
+      feedbackCorrect: 'Correct. Cell membranes are made of phospholipids — fats — which detergent disrupts by inserting its hydrophobic tails into the lipid layer and tearing it apart. This is called lysis. The cell\'s contents, including DNA, spill into solution. The same chemistry that cleans grease off dishes works here.',
+      feedbackIncorrect: 'Think about what detergent does to grease. Cell membranes are made of lipids (fats). Detergent disrupts fat-based structures — so it breaks apart the phospholipid membranes surrounding cells, releasing their contents. It does not directly affect the DNA strand.'
+    },
+    {
+      emoji: '🧂', type: 'Reagent · Ionic',
+      name: 'Salt Solution (NaCl)',
+      subtitle: 'Sodium Chloride — Protein Precipitation Aid',
+      description: 'Salt serves two important roles. First, it helps neutralize the negative charge on DNA strands — without this, DNA molecules would repel each other and stay dissolved in solution. Second, salt causes proteins to clump and precipitate out of solution, helping separate proteins from DNA. The ionic environment created by salt is essential for DNA to eventually become visible during precipitation.',
+      question: 'What is the primary role of salt (NaCl) in a DNA extraction?',
+      options: [
+        { letter: 'A', text: 'To add flavor and make the reaction more palatable', correct: false },
+        { letter: 'B', text: 'To break open cell walls mechanically', correct: false },
+        { letter: 'C', text: 'To neutralize DNA\'s charge and help precipitate proteins', correct: true },
+        { letter: 'D', text: 'To dissolve the lipid membrane', correct: false },
+      ],
+      feedbackCorrect: 'Correct. DNA carries a strong negative charge along its phosphate backbone. Salt provides positive ions (Na⁺) that neutralize this charge, allowing DNA strands to come together and eventually become visible. Salt also helps proteins separate out of solution.',
+      feedbackIncorrect: 'Salt\'s role is chemical, not mechanical. DNA has a strong negative charge. The sodium ions (Na⁺) in salt neutralize that charge, which allows DNA molecules to clump together and precipitate out of solution. Salt also helps separate proteins from DNA.'
+    },
+    {
+      emoji: '🥶', type: 'Reagent · Solvent',
+      name: 'Cold Ethanol (or Isopropanol)',
+      subtitle: 'Ice-Cold Alcohol — DNA Precipitation',
+      description: 'This is the dramatic final step that makes DNA visible. DNA is not soluble in alcohol the way it is in water. When ice-cold ethanol is added carefully to the sample, DNA strands precipitate out of solution — becoming visible as white, stringy clumps. The cold temperature is critical: it slows enzyme activity that would otherwise degrade the DNA, and makes precipitation more efficient.',
+      question: 'Why must the ethanol used in DNA extraction be ice-cold?',
+      options: [
+        { letter: 'A', text: 'Cold ethanol evaporates more slowly, giving more time to work', correct: false },
+        { letter: 'B', text: 'Cold temperature slows DNA-degrading enzymes and improves precipitation', correct: true },
+        { letter: 'C', text: 'Cold ethanol is less flammable than room-temperature ethanol', correct: false },
+        { letter: 'D', text: 'It makes the ethanol denser so it sinks below the DNA layer', correct: false },
+      ],
+      feedbackCorrect: 'Correct. Enzymes that break down DNA (DNases) are slowed significantly at cold temperatures. Cold ethanol also precipitates DNA more efficiently. Room-temperature ethanol would work less well and risk DNA degradation before it can be isolated.',
+      feedbackIncorrect: 'Temperature matters here for two reasons: cold conditions deactivate enzymes (DNases) that would degrade the DNA, and cold ethanol precipitates DNA more efficiently than warm ethanol. This is why professional labs often store ethanol at −20°C before use.'
+    },
+    {
+      emoji: '💧', type: 'Equipment · Transfer',
+      name: 'Pipette',
+      subtitle: 'Precision Liquid Transfer Tool',
+      description: 'A pipette allows precise transfer of small liquid volumes — critical in molecular biology where adding too much or too little of a reagent affects results. Laboratory-grade micropipettes measure volumes in microliters (µL). The pipette tip is changed between samples to prevent contamination. In classroom labs, plastic transfer pipettes or droppers serve a similar function with less precision.',
+      question: 'Why is precision in liquid measurement important when adding ethanol to the DNA sample?',
+      options: [
+        { letter: 'A', text: 'Adding too much ethanol could make the solution too cold', correct: false },
+        { letter: 'B', text: 'The correct ratio of ethanol to sample is needed for DNA to precipitate properly', correct: true },
+        { letter: 'C', text: 'Pipettes are used only to remove DNA, not to add reagents', correct: false },
+        { letter: 'D', text: 'Precision prevents the ethanol from mixing with the detergent', correct: false },
+      ],
+      feedbackCorrect: 'Correct. If too little ethanol is added, DNA may not fully precipitate. If too much is added, it may dilute the sample and wash away the DNA. The ratio matters — which is why professional labs use calibrated micropipettes rather than guessing volumes.',
+      feedbackIncorrect: 'In molecular biology, volume ratios matter. DNA precipitates when the alcohol-to-water ratio reaches a specific threshold. Too little ethanol and the DNA stays dissolved; too much and the sample is over-diluted. Precision is what separates reliable results from unreliable ones.'
+    },
+    {
+      emoji: '🔬', type: 'Equipment · Separation',
+      name: 'Centrifuge',
+      subtitle: 'High-Speed Separation Device',
+      description: 'A centrifuge spins samples at thousands of revolutions per minute, generating forces many times stronger than gravity. This causes denser materials — like cell debris, proteins, and DNA pellets — to sink to the bottom of the tube, while lighter liquids remain above. This process is called centrifugation. In classroom strawberry labs, gravity-based filtration (using cheesecloth) performs a similar but much less precise separation.',
+      question: 'What principle does a centrifuge use to separate cellular components?',
+      options: [
+        { letter: 'A', text: 'Magnetic attraction between DNA and the metal rotor', correct: false },
+        { letter: 'B', text: 'Heat causes heavier materials to rise to the surface', correct: false },
+        { letter: 'C', text: 'Rapid spinning creates strong forces that separate materials by density', correct: true },
+        { letter: 'D', text: 'Chemical reactions cause DNA to bond to the tube walls', correct: false },
+      ],
+      feedbackCorrect: 'Correct. Centrifugal force accelerates separation by density. Materials that are denser than the liquid pellet at the bottom of the tube; less dense material stays in suspension. A centrifuge can apply forces thousands of times stronger than gravity — far beyond what simple filtering achieves.',
+      feedbackIncorrect: 'A centrifuge works by creating very strong centrifugal forces through rapid spinning. These forces cause denser materials (like cell debris and DNA) to pellet at the bottom of the tube, while less dense materials remain in solution above. Density difference is the key.'
+    },
+    {
+      emoji: '🧫', type: 'Equipment · Container',
+      name: 'Microcentrifuge Tube',
+      subtitle: '1.5 mL Sample Container',
+      description: 'These small, cone-bottomed plastic tubes (usually 1.5 mL) are designed to fit precisely in a centrifuge rotor. The cone shape ensures that pelleted material concentrates at the very tip — making it easy to remove the liquid above (the supernatant) without disturbing the pellet. In molecular biology, using the correct tube type matters: the wrong material or shape can interfere with centrifugation or chemical reactions.',
+      question: 'Why does a microcentrifuge tube have a cone-shaped bottom rather than a flat bottom?',
+      options: [
+        { letter: 'A', text: 'Cone shapes hold more liquid than flat-bottomed tubes', correct: false },
+        { letter: 'B', text: 'The cone concentrates pelleted material at the tip for easy separation', correct: true },
+        { letter: 'C', text: 'Flat-bottomed tubes crack during centrifugation', correct: false },
+        { letter: 'D', text: 'The cone prevents the tube from tipping during reactions', correct: false },
+      ],
+      feedbackCorrect: 'Correct. When centrifugal force pushes dense material to the bottom, the cone shape focuses everything into a small, concentrated pellet at the very tip. This makes it easy to carefully remove the liquid above (supernatant) with a pipette without disturbing the collected material.',
+      feedbackIncorrect: 'The cone shape is functional, not decorative. When centrifugation forces dense material to the bottom, the tapered cone concentrates it into a tiny pellet at the very tip. This precise geometry makes it easy to pipette off the liquid above without accidentally picking up the pellet.'
+    },
+    {
+      emoji: '🗂️', type: 'Equipment · Filtration',
+      name: 'Filter / Cheesecloth',
+      subtitle: 'Mechanical Separation — Classroom Equivalent',
+      description: 'Filtration removes large solid debris from the liquid sample — cell walls, plant tissue, and other material that would interfere with DNA isolation. In professional labs, filtration columns with pore sizes measured in micrometers achieve extremely precise separation. In classroom strawberry extractions, cheesecloth or coffee filters serve the same basic function — straining out large cellular debris while allowing liquid and dissolved molecules (including DNA) to pass through.',
+      question: 'What is the purpose of the filtration step in a DNA extraction?',
+      options: [
+        { letter: 'A', text: 'To remove water from the sample', correct: false },
+        { letter: 'B', text: 'To add reagents to the sample through the filter', correct: false },
+        { letter: 'C', text: 'To remove large cellular debris while keeping DNA in the liquid', correct: true },
+        { letter: 'D', text: 'To change the temperature of the sample', correct: false },
+      ],
+      feedbackCorrect: 'Correct. Filtration is a mechanical separation step. The filter\'s pore size allows small molecules (like dissolved DNA) to pass through, while larger solid debris (cell walls, tissue chunks) gets trapped. This clarifies the liquid before the precipitation step.',
+      feedbackIncorrect: 'Filtration separates by physical size. Cell debris — walls, tissue fragments, large cellular structures — is trapped by the filter. DNA molecules are small enough to pass through with the liquid. This clarifies the sample and removes material that would interfere with the final precipitation step.'
+    }
+  ];
+
+  let toolsMastered = new Set();
+  let currentTool = 0;
+
+  function showTool(index) {
+    currentTool = index;
+    const tool = TOOLS[index];
+
+    // Update sidebar nav
+    document.querySelectorAll('.tool-nav-item').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+
+    // Render card
+    const answered = toolsMastered.has(index);
+    document.getElementById('tool-display').innerHTML = renderToolCard(tool, index, answered);
+    updateToolsProgress();
+  }
+
+  function renderToolCard(tool, index, answered) {
+    const mastered = toolsMastered.has(index);
+    return `
+      <div class="tool-card-large ${mastered ? '' : 'highlight'}" role="article" aria-label="${tool.name}">
+        <div class="tool-card-top">
+          <div class="tool-visual">
+            <div class="tool-emoji" aria-hidden="true">${tool.emoji}</div>
+            <div class="tool-type-tag">${tool.type}</div>
+          </div>
+          <div class="tool-info">
+            <div class="tool-name">${tool.name}</div>
+            <div class="tool-subtitle">${tool.subtitle}</div>
+            <p class="tool-description">${tool.description}</p>
+          </div>
+        </div>
+        <div class="tool-question-zone">
+          <p class="question-label">Check your understanding</p>
+          <p class="question-text">${tool.question}</p>
+          <div class="answer-options" id="options-${index}" aria-label="Answer choices">
+            ${tool.options.map((opt, oi) => `
+              <button class="answer-option ${answered && opt.correct ? 'correct' : answered && !opt.correct ? '' : ''}"
+                onclick="answerTool(${index}, ${oi})"
+                ${answered ? 'disabled' : ''}
+                aria-label="Option ${opt.letter}: ${opt.text}">
+                <span class="option-letter">${opt.letter}</span>
+                ${opt.text}
+              </button>
+            `).join('')}
+          </div>
+          <div class="feedback-box ${answered ? (mastered ? 'correct-fb show' : 'incorrect-fb show') : ''}" id="feedback-${index}">
+            ${answered ? `<strong>${mastered ? '✓ Correct' : 'Not quite'}</strong>${mastered ? tool.feedbackCorrect : tool.feedbackIncorrect}` : ''}
+          </div>
+          <button class="next-tool-btn ${answered && index < TOOLS.length - 1 ? 'show' : ''}"
+            onclick="showTool(${index + 1})"
+            id="next-btn-${index}">
+            Next: ${index < TOOLS.length - 1 ? TOOLS[index + 1].name : ''}
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function answerTool(toolIndex, optionIndex) {
+    const tool = TOOLS[toolIndex];
+    const chosen = tool.options[optionIndex];
+    const isCorrect = chosen.correct;
+
+    // Mark all options
+    const optButtons = document.querySelectorAll(`#options-${toolIndex} .answer-option`);
+    optButtons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (tool.options[i].correct) btn.classList.add('correct');
+      else if (i === optionIndex && !isCorrect) btn.classList.add('incorrect');
+    });
+
+    // Show feedback
+    const fb = document.getElementById(`feedback-${toolIndex}`);
+    if (fb) {
+      fb.className = `feedback-box show ${isCorrect ? 'correct-fb' : 'incorrect-fb'}`;
+      fb.innerHTML = `<strong>${isCorrect ? '✓ Correct' : 'Not quite'}</strong>${isCorrect ? tool.feedbackCorrect : tool.feedbackIncorrect}`;
+    }
+
+    // Mark mastered (correct OR incorrect — they've engaged with it)
+    toolsMastered.add(toolIndex);
+
+    // Update sidebar check
+    const checkEl = document.getElementById(`check-${toolIndex}`);
+    if (checkEl) {
+      checkEl.textContent = '✓';
+      checkEl.setAttribute('aria-label', 'mastered');
+    }
+    const navItem = document.querySelector(`.tool-nav-item[data-tool="${toolIndex}"]`);
+    if (navItem) navItem.classList.add('mastered');
+
+    // Show next button
+    const nextBtn = document.getElementById(`next-btn-${toolIndex}`);
+    if (nextBtn && toolIndex < TOOLS.length - 1) nextBtn.classList.add('show');
+
+    updateToolsProgress();
+  }
+
+  function updateToolsProgress() {
+    const count = toolsMastered.size;
+    const total = TOOLS.length;
+    const pct = (count / total) * 100;
+
+    const fill = document.getElementById('tools-progress-fill');
+    if (fill) {
+      fill.style.width = pct + '%';
+      fill.parentElement.setAttribute('aria-valuenow', count);
+    }
+    const countEl = document.getElementById('tools-mastered-count');
+    if (countEl) countEl.textContent = count;
+
+    // Unlock continue button at 5+ tools
+    const btn = document.getElementById('to-screen-4');
+    if (btn) {
+      if (count >= 5) btn.classList.add('ready');
+      else btn.classList.remove('ready');
+    }
+  }
+
+
+  // ══════════════════════════════════════════
+  // SCREEN 6 · RESULTS & ANALYSIS
+  // ══════════════════════════════════════════
+
+  function renderResults() {
+    const container = document.getElementById('results-layout');
+    if (!container) return;
+
+    // If simulation not yet run, show placeholder
+    if (!simChoices || simChoices.length === 0) {
+      container.innerHTML = `<div class="info-box" role="note">
+        <strong>Complete the simulation first</strong>
+        Navigate to Section 04 (Simulation) to make decisions, then return here to see your analysis.
+      </div>`;
+      return;
+    }
+
+    const errors = simChoices.filter(c => c.impact === 'bad').length;
+    const warns  = simChoices.filter(c => c.impact === 'warn').length;
+    const goods  = simChoices.filter(c => c.impact === 'good').length;
+    const yieldColor = simYield >= 70 ? '#4A7A5C' : simYield >= 40 ? '#8A6A2C' : '#8A3A3A';
+    const yieldLabel = simYield >= 70 ? 'High-Quality Extraction'
+                     : simYield >= 40 ? 'Partial Yield'
+                     : 'Low Yield — Significant Errors';
+    const yieldMsg = simYield >= 70
+      ? 'Your procedural decisions were optimal or near-optimal. This sample would be suitable for further analysis.'
+      : simYield >= 40
+      ? 'Your sample contains DNA but yield and purity are reduced. Review the decisions marked below before the physical lab.'
+      : 'Multiple critical errors significantly damaged your sample. Study the feedback carefully — these mistakes must be avoided in the physical lab.';
+
+    container.innerHTML = `
+      <!-- Yield hero -->
+      <div class="yield-hero">
+        <div>
+          <div class="yield-hero-label">Estimated Final DNA Yield</div>
+          <div class="yield-hero-value" style="color:${yieldColor}">${yieldLabel}</div>
+          <div class="yield-hero-sub">${yieldMsg}</div>
+          <div class="yield-big-bar-bg">
+            <div class="yield-big-bar-fill" style="width:${simYield}%;background:${yieldColor}"></div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:rgba(255,255,255,0.4)">${simYield}% of maximum possible yield</div>
+        </div>
+        <div class="yield-score-box">
+          <div class="yield-score-num" style="color:${yieldColor}">${simYield}<span style="font-size:1.4rem">%</span></div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.8rem">
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5)">✓ ${goods} optimal</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5)">⚠ ${warns} suboptimal</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5)">✗ ${errors} critical error${errors!==1?'s':''}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision log -->
+      <div>
+        <div class="decision-log-title">Decision-by-Decision Analysis</div>
+        <div class="decision-log-sub">Every choice you made, its outcome, and what it meant for your DNA sample.</div>
+        <div class="decision-log">
+          ${simChoices.map((choice, i) => {
+            const step = SIM_STEPS.find(s => s.id === choice.stepId);
+            const opt  = step?.decision.options.find(o => o.key === choice.optionKey);
+            const cls  = choice.impact;
+            const deltaStr = choice.yieldDelta === 0 ? 'No yield loss' : `${choice.yieldDelta}% yield`;
+            return `<div class="log-entry" role="article">
+              <div class="log-entry-stripe ${cls}"></div>
+              <div class="log-entry-body">
+                <div class="log-entry-top">
+                  <span class="log-step-name">Step ${i+1} · ${step?.name || ''}</span>
+                  <span class="log-grade ${cls}">${choice.fb.grade}</span>
+                  <span class="log-delta ${cls}">${deltaStr}</span>
+                </div>
+                <div class="log-choice">You chose: "${opt?.text || ''}"</div>
+                <div class="log-impact">${choice.fb.body}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Continue -->
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn-primary ready" onclick="goToScreen(7)">
+          Compare Lab Methods
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    `;
+  }
+
+  // ══════════════════════════════════════════
+  // SCREEN 8 · REFLECTION & PROCEDURE BUILDER
+  // ══════════════════════════════════════════
+
+  const PROCEDURE_STEP_COUNT = 7;
+
+  function initProcedureBuilder() {
+    const body = document.getElementById('procedure-body');
+    if (!body) return;
+    const rows = Array.from({ length: PROCEDURE_STEP_COUNT }, (_, i) => `
+      <div>
+        <div class="procedure-step-row">
+          <span class="procedure-step-num">${i + 1}.</span>
+          <input class="procedure-step-input" type="text"
+            placeholder="Write step ${i + 1}…"
+            aria-label="Procedure step ${i + 1}"
+            id="proc-${i}">
+          <button class="rationale-toggle" onclick="toggleRationale(${i})" id="rtog-${i}" aria-expanded="false" aria-controls="rrow-${i}">Why?</button>
+        </div>
+        <div class="rationale-row" id="rrow-${i}">
+          <textarea class="rationale-input" placeholder="What is the scientific purpose of this step?" aria-label="Rationale for step ${i + 1}" rows="2"></textarea>
+        </div>
+      </div>
+    `).join('');
+    body.innerHTML = rows;
+  }
+
+  function toggleRationale(i) {
+    const row = document.getElementById('rrow-' + i);
+    const btn = document.getElementById('rtog-' + i);
+    if (!row || !btn) return;
+    const open = row.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    btn.textContent = open ? 'Hide' : 'Why?';
+    if (open) row.querySelector('textarea')?.focus();
+  }
+
+  function updateCharCount(textareaId, countId) {
+    const ta = document.getElementById(textareaId);
+    const cc = document.getElementById(countId);
+    if (ta && cc) cc.textContent = ta.value.length + ' characters';
+  }
+
+
+  // ══════════════════════════════════════════
+  // SCREEN 4 · PROCEDURE SEQUENCING
+  // ══════════════════════════════════════════
+
+  const STEPS = [
+    {
+      id: 'sample',
+      label: 'Collect & prepare the sample',
+      hint: 'Obtain biological material containing cells with DNA',
+      rationale: 'You need cells before you can extract anything from them.',
+      correctPos: 0
+    },
+    {
+      id: 'lysis',
+      label: 'Lyse the cells with detergent solution',
+      hint: 'Break apart cell membranes to release contents',
+      rationale: 'Detergent disrupts phospholipid membranes, spilling cell contents into solution.',
+      correctPos: 1
+    },
+    {
+      id: 'salt',
+      label: 'Add salt solution',
+      hint: 'Neutralize DNA charge and help proteins clump',
+      rationale: 'Salt (NaCl) neutralizes DNA\'s negative charge and causes proteins to aggregate and separate.',
+      correctPos: 2
+    },
+    {
+      id: 'filter',
+      label: 'Filter out cell debris',
+      hint: 'Strain the lysate to remove large solid material',
+      rationale: 'Filtration removes cell wall fragments and tissue chunks, clarifying the liquid.',
+      correctPos: 3
+    },
+    {
+      id: 'centrifuge',
+      label: 'Centrifuge to pellet remaining solids',
+      hint: 'Spin the filtered liquid at high speed',
+      rationale: 'Centrifugal force pulls denser proteins and debris to the bottom, leaving DNA in the supernatant.',
+      correctPos: 4
+    },
+    {
+      id: 'ethanol',
+      label: 'Add ice-cold ethanol to precipitate DNA',
+      hint: 'Pour chilled alcohol gently down the side of the tube',
+      rationale: 'DNA is insoluble in alcohol. It precipitates out of solution as visible white strands.',
+      correctPos: 5
+    },
+    {
+      id: 'isolate',
+      label: 'Collect and store the DNA',
+      hint: 'Spool or collect the precipitated DNA',
+      rationale: 'DNA can now be spooled on a glass rod, collected by centrifugation, or dissolved in buffer for analysis.',
+      correctPos: 6
+    }
+  ];
+
+  // Shuffle array (Fisher-Yates)
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  let seqSourceOrder = [];   // step ids in source zone
+  let seqTargetOrder = [];   // step ids in target slots (null = empty)
+  let draggedStepId = null;
+  let dragFromZone = null;
+  let seqChecked = false;
+
+  function initSequence() {
+    seqSourceOrder = shuffle(STEPS.map(s => s.id));
+    seqTargetOrder = Array(STEPS.length).fill(null);
+    seqChecked = false;
+    renderSequence();
+    document.getElementById('seq-result').className = 'seq-result-panel';
+    document.getElementById('seq-result').innerHTML = '';
+    const toBtn = document.getElementById('to-screen-5');
+    if (toBtn) toBtn.style.display = 'none';
+  }
+
+  function renderSequence() {
+    renderSourceZone();
+    renderTargetZone();
+    updateSeqCounts();
+    updateCheckBtn();
+  }
+
+  function getStep(id) { return STEPS.find(s => s.id === id); }
+
+  function makeCardHTML(step, fromZone, slotIndex) {
+    let posClass = '';
+    if (seqChecked && fromZone === 'target' && slotIndex >= 0) {
+      posClass = (STEPS[slotIndex]?.id === step.id) ? 'correct-pos' : 'wrong-pos';
+    }
+    const numLabel = fromZone === 'target' ? `${slotIndex + 1}.` : '—';
+    return `
+      <div class="step-card ${posClass}"
+           draggable="true"
+           data-id="${step.id}"
+           data-from="${fromZone}"
+           data-slot="${slotIndex}"
+           ondragstart="handleDragStart(event,'${step.id}','${fromZone}',${slotIndex})"
+           ondragend="handleDragEnd(event)"
+           role="listitem"
+           aria-label="Step: ${step.label}"
+           tabindex="0">
+        <span class="drag-handle" aria-hidden="true">⠿</span>
+        <span class="step-num">${numLabel}</span>
+        <span>
+          <span class="step-label">${step.label}</span>
+          <span class="step-hint">${step.hint}</span>
+          <span class="step-rationale">✓ ${step.rationale}</span>
+        </span>
+      </div>`;
+  }
+
+  function renderSourceZone() {
+    const zone = document.getElementById('source-zone');
+    if (!zone) return;
+    if (seqSourceOrder.length === 0) {
+      zone.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">All steps placed →</div>';
+      return;
+    }
+    zone.innerHTML = seqSourceOrder.map(id => {
+      const step = getStep(id);
+      return makeCardHTML(step, 'source', -1);
+    }).join('');
+  }
+
+  function renderTargetZone() {
+    const zone = document.getElementById('target-zone');
+    if (!zone) return;
+    zone.innerHTML = seqTargetOrder.map((id, i) => {
+      if (id) {
+        const step = getStep(id);
+        return `<div class="target-slot filled"
+            ondragover="handleSlotDragOver(event,${i})"
+            ondrop="handleSlotDrop(event,${i})"
+            ondragleave="handleSlotDragLeave(event,${i})"
+            data-slot="${i}">
+          ${makeCardHTML(step, 'target', i)}
+        </div>`;
+      } else {
+        return `<div class="target-slot" id="slot-${i}"
+            ondragover="handleSlotDragOver(event,${i})"
+            ondrop="handleSlotDrop(event,${i})"
+            ondragleave="handleSlotDragLeave(event,${i})"
+            data-slot="${i}"
+            aria-label="Empty slot ${i+1}">
+          Step ${i + 1}
+        </div>`;
+      }
+    }).join('');
+  }
+
+  function updateSeqCounts() {
+    const placed = seqTargetOrder.filter(Boolean).length;
+    const remaining = seqSourceOrder.length;
+    const sc = document.getElementById('source-count');
+    const pc = document.getElementById('placed-count');
+    if (sc) sc.textContent = `${remaining} remaining`;
+    if (pc) pc.textContent = `${placed} / ${STEPS.length} placed`;
+  }
+
+  function updateCheckBtn() {
+    const allPlaced = seqTargetOrder.every(Boolean);
+    const btn = document.getElementById('seq-check-btn');
+    const hint = document.getElementById('seq-check-hint');
+    if (btn) btn.disabled = !allPlaced || seqChecked;
+    if (hint) {
+      if (allPlaced && !seqChecked) hint.textContent = 'All steps placed — check your sequence!';
+      else if (!allPlaced) hint.textContent = `Place all ${STEPS.length} steps to check your sequence.`;
+    }
+  }
+
+  // ── Drag handlers ──
+  function handleDragStart(e, stepId, fromZone, slotIndex) {
+    draggedStepId = stepId;
+    dragFromZone = { zone: fromZone, slot: slotIndex };
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', stepId);
+  }
+
+  function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    draggedStepId = null; dragFromZone = null;
+    // Clean all drag-over styles
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  }
+
+  function handleZoneDragOver(e, zoneName) {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    document.getElementById(zoneName + '-zone')?.classList.add('drag-over');
+  }
+  function handleZoneDragLeave(e, zoneName) {
+    document.getElementById(zoneName + '-zone')?.classList.remove('drag-over');
+  }
+  function handleZoneDrop(e, zoneName) {
+    e.preventDefault();
+    document.getElementById(zoneName + '-zone')?.classList.remove('drag-over');
+    if (!draggedStepId) return;
+
+    if (zoneName === 'source') {
+      // Return card to source from target
+      if (dragFromZone?.zone === 'target' && dragFromZone.slot >= 0) {
+        seqTargetOrder[dragFromZone.slot] = null;
+        if (!seqSourceOrder.includes(draggedStepId)) seqSourceOrder.push(draggedStepId);
+        renderSequence();
+      }
+    }
+  }
+
+  function handleSlotDragOver(e, slotIndex) {
+    e.preventDefault(); e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    document.getElementById('slot-' + slotIndex)?.classList.add('drag-over');
+  }
+  function handleSlotDragLeave(e, slotIndex) {
+    document.getElementById('slot-' + slotIndex)?.classList.remove('drag-over');
+  }
+  function handleSlotDrop(e, slotIndex) {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('slot-' + slotIndex)?.classList.remove('drag-over');
+    if (!draggedStepId) return;
+
+    const existingInSlot = seqTargetOrder[slotIndex];
+
+    // Move card from source → slot
+    if (dragFromZone?.zone === 'source') {
+      seqSourceOrder = seqSourceOrder.filter(id => id !== draggedStepId);
+      if (existingInSlot) seqSourceOrder.push(existingInSlot); // bump existing back
+      seqTargetOrder[slotIndex] = draggedStepId;
+    }
+    // Move card from another slot → this slot
+    else if (dragFromZone?.zone === 'target') {
+      const fromSlot = dragFromZone.slot;
+      if (fromSlot === slotIndex) { renderSequence(); return; }
+      seqTargetOrder[fromSlot] = existingInSlot || null; // swap
+      seqTargetOrder[slotIndex] = draggedStepId;
+    }
+
+    seqChecked = false;
+    renderSequence();
+    document.getElementById('seq-result').className = 'seq-result-panel';
+    document.getElementById('seq-result').innerHTML = '';
+    const toBtn = document.getElementById('to-screen-5');
+    if (toBtn) toBtn.style.display = 'none';
+  }
+
+  // ── Check + Reset ──
+  function checkSequence() {
+    seqChecked = true;
+    let correct = 0;
+    const errors = [];
+
+    seqTargetOrder.forEach((id, i) => {
+      const expected = STEPS[i];
+      if (id === expected.id) {
+        correct++;
+      } else {
+        const placed = getStep(id);
+        const shouldBe = getStep(expected.id);
+        errors.push(`Position ${i + 1}: You placed "<strong>${placed?.label}</strong>" — expected "<strong>${shouldBe?.label}</strong>"`);
+      }
+    });
+
+    renderSequence(); // re-render with correct-pos / wrong-pos classes
+
+    const resultEl = document.getElementById('seq-result');
+    const toBtn = document.getElementById('to-screen-5');
+    const hint = document.getElementById('seq-check-hint');
+
+    if (correct === STEPS.length) {
+      resultEl.className = 'seq-result-panel perfect show';
+      resultEl.innerHTML = `
+        <h4>✓ Perfect sequence!</h4>
+        <p>You placed all 7 steps in the correct scientific order. Notice how each step creates the conditions needed for the next — this is the logic of experimental design. You're ready to run the simulation.</p>`;
+      if (toBtn) { toBtn.style.display = 'inline-flex'; toBtn.classList.add('ready'); }
+      if (hint) hint.textContent = 'Excellent work. Proceed to the simulation.';
+    } else {
+      resultEl.className = 'seq-result-panel partial show';
+      resultEl.innerHTML = `
+        <h4>${correct} of ${STEPS.length} steps correct</h4>
+        <p>Steps with a green border are in the right position. Review the highlighted errors below, think about why the order matters, then reset and try again.</p>
+        <ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+      if (hint) hint.textContent = 'Review the feedback above, then reset to try again.';
+    }
+
+    updateCheckBtn();
+  }
+
+  function resetSequence() {
+    initSequence();
+  }
+
+  // ══════════════════════════════════════════
+  // SCREEN 5 · INTERACTIVE SIMULATION
+  // ══════════════════════════════════════════
+
+  const SIM_STEPS = [
+    {
+      id:'sample', name:'Sample Collection',
+      title:'Step 1 — Sample Collection',
+      desc:'You need biological material to extract DNA from. For this simulation you are working with plant tissue — similar to the strawberry you will use in the physical lab. Your first decision affects the quantity and quality of DNA available throughout the rest of the procedure.',
+      decision:{
+        icon:'🍓', label:'Procedural Decision',
+        q:'How much plant tissue do you add to your extraction buffer?',
+        options:[
+          {key:'A',text:'A very small pinch — about 0.1 g',impact:'warn',yieldDelta:-20,
+           fb:{grade:'⚠️ Low starting material',cls:'fb-warn',body:'Too little tissue means fewer cells, which means less DNA entering solution. Your extraction may still work, but the final yield will be reduced. In professional labs, starting material quantity is carefully measured and recorded.',tag:'Impact: Reduced yield throughout'}},
+          {key:'B',text:'A measured 1–2 g — crushed thoroughly',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Optimal starting material',cls:'fb-good',body:'Well-measured tissue gives you a strong foundation for the extraction. Thorough crushing breaks cell walls mechanically before lysis — improving how much DNA is ultimately released. Precision at the start pays dividends at the end.',tag:'Impact: Full DNA yield maintained'}},
+          {key:'C',text:'A large handful — more must be better',impact:'warn',yieldDelta:-15,
+           fb:{grade:'⚠️ Excess material',cls:'fb-warn',body:'More tissue creates more debris and can saturate your reagents. The filtration step will be harder, the centrifuge less effective, and the final sample may be cloudy with contamination. Bigger is not always better in molecular biology.',tag:'Impact: Contamination risk, reduced purity'}},
+        ]
+      }
+    },
+    {
+      id:'lysis', name:'Cell Lysis',
+      title:'Step 2 — Cell Lysis',
+      desc:'You add detergent (SDS) solution to the tissue to break apart cell membranes and release DNA into solution. The amount and mixing technique both matter.',
+      decision:{
+        icon:'🫧', label:'Procedural Decision',
+        q:'After adding the detergent solution, how do you mix?',
+        options:[
+          {key:'A',text:'Gently invert the tube 10–15 times',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Correct technique',cls:'fb-good',body:'Gentle inversion mixes the reagents without creating foam. Foam traps DNA at the air-liquid interface and makes it harder to isolate. Professional labs specify inversion — never vortexing — during lysis because vigorous agitation can also shear (break) DNA strands.',tag:'Impact: DNA integrity maintained'}},
+          {key:'B',text:'Shake the tube vigorously for 30 seconds',impact:'bad',yieldDelta:-30,
+           fb:{grade:'✗ Vigorous shaking damages DNA',cls:'fb-bad',body:'Vigorous shaking creates foam and applies mechanical force that can shear long DNA strands into shorter fragments. Sheared DNA is harder to isolate and may not be suitable for downstream analysis. This is one of the most common beginner mistakes in DNA extraction.',tag:'Impact: DNA fragmentation, significant yield loss'}},
+          {key:'C',text:'Leave it on the bench — diffusion will mix it',impact:'warn',yieldDelta:-20,
+           fb:{grade:'⚠️ Insufficient mixing',cls:'fb-warn',body:'Diffusion alone is far too slow for lysis to be complete. Detergent needs to contact and disrupt membranes throughout the sample. Without mixing, only cells near the surface are lysed — leaving most of your DNA still locked inside intact cells.',tag:'Impact: Incomplete lysis, reduced yield'}},
+        ]
+      }
+    },
+    {
+      id:'salt', name:'Salt Addition',
+      title:'Step 3 — Salt Solution',
+      desc:'Salt (NaCl) is added to the lysate to neutralize the negative charge on DNA and help proteins separate out of solution. Concentration matters.',
+      decision:{
+        icon:'🧂', label:'Reagent Decision',
+        q:'You need to add NaCl solution. Which concentration do you use?',
+        options:[
+          {key:'A',text:'Plain water — salt seems unnecessary',impact:'bad',yieldDelta:-35,
+           fb:{grade:'✗ Water does not substitute for salt',cls:'fb-bad',body:'Without salt, DNA strands repel each other (they are all negatively charged) and remain dispersed in solution. In the ethanol step, you will see little or no visible DNA precipitate — because the conditions for precipitation were never established.',tag:'Impact: DNA will not precipitate — severe yield loss'}},
+          {key:'B',text:'6 M NaCl — very high concentration',impact:'warn',yieldDelta:-10,
+           fb:{grade:'⚠️ Too concentrated',cls:'fb-warn',body:'Very high salt concentrations can cause proteins to precipitate so aggressively that they trap and carry DNA with them, reducing your final yield. Standard protocols use 0.1–1.5 M NaCl. Higher is not always better with ionic reagents.',tag:'Impact: Minor yield reduction from protein co-precipitation'}},
+          {key:'C',text:'0.9% NaCl — physiological concentration',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Appropriate salt concentration',cls:'fb-good',body:'This is within the effective range for neutralizing DNA charge and promoting protein separation without over-precipitating. Your lysate is now prepared for effective filtration, with DNA remaining in solution and proteins beginning to aggregate.',tag:'Impact: Optimal ionic conditions established'}},
+        ]
+      }
+    },
+    {
+      id:'filter', name:'Filtration',
+      title:'Step 4 — Filtration',
+      desc:'The lysate must be filtered to remove cell wall fragments and large debris. The filtrate (liquid that passes through) contains your dissolved DNA.',
+      decision:{
+        icon:'🗂️', label:'Technique Decision',
+        q:'When filtering, the cheesecloth clogs partway through. What do you do?',
+        options:[
+          {key:'A',text:'Squeeze and wring the cheesecloth to force liquid through',impact:'warn',yieldDelta:-15,
+           fb:{grade:'⚠️ Squeezing forces debris into filtrate',cls:'fb-warn',body:'Squeezing produces more filtrate quickly, but it forces cell debris through the filter that would otherwise have been trapped. This makes your sample cloudier and increases protein contamination.',tag:'Impact: Increased debris, reduced DNA purity'}},
+          {key:'B',text:'Let gravity do the work — collect what drains naturally',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Gravity filtration is correct',cls:'fb-good',body:'Gravity filtration is slower but produces a cleaner filtrate. Only material small enough to pass through the filter pores makes it through — leaving large debris behind. Professional labs use filter columns with defined pore sizes for the same reason.',tag:'Impact: Clean filtrate, DNA purity maintained'}},
+          {key:'C',text:'Skip filtration — go straight to centrifugation',impact:'warn',yieldDelta:-10,
+           fb:{grade:'⚠️ Skipping filtration overloads the centrifuge step',cls:'fb-warn',body:'Without pre-filtration, large fibrous material may interfere with pellet formation. The pellet will be harder to separate cleanly. Pre-filtration is not redundant — it makes every step after it more effective.',tag:'Impact: Messy centrifuge pellet, minor yield loss'}},
+        ]
+      }
+    },
+    {
+      id:'centrifuge', name:'Centrifugation',
+      title:'Step 5 — Centrifugation',
+      desc:'The filtered lysate is centrifuged to pellet proteins and debris. The liquid above (the supernatant) contains your DNA — and is what you keep.',
+      decision:{
+        icon:'🔬', label:'Equipment Decision',
+        q:'After centrifugation, you see a small white pellet at the bottom. What do you do?',
+        options:[
+          {key:'A',text:'Pour off the liquid into a new tube, keeping the pellet',impact:'bad',yieldDelta:-70,
+           fb:{grade:'✗ You discarded your DNA',cls:'fb-bad',body:'This is a critical error. The pellet contains proteins and debris — not DNA. Your DNA is dissolved in the supernatant (the liquid above). Pouring off the supernatant means discarding your DNA. Always know which fraction contains your target molecule before discarding anything.',tag:'Impact: Catastrophic — DNA lost'}},
+          {key:'B',text:'Carefully pipette the supernatant into a new tube, leave the pellet behind',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Correct — the supernatant holds your DNA',cls:'fb-good',body:'After centrifugation, DNA remains dissolved in the liquid above the pellet, while denser proteins and debris pellet at the bottom. Pipetting carefully off the top — without disturbing the pellet — gives you a clean DNA-containing sample ready for precipitation.',tag:'Impact: DNA successfully isolated from debris'}},
+          {key:'C',text:'Resuspend the pellet and repeat centrifugation again',impact:'warn',yieldDelta:-10,
+           fb:{grade:'⚠️ Unnecessary repeat step',cls:'fb-warn',body:'Repeating centrifugation on the original tube does not improve separation significantly and risks losing some DNA that may have co-pelleted. If your supernatant is cloudy, a second spin of the supernatant alone — in a new tube — is the correct approach.',tag:'Impact: Minor yield loss from repeat processing'}},
+        ]
+      }
+    },
+    {
+      id:'ethanol', name:'Ethanol Precipitation',
+      title:'Step 6 — Ethanol Precipitation',
+      desc:'This is the moment DNA becomes visible. You carefully layer ice-cold ethanol on top of your DNA-containing supernatant. DNA is insoluble in alcohol and precipitates as white, thread-like strands.',
+      decision:{
+        icon:'🥶', label:'Critical Technique Decision',
+        q:'You are ready to add ethanol. Which approach do you use?',
+        options:[
+          {key:'A',text:'Use ethanol from the shelf at room temperature, pour it in quickly',impact:'bad',yieldDelta:-40,
+           fb:{grade:'✗ Room-temperature ethanol is less effective',cls:'fb-bad',body:'Cold ethanol inhibits DNases (enzymes that degrade DNA) still active in your sample, and makes precipitation more efficient. Room-temperature ethanol reduces yield significantly and risks DNA degradation. Always pre-chill your ethanol.',tag:'Impact: Reduced precipitation efficiency, DNase activity'}},
+          {key:'B',text:'Tilt the tube and slowly pour ice-cold ethanol down the side',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Optimal precipitation technique',cls:'fb-good',body:'Adding ice-cold ethanol slowly down the tilted tube creates a sharp layer between the aqueous sample and the alcohol — this interface is where DNA precipitates most dramatically. You should see white, stringy DNA appear at the boundary.',tag:'Impact: Maximum DNA precipitation, high yield'}},
+          {key:'C',text:'Mix the ethanol and sample together vigorously',impact:'warn',yieldDelta:-25,
+           fb:{grade:'⚠️ Mixing disrupts the precipitation interface',cls:'fb-warn',body:'Vigorous mixing disperses the DNA precipitate into tiny fragments throughout the solution rather than forming visible, spoolable strands at the interface. The DNA is still there — but harder to collect.',tag:'Impact: Dispersed precipitate, harder to collect'}},
+        ]
+      }
+    },
+    {
+      id:'isolate', name:'DNA Collection',
+      title:'Step 7 — Collecting the DNA',
+      desc:'White, thread-like DNA precipitate is visible at the ethanol-water interface. The final step is collecting it without losing or contaminating your sample.',
+      decision:{
+        icon:'🧫', label:'Final Collection Decision',
+        q:'How do you collect the precipitated DNA?',
+        options:[
+          {key:'A',text:'Use a clean glass rod or toothpick to spool the DNA threads',impact:'good',yieldDelta:0,
+           fb:{grade:'✓ Classic spooling technique',cls:'fb-good',body:'Spooling is the standard classroom collection method. The long, tangled DNA strands wrap around the rod as you rotate it slowly. This is visually striking and gives you a clean, concentrated sample. In professional labs, DNA is collected by centrifugation and resuspended in buffer — but spooling beautifully demonstrates the physical reality of DNA.',tag:'Impact: Clean, high-quality DNA sample collected'}},
+          {key:'B',text:'Pour everything into a new tube and let it sit',impact:'warn',yieldDelta:-15,
+           fb:{grade:'⚠️ Pouring risks losing precipitate',cls:'fb-warn',body:'DNA precipitate is fragile — it can re-dissolve if disturbed or if temperature changes. Pouring transfers some DNA but risks losing strands on tube walls and re-dissolution. Gentle, deliberate collection always outperforms bulk transfer.',tag:'Impact: Minor yield loss from collection inefficiency'}},
+          {key:'C',text:'Use a pipette to suction up the white strands',impact:'warn',yieldDelta:-20,
+           fb:{grade:'⚠️ Pipetting disrupts precipitate structure',cls:'fb-warn',body:'Pipetting creates suction forces that shear the long DNA strands and force them back into solution. Pipettes are ideal for transferring liquids, not collecting solid or semi-solid material like DNA precipitate.',tag:'Impact: DNA shearing, partial re-dissolution'}},
+        ]
+      }
+    }
+  ];
+
+  let simCurrentStep = 0;
+  let simChoices = [];
+  let simYield = 100;
+
+  function initSimulation() {
+    simCurrentStep = 0;
+    simChoices = [];
+    simYield = 100;
+    renderSimStep();
+    renderSimSidebar();
+  }
+
+  function renderSimSidebar() {
+    const nav = document.getElementById('sim-step-nav');
+    if (!nav) return;
+    nav.innerHTML = SIM_STEPS.map((s, i) => {
+      const choice = simChoices.find(c => c.stepId === s.id);
+      let cls = '';
+      let status = '';
+      if (i === simCurrentStep && !choice) {
+        cls = 'active-step';
+      } else if (choice) {
+        cls = choice.impact === 'bad' ? 'error-step' : 'done-step';
+        status = choice.impact === 'good' ? '✓ Optimal'
+               : choice.impact === 'warn' ? '⚠ Suboptimal'
+               : '✗ Error';
+      }
+      return `<div class="sim-step-item ${cls}">
+        <div class="sim-step-dot">${i+1}</div>
+        <div class="sim-step-text">
+          <div class="sim-step-name">${s.name}</div>
+          ${status ? `<div class="sim-step-status">${status}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    const fill = document.getElementById('sim-yield-fill');
+    const val  = document.getElementById('sim-yield-value');
+    if (fill && val) {
+      fill.style.width = simYield + '%';
+      fill.className = 'sim-yield-bar-fill ' + (simYield >= 70 ? 'high' : simYield >= 40 ? 'medium' : 'low');
+      val.textContent = simYield >= 70 ? 'High Quality' : simYield >= 40 ? 'Partial Yield' : 'Low Yield';
+    }
+  }
+
+  function renderSimStep() {
+    const panel = document.getElementById('sim-main-panel');
+    if (!panel) return;
+    if (simCurrentStep >= SIM_STEPS.length) { renderSimComplete(); return; }
+    const step = SIM_STEPS[simCurrentStep];
+    const choice = simChoices.find(c => c.stepId === step.id);
+    const answered = !!choice;
+
+    panel.innerHTML = `
+      <div class="sim-step-header">
+        <span class="sim-step-badge">Step ${simCurrentStep+1} of ${SIM_STEPS.length}</span>
+      </div>
+      <h2 class="sim-step-title">${step.title}</h2>
+      <p class="sim-step-desc">${step.desc}</p>
+      <div class="sim-decision">
+        <div class="sim-decision-header">
+          <span class="dec-icon">${step.decision.icon}</span>
+          <span class="dec-label">${step.decision.label}</span>
+        </div>
+        <div class="sim-decision-body">
+          <p class="sim-decision-q">${step.decision.q}</p>
+          <div class="sim-options">
+            ${step.decision.options.map(opt => {
+              let cls = '';
+              if (answered) {
+                if (opt.key === choice.optionKey) cls = choice.impact === 'bad' ? 'chosen-error' : 'chosen-correct';
+                else if (opt.impact === 'good') cls = 'was-correct';
+              }
+              return `<button class="sim-option ${cls}" onclick="simChoose('${step.id}','${opt.key}','${opt.impact}',${opt.yieldDelta})" ${answered?'disabled':''}>
+                <span class="sim-opt-key">${opt.key}</span>${opt.text}
+              </button>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+      ${answered ? `
+        <div class="sim-feedback ${choice.fb.cls} show" role="alert">
+          <strong>${choice.fb.grade}</strong>${choice.fb.body}
+          <div><span class="impact-tag">${choice.fb.tag}</span></div>
+        </div>
+        <button class="sim-next-btn show" onclick="simNextStep()">
+          ${simCurrentStep < SIM_STEPS.length-1
+            ? `Next: ${SIM_STEPS[simCurrentStep+1].name} <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>`
+            : `See Your Results <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>`}
+        </button>` : ''}
+    `;
+  }
+
+  function simChoose(stepId, optKey, impact, yieldDelta) {
+    if (simChoices.find(c => c.stepId === stepId)) return;
+    const step = SIM_STEPS.find(s => s.id === stepId);
+    const opt = step.decision.options.find(o => o.key === optKey);
+    simChoices.push({ stepId, optionKey: optKey, impact, yieldDelta, fb: opt.fb });
+    simYield = Math.max(0, simYield + yieldDelta);
+    renderSimStep();
+    renderSimSidebar();
+  }
+
+  function simNextStep() {
+    simCurrentStep++;
+    renderSimStep();
+    renderSimSidebar();
+    document.getElementById('screen-5').scrollTop = 0;
+  }
+
+  function renderSimComplete() {
+    const panel = document.getElementById('sim-main-panel');
+    if (!panel) return;
+    const errors = simChoices.filter(c => c.impact === 'bad').length;
+    const warns  = simChoices.filter(c => c.impact === 'warn').length;
+    const goods  = simChoices.filter(c => c.impact === 'good').length;
+    const yieldLabel = simYield >= 70 ? 'High-Quality Extraction' : simYield >= 40 ? 'Partial Yield' : 'Low Yield';
+    const yieldColor = simYield >= 70 ? '#4A7A5C' : simYield >= 40 ? '#8A6A2C' : '#8A3A3A';
+    const summary = errors === 0 && warns === 0
+      ? 'Excellent — optimal decisions at every step. Your sample should contain clean, high-quality DNA.'
+      : errors > 0
+      ? `You made ${errors} critical error${errors>1?'s':''} and ${warns} suboptimal choice${warns!==1?'s':''}. Review these decisions before the physical lab.`
+      : `You made ${warns} suboptimal choice${warns!==1?'s':''} that reduced yield. Solid work — review those decisions before the physical lab.`;
+
+    panel.innerHTML = `
+      <div class="sim-complete-panel show">
+        <div style="font-size:2.5rem;margin-bottom:1rem">🧬</div>
+        <h3>Extraction Complete</h3>
+        <p>${summary}</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+          <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:1rem">
+            <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#4A7A5C">${goods}</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:0.3rem">Optimal<br>decisions</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:1rem">
+            <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#8A6A2C">${warns}</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:0.3rem">Suboptimal<br>choices</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:1rem">
+            <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:#8A3A3A">${errors}</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:0.3rem">Critical<br>errors</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.5rem">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.5rem">Estimated DNA Yield</div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;margin-bottom:0.5rem">
+            <div style="height:100%;width:${simYield}%;background:${yieldColor};border-radius:99px"></div>
+          </div>
+          <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:${yieldColor}">${yieldLabel} — ${simYield}%</div>
+        </div>
+        <button class="btn-primary ready" onclick="goToScreen(6)" style="margin:0 auto;display:inline-flex">
+          View Full Results &amp; Analysis
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>`;
+    renderSimSidebar();
+  }
+
+  // ── PRE-RENDER: runs after ALL consts and functions are defined ──
+  // Must be last — STEPS, SIM_STEPS, TOOLS etc. are consts (not hoisted).
+  showTool(0);
+  initSequence();
+  initSimulation();
+  renderResults();
+  initProcedureBuilder();
+
+</script>
+</body>
+</html>
