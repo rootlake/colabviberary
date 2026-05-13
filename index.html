@@ -363,13 +363,36 @@
       </a>`;
     }
 
+    function sessionShuffledOrder(entries, storageKey) {
+      const ids = entries.map((e, i) => e.slug || String(i));
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+        if (Array.isArray(saved) && saved.length === ids.length
+            && saved.every(id => ids.includes(id))
+            && new Set(saved).size === ids.length) {
+          return saved.map(id => ids.indexOf(id));
+        }
+      } catch (e) { /* ignore */ }
+      const order = ids.slice();
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      try { sessionStorage.setItem(storageKey, JSON.stringify(order)); } catch (e) { /* ignore */ }
+      return order.map(id => ids.indexOf(id));
+    }
+
+    const TEACHERS_ORDER_KEY = 'viberary:teachers:order:v1';
+
     function renderCatalog() {
       const grid = document.getElementById('catalog-grid');
-      grid.innerHTML = VIBRARY_ENTRIES.map((raw, i) => {
+      const order = sessionShuffledOrder(VIBRARY_ENTRIES, TEACHERS_ORDER_KEY);
+      grid.innerHTML = order.map((origIndex) => {
+        const raw = VIBRARY_ENTRIES[origIndex];
         const url = raw.url ? String(raw.url).trim() : '';
         const pending = url === '';
         const category = simpleCategory(raw);
-        const callNo = callNumberFor(raw, i);
+        const callNo = callNumberFor(raw, origIndex);
         const attrib = contributorBlock(raw.contributor);
         const img = raw.previewImage ?? raw.thumb ?? '';
         const promptExcerpt = formatExamplePrompt(raw);
@@ -383,7 +406,7 @@
              </div>`;
 
         const inner = `
-          ${brassCornerSvg(i)}
+          ${brassCornerSvg(origIndex)}
           <div class="cat-head">
             <span class="cat-call">${escapeHtml(callNo)}</span>
             <span class="cat-category">${escapeHtml(category)}</span>
@@ -399,6 +422,16 @@
         }
         return `<a class="cat-card" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
       }).join('') + renderInviteCard();
+    }
+
+    window.reshuffle = function () {
+      try { sessionStorage.removeItem(TEACHERS_ORDER_KEY); } catch (e) { /* ignore */ }
+      renderCatalog();
+    };
+
+    if (location.hash === '#reshuffle') {
+      try { sessionStorage.removeItem(TEACHERS_ORDER_KEY); } catch (e) { /* ignore */ }
+      history.replaceState(null, '', location.pathname + location.search);
     }
 
     renderCatalog();
