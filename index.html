@@ -89,6 +89,7 @@
                target="_blank" rel="noopener noreferrer">Exploration doc</a>
             <a class="masthead-link" href="students.html">Student Vibe-rary</a>
             <button type="button" class="masthead-link masthead-link-dev" id="reshuffle-btn" title="Reshuffle card order for this session">↻ Shuffle</button>
+            <p class="crest-count">Vibe-Coded Projects: <span class="crest-count-n" id="crest-count-n">0</span></p>
           </div>
         </div>
       </header>
@@ -473,6 +474,9 @@
     if (reshuffleBtn) {
       reshuffleBtn.addEventListener('click', function () { window.reshuffle(); });
     }
+
+    const countEl = document.getElementById('crest-count-n');
+    if (countEl) countEl.textContent = String(VIBRARY_ENTRIES.length);
 
     renderCatalog();
   </script>
