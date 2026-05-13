@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which Test Do I Run? — AP Statistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Playfair Display', serif;
+  }
+
+  /* DARK MODE (default) */
+  :root, [data-theme="dark"] {
+    --bg: #0f0e0c;
+    --surface: #1a1814;
+    --card-front: #1e1c19;
+    --card-back: #111;
+    --crim: #a8192e;
+    --gold: #c9973a;
+    --gold-light: #e4bc6e;
+    --cream: #f0ead8;
+    --muted: #7a7468;
+    --border: #2e2b26;
+    --reveal-bg: #16211a;
+    --reveal-border: #2a4034;
+    --reveal-text: #8ecfa8;
+    --ghost1: #181613;
+    --ghost2: #1b1916;
+    --ghost3: #1d1b18;
+    --alpha-bg: #161020;
+    --alpha-border: #2a2040;
+    --alpha-text: #c8bae8;
+    --alpha-label: #a08ad0;
+  }
+
+  /* LIGHT MODE */
+  [data-theme="light"] {
+    --bg: #f5f2ec;
+    --surface: #ede9e0;
+    --card-front: #ffffff;
+    --card-back: #f9f7f3;
+    --crim: #a8192e;
+    --gold: #9a6f1e;
+    --gold-light: #7a5214;
+    --cream: #1a1714;
+    --muted: #6b6560;
+    --border: #d4cfc4;
+    --reveal-bg: #eef5f1;
+    --reveal-border: #b8d9c5;
+    --reveal-text: #1d5c38;
+    --ghost1: #e8e4da;
+    --ghost2: #ede9e0;
+    --ghost3: #f0ece4;
+    --alpha-bg: #f0edf8;
+    --alpha-border: #c9bfe8;
+    --alpha-text: #3d2d6e;
+    --alpha-label: #6040a8;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--sans);
+    overflow-x: hidden;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  header {
+    padding: 3rem 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.03em;
+  }
+
+  /* controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    flex-wrap: wrap;
+  }
+
+  .counter {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .counter span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--crim);
+    color: var(--cream);
+  }
+  .btn-primary:hover { background: #c41e35; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(168,25,46,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* deck stage */
+  .stage {
+    position: relative;
+    width: 100%;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+  }
+
+  /* stacked deck ghost cards */
+  .deck-stack {
+    position: relative;
+    width: min(680px, 92vw);
+    height: 500px;
+  }
+
+  .deck-stack .ghost {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease;
+  }
+
+  .deck-stack .ghost:nth-child(1) { background: var(--ghost1); transform: rotate(-3deg) translateY(6px); }
+  .deck-stack .ghost:nth-child(2) { background: var(--ghost2); transform: rotate(-1.5deg) translateY(3px); }
+  .deck-stack .ghost:nth-child(3) { background: var(--ghost3); transform: rotate(1deg) translateY(1px); }
+
+  /* card */
+  .card-wrapper {
+    position: absolute;
+    inset: 0;
+    perspective: 1200px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+    border-radius: 6px;
+  }
+
+  .card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+  }
+
+  /* FRONT */
+  .card-front {
+    background: var(--card-front);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 2.2rem 2.4rem;
+  }
+
+
+  .scenario {
+    font-family: var(--sans);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    line-height: 1.75;
+    color: var(--cream);
+    font-weight: 300;
+    flex: 1;
+  }
+
+  .card-hint {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-hint::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* corner decoration */
+  .card-front::before {
+    content: '?';
+    position: absolute;
+    top: 1.2rem;
+    right: 1.6rem;
+    font-family: var(--serif);
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* BACK */
+  .card-back {
+    background: #12100e;
+    border: 1px solid var(--border);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem 2rem;
+    gap: 0.9rem;
+    overflow-y: auto;
+  }
+
+  .back-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .test-badge {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--crim);
+    background: rgba(168,25,46,0.1);
+    border: 1px solid rgba(168,25,46,0.3);
+    padding: 0.3rem 0.7rem;
+    border-radius: 2px;
+  }
+
+  .back-num {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .answer-block {
+    background: var(--reveal-bg);
+    border: 1px solid var(--reveal-border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+  }
+
+  .answer-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+
+  .card-number {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+  }
+
+  .answer-text {
+    font-size: clamp(0.88rem, 1.5vw, 1.05rem);
+    line-height: 1.6;
+    color: var(--reveal-text);
+    font-weight: 300;
+  }
+
+  .answer-text strong {
+    color: var(--cream);
+    font-weight: 500;
+  }
+
+  .alpha-block {
+    background: var(--alpha-bg);
+    border: 1px solid var(--alpha-border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+  }
+
+  .alpha-block .answer-label { color: var(--alpha-label); }
+  .alpha-block .answer-text { color: var(--alpha-text); }
+
+  .flip-back-hint {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  /* nav */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0 1rem 2rem;
+  }
+
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .nav-btn:disabled { opacity: 0.2; cursor: default; }
+
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .dot.active {
+    background: var(--gold);
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  .dot.seen { background: var(--muted); }
+
+  /* shuffle animation */
+  @keyframes shuffle-out-left {
+    0% { transform: rotate(0deg) translateX(0) translateY(0); opacity: 1; }
+    40% { transform: rotate(-8deg) translateX(-120px) translateY(-20px); opacity: 0.6; }
+    100% { transform: rotate(-12deg) translateX(-200px) translateY(40px); opacity: 0; }
+  }
+  @keyframes shuffle-out-right {
+    0% { transform: rotate(0deg) translateX(0) translateY(0); opacity: 1; }
+    40% { transform: rotate(8deg) translateX(120px) translateY(-20px); opacity: 0.6; }
+    100% { transform: rotate(12deg) translateX(200px) translateY(40px); opacity: 0; }
+  }
+  @keyframes shuffle-in {
+    0% { transform: rotate(15deg) translateX(80px) translateY(-60px) scale(0.9); opacity: 0; }
+    60% { transform: rotate(-2deg) translateX(-5px) translateY(4px); opacity: 1; }
+    80% { transform: rotate(1deg) translateX(2px); }
+    100% { transform: rotate(0deg) translateX(0) translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes ghost-jumble {
+    0% { transform: var(--base-transform); }
+    20% { transform: rotate(calc(var(--r) * 2)) translateX(calc(var(--tx) * 1.5)) translateY(calc(var(--ty) * 1.5)); }
+    60% { transform: rotate(calc(var(--r) * -1)) translateX(calc(var(--tx) * -0.8)) translateY(var(--ty)); }
+    100% { transform: var(--base-transform); }
+  }
+
+  .shuffling .ghost:nth-child(1) {
+    --r: -5deg; --tx: -15px; --ty: 8px; --base-transform: rotate(-3deg) translateY(6px);
+    animation: ghost-jumble 0.5s ease-in-out;
+  }
+  .shuffling .ghost:nth-child(2) {
+    --r: 6deg; --tx: 12px; --ty: -5px; --base-transform: rotate(-1.5deg) translateY(3px);
+    animation: ghost-jumble 0.5s ease-in-out 0.05s;
+  }
+  .shuffling .ghost:nth-child(3) {
+    --r: -4deg; --tx: -8px; --ty: 10px; --base-transform: rotate(1deg) translateY(1px);
+    animation: ghost-jumble 0.5s ease-in-out 0.1s;
+  }
+
+  .card-exit-left { animation: shuffle-out-left 0.4s ease-in forwards; }
+  .card-exit-right { animation: shuffle-out-right 0.4s ease-in forwards; }
+  .card-enter { animation: shuffle-in 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  /* instruction strip */
+  .instruction {
+    max-width: 560px;
+    margin: 0 auto 0.5rem;
+    padding: 0 1rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .instruction-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .instruction-item svg { opacity: 0.5; }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    .card-front { padding: 1.6rem 1.4rem; }
+    .card-back { padding: 1.2rem 1.2rem; }
+    .scenario { font-size: 0.88rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">AP Statistics · Inference</div>
+  <h1>Which Test Do I <em>Run?</em></h1>
+  <p class="subtitle">Identify the appropriate procedure and state hypotheses<br>Describe Type I and Type II errors · Consider an appropriate significance level</p>
+</header>
+
+<div class="controls">
+  <div class="counter">Card <span id="cur">1</span> of <span id="total">10</span></div>
+  <button class="btn btn-primary" id="shuffleBtn">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6"/></svg>
+    Shuffle Deck
+  </button>
+  <button class="btn btn-secondary" id="resetBtn">Reset</button>
+  <button class="btn btn-secondary" id="themeBtn">
+    <svg id="themeIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <span id="themeBtnLabel">Light Mode</span>
+  </button>
+</div>
+
+<div class="instruction">
+  <div class="instruction-item">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+    Click card to flip
+  </div>
+  <div class="instruction-item">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Arrows to navigate
+  </div>
+</div>
+
+<div class="stage">
+  <div class="deck-stack" id="deckStack">
+    <div class="ghost"></div>
+    <div class="ghost"></div>
+    <div class="ghost"></div>
+    <div class="card-wrapper" id="cardWrapper">
+      <div class="card-inner" id="cardInner">
+        <div class="card-face card-front" id="cardFront">
+          <div class="card-number" id="cardNum">Scenario 01 / 10</div>
+          <div class="scenario" id="scenarioText"></div>
+          <div class="card-hint">Click to reveal answers</div>
+        </div>
+        <div class="card-face card-back" id="cardBack">
+          <div class="back-header">
+            <div class="test-badge" id="testBadge"></div>
+            <div class="back-num" id="backNum"></div>
+          </div>
+          <div class="answer-block">
+            <div class="answer-label">Hypotheses</div>
+            <div class="answer-text" id="hypotheses"></div>
+          </div>
+          <div class="answer-block">
+            <div class="answer-label">Type I Error</div>
+            <div class="answer-text" id="typeI"></div>
+          </div>
+          <div class="answer-block">
+            <div class="answer-label">Type II Error</div>
+            <div class="answer-text" id="typeII"></div>
+          </div>
+          <div class="alpha-block answer-block">
+            <div class="answer-label">Significance Level</div>
+            <div class="answer-text" id="alphaText"></div>
+          </div>
+          <div class="flip-back-hint">↩ Click to return to scenario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" disabled>&#8592;</button>
+  <div class="progress-dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn">&#8594;</button>
+</div>
+
+<script>
+const CARDS = [
+  {
+    scenario: "A school nutritionist surveys 80 boarding students and 80 day students, asking each to choose their preferred breakfast option: hot meal, cold cereal, or grab-and-go. She wants to know if the distribution of preferences differs between the two groups.",
+    test: "Chi-Square Test for Homogeneity",
+    hypotheses: "<strong>H₀:</strong> The distribution of breakfast preferences is the same for boarding and day students.<br><strong>Hₐ:</strong> The distributions differ between the two groups.",
+    typeI: "Concluding that boarding and day students have different breakfast preferences when they actually don't — the school might unnecessarily overhaul its breakfast program.",
+    typeII: "Missing a real difference in preferences — the nutritionist keeps a one-size-fits-all menu that doesn't actually serve both groups well.",
+    alpha: "<strong>α = 0.05</strong> is reasonable. The consequences of either error are modest — this is a cafeteria planning decision, not a high-stakes outcome."
+  },
+  {
+    scenario: "A researcher uses a single random sample of 200 high school students and records each student's sleep category (fewer than 7 hours, 7–9 hours, more than 9 hours) and their self-reported stress level (low, medium, high). She wants to know whether sleep and stress are related.",
+    test: "Chi-Square Test for Independence",
+    hypotheses: "<strong>H₀:</strong> Sleep category and stress level are independent — there is no association between them in the population.<br><strong>Hₐ:</strong> There is an association between sleep category and stress level.",
+    typeI: "Concluding that sleep and stress are related when they actually aren't — researchers might invest in interventions targeting sleep that don't actually reduce stress.",
+    typeII: "Missing a real relationship — schools fail to recognize that addressing sleep habits could help students manage stress.",
+    alpha: "<strong>α = 0.05</strong> is appropriate. This is exploratory research; a moderate threshold balances discovering real patterns without chasing noise."
+  },
+  {
+    scenario: "A pharmaceutical company randomly assigns 150 patients to one of three treatment groups: Drug A, Drug B, or Placebo. After 8 weeks, each patient's outcome is classified as improved, unchanged, or worsened. The company wants to know if the distribution of outcomes differs across the three groups.",
+    test: "Chi-Square Test for Homogeneity",
+    hypotheses: "<strong>H₀:</strong> The distribution of patient outcomes is the same across all three treatment groups.<br><strong>Hₐ:</strong> At least one group has a different distribution of outcomes.",
+    typeI: "Concluding a drug works when it doesn't — a harmful or ineffective drug could reach patients. Serious consequences.",
+    typeII: "Missing a drug that actually works — an effective treatment fails to make it to patients who need it.",
+    alpha: "<strong>α = 0.01</strong> makes sense here. A Type I error means approving an ineffective or dangerous drug — the cost of that mistake is high enough to demand stronger evidence."
+  },
+  {
+    scenario: "A college admissions office pulls records for 500 randomly selected applicants and notes whether each student attended a public or private high school, and whether they were admitted, waitlisted, or denied. They want to know whether admission outcome is associated with high school type.",
+    test: "Chi-Square Test for Independence",
+    hypotheses: "<strong>H₀:</strong> Admission outcome and high school type are independent — school type has no association with admissions decisions.<br><strong>Hₐ:</strong> There is an association between school type and admission outcome.",
+    typeI: "Concluding there's a bias in admissions based on school type when none exists — the office might change policies unnecessarily or face reputational damage.",
+    typeII: "Missing a real pattern of bias — a genuine inequity in the process goes undetected and unaddressed.",
+    alpha: "<strong>α = 0.05</strong> is appropriate, though one could argue for 0.01 given reputational stakes. The Type II error (missing real bias) may actually be more costly here — worth a class discussion."
+  },
+  {
+    scenario: "An AP Statistics teacher claims that her students' final letter grades follow the same distribution as the national AP exam score distribution: 15% 5s, 22% 4s, 31% 3s, 20% 2s, and 12% 1s. A colleague collects grade data from 120 of her students to test this claim.",
+    test: "Chi-Square Goodness-of-Fit Test",
+    hypotheses: "<strong>H₀:</strong> The distribution of grades in this teacher's class matches the national AP distribution (15% / 22% / 31% / 20% / 12%).<br><strong>Hₐ:</strong> The distribution does not match the national distribution.",
+    typeI: "Concluding the teacher's grade distribution differs from national norms when it actually doesn't — the teacher might face unfair scrutiny or pressure to change her grading.",
+    typeII: "Missing a real difference — if her grading is systematically inflated or deflated, that goes unnoticed.",
+    alpha: "<strong>α = 0.05</strong> is reasonable. Neither error has catastrophic consequences here — this is an internal academic comparison, not a high-stakes decision."
+  },
+  {
+    scenario: "A polling firm surveys independent random samples of 200 voters from each of three states and asks whether they support, oppose, or are neutral on a proposed federal infrastructure policy. The firm wants to know if the distribution of opinions is the same across all three states.",
+    test: "Chi-Square Test for Homogeneity",
+    hypotheses: "<strong>H₀:</strong> The distribution of opinions on the policy is the same in all three states.<br><strong>Hₐ:</strong> At least one state has a different distribution of opinions.",
+    typeI: "Reporting that opinion distributions differ across states when they actually don't — politicians might craft state-specific messaging that isn't necessary.",
+    typeII: "Missing real regional differences in opinion — a single national campaign strategy is used when targeted approaches would be more effective.",
+    alpha: "<strong>α = 0.05</strong> is standard for opinion polling. The consequences of either error are primarily strategic, not life-or-death."
+  },
+  {
+    scenario: "In a random sample of 150 varsity athletes and 150 non-athletes at a boarding school, students were asked whether they get at least 8 hours of sleep per night. The researcher wants to know if athletes and non-athletes differ in the proportion who report getting enough sleep.",
+    test: "Two-Proportion Z-Test",
+    hypotheses: "<strong>H₀:</strong> The proportion of athletes who get at least 8 hours of sleep is equal to the proportion of non-athletes (p₁ = p₂).<br><strong>Hₐ:</strong> The two proportions are not equal (p₁ ≠ p₂).",
+    typeI: "Concluding athletes and non-athletes sleep differently when they actually don't — the school might introduce athlete-specific sleep interventions that aren't needed.",
+    typeII: "Missing a real gap in sleep between the groups — athletes who genuinely need more recovery might not get the support they need.",
+    alpha: "<strong>α = 0.05</strong> works well. Student wellness decisions based on this would be low-risk either way — no single error here has severe consequences."
+  },
+  {
+    scenario: "A sports scientist measures each of 20 competitive swimmers' 100-meter times before and after a 6-week dryland strength training program. She wants to know if the program improved performance on average.",
+    test: "Paired T-Test",
+    hypotheses: "<strong>H₀:</strong> The mean difference in swim times (before minus after) is zero — the program has no effect on average.<br><strong>Hₐ:</strong> The mean difference is greater than zero — the program reduces swim times on average.",
+    typeI: "Concluding the program improves times when it actually doesn't — coaches adopt an ineffective (and time-consuming) training addition.",
+    typeII: "Missing a real improvement — a beneficial program gets dropped and swimmers lose out on gains.",
+    alpha: "<strong>α = 0.10</strong> could be justified here. Since this is preliminary research on a low-risk intervention, being more willing to detect a real signal (reducing Type II error) makes sense. A coach might reasonably say: 'I'd rather try something that might help than miss a real benefit.'"
+  },
+  {
+    scenario: "An educator surveys random samples of students from four different types of schools — urban public, suburban public, rural public, and independent — asking whether each student prefers individual work, small-group work, or whole-class discussion. She wants to know if learning style preferences differ by school type.",
+    test: "Chi-Square Test for Homogeneity",
+    hypotheses: "<strong>H₀:</strong> The distribution of learning style preferences is the same across all four school types.<br><strong>Hₐ:</strong> At least one school type has a different distribution of preferences.",
+    typeI: "Concluding that learning preferences differ by school type when they don't — curriculum designers might unnecessarily differentiate materials by school context.",
+    typeII: "Missing real differences in preference — a uniform instructional approach is recommended even though different school contexts genuinely call for different strategies.",
+    alpha: "<strong>α = 0.05</strong> is appropriate. Educational design decisions based on this are meaningful but not irreversible — the standard threshold fits well."
+  },
+  {
+    scenario: "A college claims that 70% of its students complete their degree within 4 years. An accreditation board randomly selects 180 students from a recent cohort to investigate whether the true completion rate differs from the college's stated figure.",
+    test: "One-Proportion Z-Test",
+    hypotheses: "<strong>H₀:</strong> The true proportion of students who graduate within 4 years is 0.70 (p = 0.70).<br><strong>Hₐ:</strong> The true proportion differs from 0.70 (p ≠ 0.70).",
+    typeI: "Concluding the completion rate differs from 70% when it actually doesn't — the college faces unwarranted scrutiny, reputational damage, or loss of accreditation.",
+    typeII: "Missing a real deviation from the claimed rate — a college that is misleading students about outcomes escapes accountability.",
+    alpha: "<strong>α = 0.01</strong> is worth considering. The stakes are high — a false accusation could seriously harm the institution. But a missed deception also harms prospective students. Good argument for class debate: which error is worse?"
+  }
+];
+
+let order = [...Array(CARDS.length).keys()];
+let current = 0;
+let seen = new Set();
+let isAnimating = false;
+
+const cardInner = document.getElementById('cardInner');
+const cardWrapper = document.getElementById('cardWrapper');
+const deckStack = document.getElementById('deckStack');
+const scenarioText = document.getElementById('scenarioText');
+const cardNum = document.getElementById('cardNum');
+const testBadge = document.getElementById('testBadge');
+const backNum = document.getElementById('backNum');
+const hypotheses = document.getElementById('hypotheses');
+const typeI = document.getElementById('typeI');
+const typeII = document.getElementById('typeII');
+const alphaText = document.getElementById('alphaText');
+const curEl = document.getElementById('cur');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const dotsEl = document.getElementById('dots');
+
+function loadCard(idx, direction) {
+  const card = CARDS[order[idx]];
+  const n = idx + 1;
+  const pad = String(n).padStart(2, '0');
+  const total = String(CARDS.length).padStart(2, '0');
+
+  // reset flip
+  cardInner.classList.remove('flipped');
+
+  cardNum.textContent = `Scenario ${pad} / ${total}`;
+  backNum.textContent = `${pad} / ${total}`;
+  scenarioText.textContent = card.scenario;
+  testBadge.textContent = card.test;
+  hypotheses.innerHTML = card.hypotheses;
+  typeI.textContent = card.typeI;
+  typeII.textContent = card.typeII;
+  alphaText.innerHTML = card.alpha;
+
+  curEl.textContent = n;
+  seen.add(idx);
+  updateDots();
+  updateNav();
+}
+
+function updateNav() {
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === CARDS.length - 1;
+}
+
+function updateDots() {
+  dotsEl.innerHTML = '';
+  order.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === current ? ' active' : seen.has(i) ? ' seen' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+}
+
+function goTo(idx, dir) {
+  if (isAnimating || idx === current) return;
+  const direction = dir || (idx > current ? 'right' : 'left');
+  navigateCard(idx, direction);
+}
+
+function navigateCard(newIdx, direction) {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const exitClass = direction === 'right' ? 'card-exit-left' : 'card-exit-right';
+  cardWrapper.classList.add(exitClass);
+
+  setTimeout(() => {
+    cardWrapper.classList.remove(exitClass);
+    current = newIdx;
+    loadCard(current);
+    cardWrapper.classList.add('card-enter');
+    setTimeout(() => {
+      cardWrapper.classList.remove('card-enter');
+      isAnimating = false;
+    }, 500);
+  }, 380);
+}
+
+// flip
+cardWrapper.addEventListener('click', () => {
+  cardInner.classList.toggle('flipped');
+});
+
+// nav
+prevBtn.addEventListener('click', () => {
+  if (current > 0) navigateCard(current - 1, 'left');
+});
+nextBtn.addEventListener('click', () => {
+  if (current < CARDS.length - 1) navigateCard(current + 1, 'right');
+});
+
+// shuffle
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  // jumble ghost cards
+  deckStack.classList.add('shuffling');
+
+  // fly current card out
+  const exits = ['card-exit-left', 'card-exit-right'];
+  const exitClass = exits[Math.floor(Math.random() * 2)];
+  cardWrapper.classList.add(exitClass);
+
+  setTimeout(() => {
+    deckStack.classList.remove('shuffling');
+  }, 600);
+
+  setTimeout(() => {
+    // fisher-yates shuffle
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    current = 0;
+    seen = new Set();
+    cardWrapper.classList.remove(exitClass);
+    cardInner.classList.remove('flipped');
+    loadCard(0);
+    cardWrapper.classList.add('card-enter');
+    setTimeout(() => {
+      cardWrapper.classList.remove('card-enter');
+      isAnimating = false;
+    }, 500);
+  }, 450);
+});
+
+// reset
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (isAnimating) return;
+  order = [...Array(CARDS.length).keys()];
+  seen = new Set();
+  current = 0;
+  cardInner.classList.remove('flipped');
+  loadCard(0);
+  updateDots();
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' && current < CARDS.length - 1) navigateCard(current + 1, 'right');
+  if (e.key === 'ArrowLeft' && current > 0) navigateCard(current - 1, 'left');
+  if (e.key === ' ') { e.preventDefault(); cardInner.classList.toggle('flipped'); }
+});
+
+// theme toggle
+const themeBtn = document.getElementById('themeBtn');
+const themeBtnLabel = document.getElementById('themeBtnLabel');
+const moonIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+const sunIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+
+themeBtn.addEventListener('click', () => {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  themeBtn.querySelector('svg').outerHTML; // force repaint
+  themeBtn.innerHTML = isDark
+    ? `${moonIcon} <span id="themeBtnLabel">Dark Mode</span>`
+    : `${sunIcon} <span id="themeBtnLabel">Light Mode</span>`;
+});
+
+// init
+loadCard(0);
+</script>
+</body>
+</html>
