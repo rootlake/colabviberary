@@ -10,5 +10,77 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <div id="mt-intro" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="mt-intro-title">
+      <div class="mt-intro-backdrop"></div>
+      <div class="mt-intro-card" role="document">
+        <h2 id="mt-intro-title">Welcome to MicroTracker</h2>
+        <p class="mt-intro-lede">A lightning-fast observation log for teachers to keep track of student behavior, progress, and assignments in real-time.</p>
+        <ul class="mt-intro-list">
+          <li><strong>Custom &amp; color-coded</strong> topics and metrics.</li>
+          <li><strong>Quick-tap notes</strong> &mdash; tap preset phrases to save time during live lessons, or write a full sentence.</li>
+          <li><strong>Manage multiple classes/periods</strong> and add students in seconds.</li>
+          <li><strong>Export</strong> summaries or download full CSV reports.</li>
+        </ul>
+        <label class="mt-intro-dont">
+          <input type="checkbox" id="mt-intro-dont" />
+          <span>Don&rsquo;t show this anymore</span>
+        </label>
+        <div class="mt-intro-actions">
+          <button type="button" id="mt-intro-close" class="mt-intro-btn">Get started</button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      #mt-intro[hidden] { display: none; }
+      #mt-intro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; }
+      #mt-intro .mt-intro-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); }
+      #mt-intro .mt-intro-card {
+        position: relative; max-width: 480px; width: 100%; background: #fff; color: #0f172a;
+        border-radius: 14px; padding: 24px 24px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.45;
+      }
+      #mt-intro h2 { margin: 0 0 8px; font-size: 1.35rem; }
+      #mt-intro .mt-intro-lede { margin: 0 0 14px; color: #334155; }
+      #mt-intro .mt-intro-list { margin: 0 0 16px; padding-left: 20px; }
+      #mt-intro .mt-intro-list li { margin: 6px 0; }
+      #mt-intro .mt-intro-dont { display: flex; align-items: center; gap: 8px; margin: 8px 0 16px; color: #475569; font-size: 0.92rem; cursor: pointer; user-select: none; }
+      #mt-intro .mt-intro-actions { display: flex; justify-content: flex-end; }
+      #mt-intro .mt-intro-btn {
+        background: #0f172a; color: #fff; border: 0; border-radius: 8px;
+        padding: 9px 16px; font-weight: 600; cursor: pointer;
+      }
+      #mt-intro .mt-intro-btn:hover { background: #1e293b; }
+    </style>
+
+    <script>
+      (function () {
+        var STORAGE_KEY = 'microtracker:intro:hide:v1';
+        try {
+          if (localStorage.getItem(STORAGE_KEY) === '1') return;
+        } catch (e) { /* ignore */ }
+        var modal = document.getElementById('mt-intro');
+        var closeBtn = document.getElementById('mt-intro-close');
+        var dontCb = document.getElementById('mt-intro-dont');
+        var backdrop = modal.querySelector('.mt-intro-backdrop');
+        if (!modal || !closeBtn) return;
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        function dismiss() {
+          if (dontCb && dontCb.checked) {
+            try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
+          }
+          modal.hidden = true;
+          modal.setAttribute('aria-hidden', 'true');
+        }
+        closeBtn.addEventListener('click', dismiss);
+        backdrop.addEventListener('click', dismiss);
+        document.addEventListener('keydown', function (ev) {
+          if (!modal.hidden && ev.key === 'Escape') dismiss();
+        });
+      })();
+    </script>
   </body>
 </html>
