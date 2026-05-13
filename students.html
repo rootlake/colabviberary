@@ -252,30 +252,20 @@
       </a>`;
     }
 
-    function sessionShuffledOrder(entries, storageKey) {
-      const ids = entries.map((e, i) => e.slug || String(i));
-      try {
-        const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
-        if (Array.isArray(saved) && saved.length === ids.length
-            && saved.every(id => ids.includes(id))
-            && new Set(saved).size === ids.length) {
-          return saved.map(id => ids.indexOf(id));
-        }
-      } catch (e) { /* ignore */ }
-      const order = ids.slice();
+    function shuffledOrder(entries) {
+      const order = entries.map((_, i) => i);
       for (let i = order.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [order[i], order[j]] = [order[j], order[i]];
       }
-      try { sessionStorage.setItem(storageKey, JSON.stringify(order)); } catch (e) { /* ignore */ }
-      return order.map(id => ids.indexOf(id));
+      return order;
     }
 
     const STUDENTS_ORDER_KEY = 'viberary:students:order:v1';
 
     function renderCatalog() {
       const grid = document.getElementById('catalog-grid');
-      const order = sessionShuffledOrder(STUDENT_ENTRIES, STUDENTS_ORDER_KEY);
+      const order = shuffledOrder(STUDENT_ENTRIES);
       grid.innerHTML = order.map((origIndex) => {
         const raw = STUDENT_ENTRIES[origIndex];
         const url = raw.url ? String(raw.url).trim() : '';
