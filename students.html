@@ -84,6 +84,7 @@
           <div class="masthead-meta">
             <a class="masthead-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer">Co-Lab · home</a>
             <a class="masthead-link" href="index.html">Teacher catalog</a>
+            <button type="button" class="masthead-link masthead-link-dev" id="reshuffle-btn" title="Reshuffle card order for this session">↻ Shuffle</button>
           </div>
         </div>
       </header>
@@ -320,6 +321,11 @@
     if (location.hash === '#reshuffle') {
       try { sessionStorage.removeItem(STUDENTS_ORDER_KEY); } catch (e) { /* ignore */ }
       history.replaceState(null, '', location.pathname + location.search);
+    }
+
+    const reshuffleBtn = document.getElementById('reshuffle-btn');
+    if (reshuffleBtn) {
+      reshuffleBtn.addEventListener('click', function () { window.reshuffle(); });
     }
 
     renderCatalog();

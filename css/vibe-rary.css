@@ -336,6 +336,23 @@ body {
   transform: translateY(-1px);
 }
 
+button.masthead-link {
+  font: inherit;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.masthead-link-dev {
+  opacity: 0.65;
+}
+.masthead-link-dev:hover {
+  opacity: 1;
+}
+
 @media (max-width: 800px) {
   .masthead-grid { grid-template-columns: 1fr; gap: 18px; }
   .crest { margin: 0 auto; }

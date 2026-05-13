@@ -88,6 +88,7 @@
                href="https://docs.google.com/document/d/1SvkT7TuIQvgFvG6HzgGbx_d80xCdPSDaNbh7ikZGRQQ/edit?tab=t.0#heading=h.ydcdrbx8k8xz"
                target="_blank" rel="noopener noreferrer">Exploration doc</a>
             <a class="masthead-link" href="students.html">Student Vibe-rary</a>
+            <button type="button" class="masthead-link masthead-link-dev" id="reshuffle-btn" title="Reshuffle card order for this session">↻ Shuffle</button>
           </div>
         </div>
       </header>
@@ -432,6 +433,11 @@
     if (location.hash === '#reshuffle') {
       try { sessionStorage.removeItem(TEACHERS_ORDER_KEY); } catch (e) { /* ignore */ }
       history.replaceState(null, '', location.pathname + location.search);
+    }
+
+    const reshuffleBtn = document.getElementById('reshuffle-btn');
+    if (reshuffleBtn) {
+      reshuffleBtn.addEventListener('click', function () { window.reshuffle(); });
     }
 
     renderCatalog();
