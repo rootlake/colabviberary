@@ -244,6 +244,7 @@ body {
 
 .masthead-name-inner {
   display: inline;
+  white-space: nowrap;
   color: transparent;
   background:
     linear-gradient(
