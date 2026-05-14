@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Senior Studio — Find Your Direction · The Prairie School</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --lake:#4a6c7a; --lake-lt:#7fa3b3; --sand:#e8dcc8; --cream:#f5efe2;
+    --sage:#8a9e7e; --sage-lt:#c5d4bb; --amber:#c89a4a; --terra:#c4705a;
+    --white:#faf7f2; --ink:#2a2a2a; --ink-lt:#5a5a5a; --rule:#d4c9b5;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+  /* HEADER */
+  header{background:var(--lake);color:var(--white);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
+  .logo{display:flex;align-items:center;gap:0.75rem;}
+  .logo-text .school{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.75;}
+  .logo-text .tool{font-family:'Lora';font-size:1.05rem;font-weight:600;}
+  .stage-pill{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;background:rgba(255,255,255,0.15);border-radius:20px;padding:0.3rem 0.8rem;}
+
+  /* PROGRESS */
+  .progress-bar{height:3px;background:var(--sand);}
+  .progress-fill{height:100%;background:var(--amber);transition:width 0.6s ease;}
+
+  /* SCREENS */
+  .screen{display:none;min-height:calc(100vh - 63px);}
+  .screen.active{display:flex;flex-direction:column;}
+
+  /* LANDING */
+  #screen-landing{background:linear-gradient(170deg,var(--lake) 0%,#3a5a68 50%,#2e4a56 100%);align-items:center;justify-content:center;padding:3rem 1.5rem;text-align:center;position:relative;overflow:hidden;}
+  .horizon-line{position:absolute;bottom:36%;left:0;right:0;height:1px;background:rgba(255,255,255,0.15);}
+  .landing-inner{max-width:560px;position:relative;z-index:2;}
+  .landing-inner h1{font-family:'Lora';font-size:clamp(2rem,5vw,3rem);color:var(--white);font-weight:700;line-height:1.15;margin-bottom:0.5rem;}
+  .landing-inner .tagline{font-family:'Lora';font-style:italic;color:rgba(255,255,255,0.8);font-size:1.05rem;margin-bottom:2rem;}
+  .landing-card{background:var(--white);border-radius:16px;padding:2rem;box-shadow:0 8px 40px rgba(0,0,0,0.2);text-align:left;}
+  .landing-card p{color:var(--ink-lt);line-height:1.75;font-size:0.95rem;margin-bottom:1.5rem;}
+  .name-label{display:block;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--lake);margin-bottom:0.5rem;font-weight:600;}
+  .name-input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'Lora';font-size:1.05rem;color:var(--ink);background:var(--cream);outline:none;margin-bottom:1.25rem;transition:border-color 0.2s;}
+  .name-input:focus{border-color:var(--lake);}
+
+  /* BUTTONS */
+  .btn{display:inline-block;padding:0.85rem 2rem;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans';font-size:0.95rem;font-weight:600;letter-spacing:0.03em;transition:all 0.2s;text-align:center;}
+  .btn-primary{background:var(--lake);color:var(--white);width:100%;}
+  .btn-primary:hover{background:#3a5a68;transform:translateY(-1px);box-shadow:0 4px 16px rgba(74,108,122,0.35);}
+  .btn-secondary{background:transparent;color:var(--lake);border:1.5px solid var(--lake);}
+  .btn-secondary:hover{background:var(--cream);}
+  .btn-amber{background:var(--amber);color:var(--white);}
+  .btn-amber:hover{background:#b8882e;}
+
+  /* STAGE CONTAINER */
+  .stage-container{max-width:860px;margin:0 auto;padding:3rem 1.5rem 4rem;width:100%;}
+  .step-label{font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:0.5rem;}
+  .step-title{font-family:'Lora';font-size:clamp(1.5rem,3.5vw,2.2rem);color:var(--lake);line-height:1.2;margin-bottom:0.75rem;}
+  .step-desc{color:var(--ink-lt);line-height:1.8;font-size:0.95rem;max-width:600px;margin-bottom:2rem;border-left:3px solid var(--sand);padding-left:1rem;}
+
+  /* SORT */
+  .sort-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start;}
+  @media(max-width:700px){.sort-layout{grid-template-columns:1fr;}}
+  .card-pool-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-lt);margin-bottom:0.75rem;font-weight:600;}
+  .card-pool{display:flex;flex-wrap:wrap;gap:0.5rem;background:var(--cream);border-radius:12px;padding:1.25rem;min-height:120px;border:1.5px dashed var(--rule);}
+  .word-card{background:var(--white);border:1.5px solid var(--rule);border-radius:8px;padding:0.45rem 0.85rem;font-size:0.82rem;font-weight:500;color:var(--ink);cursor:pointer;user-select:none;transition:all 0.18s;white-space:nowrap;}
+  .word-card:hover{border-color:var(--lake-lt);background:var(--cream);transform:translateY(-1px);}
+  .word-card.fire{background:#fff5e6;border-color:var(--amber);color:#7a4a00;}
+  .word-card.maybe{background:#f0f4f0;border-color:var(--sage);color:#3a4a34;}
+  .word-card.no{background:#f5f0f0;border-color:#c4a0a0;color:#6a3a3a;text-decoration:line-through;opacity:0.6;}
+  .sort-zones{display:flex;flex-direction:column;gap:0.75rem;}
+  .sort-zone{border-radius:10px;padding:0.75rem;min-height:80px;border:1.5px solid transparent;}
+  .sort-zone.zone-fire{background:#fff8ec;border-color:#e8c97a;}
+  .sort-zone.zone-maybe{background:#f0f4ee;border-color:var(--sage-lt);}
+  .sort-zone.zone-no{background:#f7f3f0;border-color:var(--rule);}
+  .zone-header{font-size:0.75rem;font-weight:600;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;}
+  .zone-fire .zone-header{color:#8a5c00;}
+  .zone-maybe .zone-header{color:var(--sage);}
+  .zone-no .zone-header{color:var(--ink-lt);}
+  .zone-cards{display:flex;flex-wrap:wrap;gap:0.4rem;min-height:32px;}
+  .mobile-card-list{display:none;}
+  @media(max-width:600px){.sort-layout{display:none;}.mobile-card-list{display:block;}}
+  .mobile-card-item{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border:1.5px solid var(--rule);border-radius:8px;margin-bottom:0.5rem;background:var(--white);}
+  .mobile-card-item .card-text{font-size:0.9rem;font-weight:500;}
+  .mobile-cycle-btn{display:flex;gap:0.4rem;}
+  .mobile-cycle-btn button{border:none;background:none;font-size:1.1rem;cursor:pointer;padding:0.2rem;border-radius:4px;transition:background 0.15s;}
+  .mobile-cycle-btn button:hover{background:var(--cream);}
+
+  /* TOP 5 */
+  .top5-grid{display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:2rem;}
+  .top5-chip{padding:0.55rem 1rem;border-radius:20px;border:2px solid var(--rule);background:var(--white);font-size:0.85rem;cursor:pointer;transition:all 0.18s;font-weight:500;}
+  .top5-chip.selected{background:var(--lake);border-color:var(--lake);color:var(--white);}
+  .top5-count{font-size:0.8rem;color:var(--ink-lt);margin-bottom:1rem;}
+
+  /* BRIDGE */
+  .question-block{margin-bottom:2rem;}
+  .question-num{font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--amber);font-weight:600;}
+  .question-text{font-family:'Lora';font-size:1.05rem;color:var(--ink);margin:0.4rem 0 0.75rem;line-height:1.5;font-style:italic;}
+  .journal-textarea{width:100%;min-height:100px;padding:1rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'DM Sans';font-size:0.95rem;line-height:1.7;background:var(--cream);color:var(--ink);resize:vertical;outline:none;transition:border-color 0.2s;}
+  .journal-textarea:focus{border-color:var(--lake);}
+
+  /* DECLARATION */
+  .declaration-wrap{background:var(--cream);border-radius:16px;padding:2rem;border:1px solid var(--rule);}
+  .branch-options{display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem;}
+  .branch-btn{padding:1rem 1.5rem;border-radius:10px;border:1.5px solid var(--rule);background:var(--white);text-align:left;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.75rem;}
+  .branch-btn:hover{border-color:var(--lake);background:var(--cream);}
+  .branch-btn .branch-icon{font-size:1.4rem;}
+  .branch-btn .branch-label{font-weight:600;font-size:0.95rem;color:var(--ink);}
+  .branch-btn .branch-sub{font-size:0.8rem;color:var(--ink-lt);margin-top:0.15rem;}
+
+  /* NAV */
+  .step-nav{display:flex;gap:1rem;justify-content:flex-end;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--rule);}
+
+  /* ── STAGE 2 CHAT ── */
+  #screen-stage2{background:var(--white);}
+  .chat-layout{display:grid;grid-template-columns:1fr 280px;gap:0;min-height:calc(100vh - 63px);}
+  @media(max-width:700px){.chat-layout{grid-template-columns:1fr;}}
+
+  .chat-main{display:flex;flex-direction:column;border-right:1px solid var(--rule);}
+  .chat-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--rule);background:var(--cream);}
+  .chat-header .step-label{margin-bottom:0.2rem;}
+  .chat-header h2{font-family:'Lora';font-size:1.3rem;color:var(--lake);}
+  .chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-height:300px;max-height:calc(100vh - 280px);}
+
+  .msg{max-width:85%;display:flex;flex-direction:column;gap:0.3rem;}
+  .msg.advisor{align-self:flex-start;}
+  .msg.student{align-self:flex-end;}
+  .msg-bubble{padding:0.85rem 1.1rem;border-radius:14px;line-height:1.7;font-size:0.92rem;}
+  .advisor .msg-bubble{background:var(--cream);border:1px solid var(--rule);color:var(--ink);border-bottom-left-radius:4px;}
+  .student .msg-bubble{background:var(--lake);color:var(--white);border-bottom-right-radius:4px;}
+  .msg-label{font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-lt);padding:0 0.25rem;}
+  .student .msg-label{text-align:right;color:var(--lake-lt);}
+
+  .chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--rule);background:var(--white);}
+  .chat-input-row{display:flex;gap:0.6rem;align-items:flex-end;}
+  .chat-input{flex:1;padding:0.75rem 1rem;border:1.5px solid var(--rule);border-radius:10px;font-family:'DM Sans';font-size:0.92rem;line-height:1.6;background:var(--cream);color:var(--ink);resize:none;outline:none;min-height:48px;max-height:140px;transition:border-color 0.2s;}
+  .chat-input:focus{border-color:var(--lake);}
+  .send-btn{background:var(--lake);color:var(--white);border:none;border-radius:10px;padding:0.7rem 1.1rem;cursor:pointer;font-size:1rem;transition:background 0.2s;flex-shrink:0;}
+  .send-btn:hover{background:#3a5a68;}
+  .send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .typing-indicator{display:flex;gap:5px;align-items:center;padding:0.6rem 0.5rem;}
+  .typing-dot{width:7px;height:7px;border-radius:50%;background:var(--lake-lt);animation:bounce 1.2s infinite;}
+  .typing-dot:nth-child(2){animation-delay:0.2s;}
+  .typing-dot:nth-child(3){animation-delay:0.4s;}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+
+  /* SIDEBAR */
+  .chat-sidebar{padding:1.5rem;background:var(--cream);display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;}
+  @media(max-width:700px){.chat-sidebar{border-top:1px solid var(--rule);}}
+  .sidebar-card{background:var(--white);border-radius:10px;padding:1rem;border:1px solid var(--rule);}
+  .sidebar-label{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:0.5rem;}
+  .sidebar-idea{font-family:'Lora';font-style:italic;font-size:0.9rem;color:var(--ink);line-height:1.6;}
+  .sidebar-top5{display:flex;flex-direction:column;gap:0.3rem;}
+  .sidebar-chip{font-size:0.78rem;background:var(--cream);border-radius:6px;padding:0.3rem 0.6rem;color:var(--ink-lt);}
+
+  /* Dimension tracker */
+  .dim-tracker{display:flex;flex-direction:column;gap:0.5rem;}
+  .dim-row{display:flex;align-items:center;gap:0.5rem;}
+  .dim-label{font-size:0.75rem;color:var(--ink-lt);flex:1;}
+  .dim-pip{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--rule);background:var(--white);transition:all 0.3s;}
+  .dim-pip.lit{background:var(--sage);border-color:var(--sage);}
+  .dim-pip.done{background:var(--amber);border-color:var(--amber);}
+
+  /* OUTPUT PAGE */
+  #screen-output{background:var(--white);}
+  .output-container{max-width:800px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
+  .output-actions{display:flex;gap:1rem;justify-content:flex-end;margin-bottom:2rem;}
+  @media print{
+    header,.progress-bar,.output-actions,#screen-stage2,.stage-container{display:none!important;}
+    #screen-output{display:block!important;}
+    .output-container{padding:0;max-width:100%;}
+    body{background:white;}
+  }
+
+  .vision-card{border:1.5px solid var(--rule);border-radius:12px;padding:2rem;margin-bottom:2rem;background:var(--white);position:relative;overflow:hidden;}
+  .vision-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--lake),var(--amber),var(--terra));}
+  .vision-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--rule);}
+  .vc-school{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--lake);font-weight:600;}
+  .vc-title{font-family:'Lora';font-size:1.6rem;color:var(--ink);margin:0.2rem 0;}
+  .vc-date{font-size:0.8rem;color:var(--ink-lt);}
+  .vc-field{margin-bottom:1.25rem;}
+  .vc-field-label{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:0.35rem;}
+  .vc-field-value{font-size:0.95rem;line-height:1.7;color:var(--ink);}
+  .vc-field-value.headline{font-family:'Lora';font-size:1.1rem;font-style:italic;color:var(--lake);}
+  .vc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+  @media(max-width:500px){.vc-grid{grid-template-columns:1fr;}}
+  .obstacle-item{margin-bottom:0.75rem;}
+  .obstacle-item strong{font-size:0.85rem;}
+  .obstacle-item .pivot{font-size:0.82rem;color:var(--ink-lt);margin-top:0.2rem;}
+
+  .readiness-card{border:1.5px solid var(--rule);border-radius:12px;padding:2rem;background:var(--white);}
+  .readiness-chart{display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;}
+  .r-row{display:flex;align-items:center;gap:1rem;}
+  .r-label{font-size:0.82rem;font-weight:600;color:var(--ink);width:160px;flex-shrink:0;}
+  .r-bar-bg{flex:1;height:10px;background:var(--sand);border-radius:5px;overflow:hidden;}
+  .r-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--sage),var(--amber));transition:width 0.8s ease;}
+  .r-score{font-size:0.8rem;color:var(--ink-lt);width:30px;text-align:right;}
+  .readiness-summary{font-size:0.9rem;line-height:1.75;color:var(--ink-lt);padding:1rem;background:var(--cream);border-radius:8px;margin-top:1rem;}
+  .readiness-footer{font-size:0.75rem;color:var(--ink-lt);text-align:center;margin-top:1.25rem;font-style:italic;}
+
+  footer{background:var(--lake);color:rgba(255,255,255,0.6);text-align:center;font-size:0.72rem;padding:1rem;letter-spacing:0.05em;}
+  footer span{color:rgba(255,255,255,0.9);}
+  .hidden{display:none!important;}
+  .mt1{margin-top:1rem;}
+  .small{font-size:0.8rem;color:var(--ink-lt);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-text">
+      <div class="school">The Prairie School</div>
+      <div class="tool">Senior Studio — Find Your Direction</div>
+    </div>
+  </div>
+  <div class="stage-pill" id="stage-pill">Envisioning</div>
+</header>
+<div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+<!-- ══ LANDING ══ -->
+<section class="screen active" id="screen-landing">
+  <div class="horizon-line"></div>
+
+  <!-- Flame / ember / brushstroke / sunrise mark -->
+  <svg style="margin-bottom:1.5rem;filter:drop-shadow(0 4px 18px rgba(200,100,60,0.35))" width="72" height="96" viewBox="0 0 72 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="eg" cx="50%" cy="90%" r="65%">
+        <stop offset="0%" stop-color="#f5c842" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#c4705a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="fb" x1="36" y1="92" x2="36" y2="2" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#c4705a"/>
+        <stop offset="30%"  stop-color="#e8843a"/>
+        <stop offset="62%"  stop-color="#f5c842"/>
+        <stop offset="100%" stop-color="#fef5d0" stop-opacity="0.55"/>
+      </linearGradient>
+      <linearGradient id="fi" x1="36" y1="88" x2="40" y2="8" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#f0a030" stop-opacity="0.9"/>
+        <stop offset="55%"  stop-color="#f8d860" stop-opacity="0.75"/>
+        <stop offset="100%" stop-color="#ffffff"  stop-opacity="0.28"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="36" cy="88" rx="26" ry="7" fill="url(#eg)"/>
+    <path d="M36 90 C13 79,5 57,11 36 C15 20,23 12,29 3 C31-1,34 1,35 6 C38 17,27 27,31 41 C33 50,44 45,46 34 C49 23,44 13,42 7 C41 3,44 0,47 6 C55 19,63 34,61 54 C59 70,50 81,36 90Z" fill="url(#fb)" opacity="0.93"/>
+    <path d="M36 83 C25 72,21 57,25 43 C28 32,34 24,36 14 C38 24,43 34,43 46 C43 61,40 73,36 83Z" fill="url(#fi)" opacity="0.88"/>
+    <path d="M21 28 C15 20,17 10,23 7" stroke="rgba(248,200,80,0.32)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M51 26 C57 16,55 8,50 5" stroke="rgba(255,215,100,0.22)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <line x1="16" y1="91" x2="56" y2="91" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-linecap="round"/>
+  </svg>
+
+  <div class="landing-inner">
+    <h1>Welcome to<br>Senior Studio.</h1>
+    <p class="tagline">This is where your project begins — with you.</p>
+    <div class="landing-card">
+      <p>Senior Studio is yours. A chance to spend a semester doing something that actually matters to you — and to the world beyond you.<br><br>This tool will help you find your direction. There are no wrong answers here. Take your time.</p>
+      <label class="name-label" for="student-name">Your name</label>
+      <input class="name-input" id="student-name" type="text" placeholder="First and last name" autocomplete="off"/>
+      <button class="btn btn-primary" onclick="beginJourney()">Let's begin →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SORT ══ -->
+<section class="screen" id="screen-sort">
+  <div class="stage-container">
+    <div class="step-label">Stage 1 · The Excavation · Step 1 of 4</div>
+    <h2 class="step-title">The Energy Sort</h2>
+    <p class="step-desc">Below are topics, questions, and domains that pull at different people in different ways. Sort every card into one of the three zones — don't overthink it, go with your gut.</p>
+    <div class="sort-layout">
+      <div>
+        <div class="card-pool-label">Unsorted cards — click a card, then choose its zone</div>
+        <div class="card-pool" id="card-pool"></div>
+      </div>
+      <div class="sort-zones">
+        <div class="sort-zone zone-fire"><div class="zone-header">🔥 This pulls at me</div><div class="zone-cards" id="zone-fire-cards"></div></div>
+        <div class="sort-zone zone-maybe"><div class="zone-header">〜 Maybe, not sure</div><div class="zone-cards" id="zone-maybe-cards"></div></div>
+        <div class="sort-zone zone-no"><div class="zone-header">✕ Not for me right now</div><div class="zone-cards" id="zone-no-cards"></div></div>
+      </div>
+    </div>
+    <div class="mobile-card-list" id="mobile-card-list"></div>
+    <div id="sort-status" class="small mt1"></div>
+    <div class="step-nav">
+      <button class="btn btn-primary" id="sort-next-btn" onclick="goToNarrow()" disabled style="opacity:0.4">See my top picks →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ NARROW ══ -->
+<section class="screen" id="screen-narrow">
+  <div class="stage-container">
+    <div class="step-label">Stage 1 · The Excavation · Step 2 of 4</div>
+    <h2 class="step-title">The Narrowing</h2>
+    <p class="step-desc">Of these — the ones that pulled at you — which five feel the most like <em>you</em> right now? There's no right answer, just the truest one.</p>
+    <div class="top5-count" id="top5-count">Select 5 · <span id="top5-selected">0</span> chosen</div>
+    <div class="top5-grid" id="top5-grid"></div>
+    <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--rule)">
+      <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-lt);font-weight:600;margin-bottom:0.5rem">Something missing? Add your own — optional</div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+        <input id="custom-interest-input" type="text" placeholder="e.g. Printmaking, Robotics, Urban farming…" maxlength="40"
+          style="flex:1;min-width:200px;padding:0.6rem 0.9rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'DM Sans';font-size:0.9rem;background:var(--cream);color:var(--ink);outline:none;transition:border-color 0.2s"
+          onfocus="this.style.borderColor='var(--lake)'" onblur="this.style.borderColor='var(--rule)'"
+          onkeydown="if(event.key==='Enter')addCustomInterest()"/>
+        <button class="btn btn-secondary" style="white-space:nowrap;padding:0.6rem 1.1rem;font-size:0.85rem" onclick="addCustomInterest()">+ Add</button>
+      </div>
+      <div id="custom-interests" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem"></div>
+    </div>
+    <div class="step-nav">
+      <button class="btn btn-secondary" onclick="showScreen('screen-sort')">← Back</button>
+      <button class="btn btn-primary" id="narrow-next-btn" onclick="goToBridge()" disabled style="opacity:0.4">Reflect on these →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BRIDGE ══ -->
+<section class="screen" id="screen-bridge">
+  <div class="stage-container">
+    <div class="step-label">Stage 1 · The Excavation · Step 3 of 4</div>
+    <h2 class="step-title">Bridge Questions</h2>
+    <p class="step-desc">Take your time with these. Write what's true, not what sounds good. These are yours — no one grades them.</p>
+    <div style="background:var(--cream);border-radius:10px;padding:1rem 1.25rem;margin-bottom:2rem;border:1px solid var(--rule)">
+      <div style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:0.6rem">Your top five</div>
+      <div id="bridge-top5-chips" style="display:flex;flex-wrap:wrap;gap:0.5rem"></div>
+    </div>
+    <div class="question-block">
+      <div class="question-num">Question 01</div>
+      <div class="question-text">"Looking at your top five, what do they have in common that surprises you?"</div>
+      <textarea class="journal-textarea" id="bridge-q1" placeholder="Write freely here…"></textarea>
+    </div>
+    <div class="question-block">
+      <div class="question-num">Question 02</div>
+      <div class="question-text">"Is there something broken, missing, or overlooked in your community that connects to any of these?"</div>
+      <textarea class="journal-textarea" id="bridge-q2" placeholder="Write freely here…"></textarea>
+    </div>
+    <div class="question-block">
+      <div class="question-num">Question 03</div>
+      <div class="question-text">"Who would benefit if someone actually did something about one of these?"</div>
+      <textarea class="journal-textarea" id="bridge-q3" placeholder="Write freely here…"></textarea>
+    </div>
+    <div class="question-block">
+      <div class="question-num">Question 04</div>
+      <div class="question-text">"If you had six months, unlimited curiosity, and access to one expert in any of these areas — what would you want to find out or make happen?"</div>
+      <textarea class="journal-textarea" id="bridge-q4" placeholder="Write freely here…"></textarea>
+    </div>
+    <div class="step-nav">
+      <button class="btn btn-secondary" onclick="showScreen('screen-narrow')">← Back</button>
+      <button class="btn btn-primary" onclick="goToDeclaration()">Almost there →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DECLARATION ══ -->
+<section class="screen" id="screen-declare">
+  <div class="stage-container">
+    <div class="step-label">Stage 1 · The Excavation · Step 4 of 4</div>
+    <h2 class="step-title">The Idea Declaration</h2>
+    <p class="step-desc">This is the moment. In one or two sentences, describe a Senior Studio you might pursue. It doesn't have to be perfect. It just has to be yours.</p>
+    <div class="declaration-wrap">
+      <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:0.5rem"><span id="declare-name-label"></span>'s Studio</div>
+      <textarea class="journal-textarea" id="declaration-text" placeholder="My Senior Studio will…" style="min-height:130px;font-size:1.05rem;background:var(--white)"></textarea>
+    </div>
+    <div class="branch-options">
+      <button class="branch-btn" onclick="goToStage2()">
+        <span class="branch-icon">🚀</span>
+        <div><div class="branch-label">I have an idea — let's develop it</div><div class="branch-sub">Move into the Stress-Test with an AI advisor →</div></div>
+      </button>
+      <button class="branch-btn" onclick="showScreen('screen-sort')">
+        <span class="branch-icon">🔄</span>
+        <div><div class="branch-label">I want to keep exploring</div><div class="branch-sub">Return to the Energy Sort and try a fresh pass</div></div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STAGE 2 — AI STRESS TEST ══ -->
+<section class="screen" id="screen-stage2">
+  <div class="chat-layout">
+    <!-- MAIN CHAT -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="step-label">Stage 2 · The Stress-Test</div>
+        <h2>Your Studio Advisor</h2>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type your response here…"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
+        </div>
+        <div style="font-size:0.7rem;color:var(--ink-lt);margin-top:0.4rem">Press Enter to send · Shift+Enter for new line</div>
+      </div>
+    </div>
+    <!-- SIDEBAR -->
+    <div class="chat-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-label">Your declared idea</div>
+        <div class="sidebar-idea" id="sidebar-idea"></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-label">Your top five interests</div>
+        <div class="sidebar-top5" id="sidebar-top5"></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-label">Dimensions explored</div>
+        <div class="dim-tracker">
+          <div class="dim-row"><span class="dim-label">A1 — Concept</span><span class="dim-pip" id="pip-a1"></span></div>
+          <div class="dim-row"><span class="dim-label">A2 — Learning</span><span class="dim-pip" id="pip-a2"></span></div>
+          <div class="dim-row"><span class="dim-label">B1 — Logistics</span><span class="dim-pip" id="pip-b1"></span></div>
+          <div class="dim-row"><span class="dim-label">B2 — Contingencies</span><span class="dim-pip" id="pip-b2"></span></div>
+        </div>
+        <div style="font-size:0.68rem;color:var(--ink-lt);margin-top:0.75rem">🟡 touched &nbsp; 🟢 developed</div>
+      </div>
+      <button class="btn btn-secondary" style="font-size:0.8rem;padding:0.6rem 1rem;width:100%" onclick="showScreen('screen-declare')">← Back to Declaration</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OUTPUT PAGE ══ -->
+<section class="screen" id="screen-output">
+  <div class="output-container">
+    <div class="output-actions">
+      <button class="btn btn-secondary" onclick="showScreen('screen-stage2')">← Back</button>
+      <button class="btn btn-amber" onclick="window.print()">🖨 Print / Save as PDF</button>
+    </div>
+
+    <!-- VISION CARD -->
+    <div class="vision-card" id="vision-card">
+      <div class="vision-card-header">
+        <div>
+          <div class="vc-school">The Prairie School · Senior Studio</div>
+          <div class="vc-title" id="vc-name"></div>
+        </div>
+        <div class="vc-date" id="vc-date"></div>
+      </div>
+      <div class="vc-field">
+        <div class="vc-field-label">My Studio in one sentence</div>
+        <div class="vc-field-value headline" id="vc-headline"></div>
+      </div>
+      <div class="vc-grid">
+        <div class="vc-field">
+          <div class="vc-field-label">The Outcome</div>
+          <div class="vc-field-value" id="vc-outcome"></div>
+        </div>
+        <div class="vc-field">
+          <div class="vc-field-label">Benefit Beyond Myself</div>
+          <div class="vc-field-value" id="vc-benefit"></div>
+        </div>
+        <div class="vc-field">
+          <div class="vc-field-label">What I Need to Learn</div>
+          <div class="vc-field-value" id="vc-learning"></div>
+        </div>
+        <div class="vc-field">
+          <div class="vc-field-label">My Expert / Mentor</div>
+          <div class="vc-field-value" id="vc-mentor"></div>
+        </div>
+      </div>
+      <div class="vc-field">
+        <div class="vc-field-label">Three Obstacles I Anticipate</div>
+        <div id="vc-obstacles"></div>
+      </div>
+      <div class="vc-field">
+        <div class="vc-field-label">My First Step</div>
+        <div class="vc-field-value" id="vc-firststep"></div>
+      </div>
+    </div>
+
+    <!-- READINESS PROFILE -->
+    <div class="readiness-card">
+      <div class="vc-school">Readiness Profile</div>
+      <div class="vc-title" style="font-size:1.3rem;margin-top:0.25rem">How your thinking developed today</div>
+      <div class="readiness-chart" id="readiness-chart"></div>
+      <div class="readiness-summary" id="readiness-summary"></div>
+      <div class="readiness-footer">This Readiness Profile reflects your thinking today. Bring this page to your advisor as a starting point.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Senior Studio — Find Your Direction</span> · The Prairie School · A fixed point of orientation. A horizon full of possibility.
+</footer>
+
+<script>
+// ── DATA ──
+const CARDS = [
+  "Making things with your hands","Systems that are broken","How cities work",
+  "Animals and ecosystems","Music theory","What people believe and why",
+  "Food and culture","Data patterns","Mental health","Infrastructure",
+  "Fashion as identity","Local history","Sports science","Language and translation",
+  "Ocean systems","Youth voice","Architecture","Grief and memory",
+  "Economic inequality","The night sky","Athletic performance","Immigration stories",
+  "Soil and agriculture","Sound design","Public spaces","Neuroscience",
+  "Graphic narrative","Water","Community ritual","Film language",
+  "Entrepreneurship","Disability and access","Climate adaptation","Youth justice",
+  "Artificial intelligence","Urban gardening","Documentary storytelling","Civic design",
+  "Cultural preservation","Game design"
+];
+
+const state = {
+  name:'', sorted:{}, top5:[], bridges:{}, declaration:'',
+  conversation:[], outputData:null
+};
+
+let selectedCard=null, zonePickerEl=null;
+
+// ── NAVIGATION ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  const map={'screen-landing':0,'screen-sort':20,'screen-narrow':40,'screen-bridge':60,'screen-declare':80,'screen-stage2':90,'screen-output':100};
+  document.getElementById('progress-fill').style.width=(map[id]??0)+'%';
+  const pills={'screen-landing':'Envisioning','screen-sort':'The Excavation','screen-narrow':'The Excavation','screen-bridge':'The Excavation','screen-declare':'The Excavation','screen-stage2':'The Stress-Test','screen-output':'Vision Card'};
+  document.getElementById('stage-pill').textContent=pills[id]||'Senior Studio';
+}
+
+// ── LANDING ──
+function beginJourney(){
+  const n=document.getElementById('student-name').value.trim();
+  if(!n){document.getElementById('student-name').focus();return;}
+  state.name=n;
+  document.getElementById('declare-name-label').textContent=n.split(' ')[0];
+  buildSortScreen(); showScreen('screen-sort');
+}
+document.getElementById('student-name').addEventListener('keydown',e=>{if(e.key==='Enter')beginJourney();});
+
+// ── SORT ──
+function buildSortScreen(){
+  const pool=document.getElementById('card-pool');
+  const mList=document.getElementById('mobile-card-list');
+  pool.innerHTML=''; mList.innerHTML=''; state.sorted={};
+  [...CARDS].sort(()=>Math.random()-0.5).forEach(card=>{
+    const el=document.createElement('div');
+    el.className='word-card'; el.textContent=card; el.dataset.card=card;
+    el.addEventListener('click',()=>selectCard(el,card));
+    pool.appendChild(el);
+    const mi=document.createElement('div');
+    mi.className='mobile-card-item'; mi.id='m-'+slug(card);
+    mi.innerHTML=`<span class="card-text">${card}</span><div class="mobile-cycle-btn"><button onclick="mobileSort('${card}','fire')">🔥</button><button onclick="mobileSort('${card}','maybe')">〜</button><button onclick="mobileSort('${card}','no')">✕</button></div>`;
+    mList.appendChild(mi);
+  });
+  updateSortStatus();
+}
+function slug(s){return s.replace(/[^a-z0-9]/gi,'_');}
+function selectCard(el,card){
+  if(selectedCard&&selectedCard.el===el){selectedCard.el.style.outline='';selectedCard=null;if(zonePickerEl){zonePickerEl.remove();zonePickerEl=null;}return;}
+  if(selectedCard)selectedCard.el.style.outline='';
+  selectedCard={el,card}; el.style.outline='2px solid var(--amber)';
+  showZonePicker(card);
+}
+function showZonePicker(card){
+  if(zonePickerEl)zonePickerEl.remove();
+  const p=document.createElement('div');
+  p.style.cssText='position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--ink);border-radius:12px;padding:0.75rem 1rem;display:flex;gap:0.75rem;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.3);flex-wrap:wrap;align-items:center';
+  p.innerHTML=`<span style="color:rgba(255,255,255,0.7);font-size:0.8rem">Sort:</span>
+    <button onclick="desktopSort('${card.replace(/'/g,"\\'")}','fire')" style="background:#fff5e6;border:1.5px solid var(--amber);border-radius:6px;padding:0.4rem 0.75rem;cursor:pointer;font-size:0.8rem;font-weight:600;color:#7a4a00">🔥 Pulls at me</button>
+    <button onclick="desktopSort('${card.replace(/'/g,"\\'")}','maybe')" style="background:#f0f4ee;border:1.5px solid var(--sage);border-radius:6px;padding:0.4rem 0.75rem;cursor:pointer;font-size:0.8rem;font-weight:600;color:#3a4a34">〜 Maybe</button>
+    <button onclick="desktopSort('${card.replace(/'/g,"\\'")}','no')" style="background:#f7f3f0;border:1.5px solid #c4a0a0;border-radius:6px;padding:0.4rem 0.75rem;cursor:pointer;font-size:0.8rem;font-weight:600;color:#6a3a3a">✕ Not me</button>`;
+  document.body.appendChild(p); zonePickerEl=p;
+}
+function desktopSort(card,zone){
+  state.sorted[card]=zone;
+  if(zonePickerEl){zonePickerEl.remove();zonePickerEl=null;}
+  if(selectedCard){selectedCard.el.style.outline='';selectedCard=null;}
+  rebuildZones(); updateSortStatus();
+}
+function mobileSort(card,zone){
+  state.sorted[card]=zone;
+  const item=document.getElementById('m-'+slug(card));
+  if(item){item.style.background=zone==='fire'?'#fff8ec':zone==='maybe'?'#f0f4ee':'#f7f3f0';item.style.borderColor=zone==='fire'?'#e8c97a':zone==='maybe'?'var(--sage-lt)':'var(--rule)';}
+  updateSortStatus();
+}
+function rebuildZones(){
+  ['fire','maybe','no'].forEach(z=>document.getElementById('zone-'+z+'-cards').innerHTML='');
+  document.getElementById('card-pool').innerHTML='';
+  CARDS.forEach(card=>{
+    const zone=state.sorted[card];
+    const el=document.createElement('div');
+    el.className='word-card'+(zone?' '+zone:''); el.textContent=card; el.dataset.card=card;
+    el.addEventListener('click',()=>selectCard(el,card));
+    (zone?document.getElementById('zone-'+zone+'-cards'):document.getElementById('card-pool')).appendChild(el);
+  });
+}
+function updateSortStatus(){
+  const done=Object.keys(state.sorted).length, total=CARDS.length;
+  const fire=Object.values(state.sorted).filter(v=>v==='fire').length;
+  document.getElementById('sort-status').textContent=`${done} of ${total} sorted · 🔥 ${fire} pull at you`;
+  const btn=document.getElementById('sort-next-btn');
+  btn.disabled=done!==total; btn.style.opacity=done===total?'1':'0.4';
+}
+
+// ── NARROW ──
+function goToNarrow(){
+  const fire=CARDS.filter(c=>state.sorted[c]==='fire');
+  if(!fire.length){alert("Sort a few cards into the 🔥 zone first.");return;}
+  const grid=document.getElementById('top5-grid');
+  grid.innerHTML=''; state.top5=[];
+  [...fire].sort(()=>Math.random()-0.5).forEach(card=>{
+    const chip=document.createElement('div'); chip.className='top5-chip'; chip.textContent=card;
+    chip.addEventListener('click',()=>toggleTop5(chip,card)); grid.appendChild(chip);
+  });
+  updateTop5Count(); showScreen('screen-narrow');
+}
+function addCustomInterest(){
+  const input=document.getElementById('custom-interest-input');
+  const val=input.value.trim(); if(!val)return;
+  const existing=[...document.querySelectorAll('#top5-grid .top5-chip,#custom-interests .top5-chip')].map(e=>e.textContent.replace('×','').trim().toLowerCase());
+  if(existing.includes(val.toLowerCase())){input.value='';return;}
+  const chip=document.createElement('div'); chip.className='top5-chip'; chip.dataset.custom='true';
+  chip.innerHTML=`${val} <span style="margin-left:0.3rem;opacity:0.5;font-size:0.8rem;cursor:pointer" onclick="removeCustom(this,'${val.replace(/'/g,"\\'")}')">×</span>`;
+  chip.addEventListener('click',e=>{if(e.target.tagName!=='SPAN')toggleTop5(chip,val);});
+  document.getElementById('custom-interests').appendChild(chip);
+  input.value='';
+}
+function removeCustom(span,card){const chip=span.parentElement;state.top5=state.top5.filter(c=>c!==card);chip.remove();updateTop5Count();}
+function toggleTop5(chip,card){
+  if(chip.classList.contains('selected')){chip.classList.remove('selected');state.top5=state.top5.filter(c=>c!==card);}
+  else{if(state.top5.length>=5)return;chip.classList.add('selected');state.top5.push(card);}
+  updateTop5Count();
+}
+function updateTop5Count(){
+  document.getElementById('top5-selected').textContent=state.top5.length;
+  const btn=document.getElementById('narrow-next-btn');
+  btn.disabled=state.top5.length!==5; btn.style.opacity=state.top5.length===5?'1':'0.4';
+}
+
+// ── BRIDGE ──
+function goToBridge(){
+  const chips=document.getElementById('bridge-top5-chips');
+  chips.innerHTML='';
+  state.top5.forEach(card=>{
+    const c=document.createElement('span'); c.textContent=card;
+    c.style.cssText='background:var(--lake);color:var(--white);border-radius:20px;padding:0.3rem 0.85rem;font-size:0.82rem;font-weight:500';
+    chips.appendChild(c);
+  });
+  showScreen('screen-bridge');
+}
+
+// ── DECLARATION ──
+function goToDeclaration(){
+  state.bridges={q1:document.getElementById('bridge-q1').value,q2:document.getElementById('bridge-q2').value,q3:document.getElementById('bridge-q3').value,q4:document.getElementById('bridge-q4').value};
+  showScreen('screen-declare');
+}
+
+// ── STAGE 2 ──
+function goToStage2(){
+  const decl=document.getElementById('declaration-text').value.trim();
+  if(!decl){document.getElementById('declaration-text').focus();return;}
+  state.declaration=decl; state.conversation=[];
+  document.getElementById('sidebar-idea').textContent='"'+decl+'"';
+  const top5El=document.getElementById('sidebar-top5');
+  top5El.innerHTML=''; state.top5.forEach(c=>{const d=document.createElement('div');d.className='sidebar-chip';d.textContent=c;top5El.appendChild(d);});
+  document.getElementById('chat-messages').innerHTML='';
+  showScreen('screen-stage2');
+  openAdvisor();
+}
+
+// ── AI CONVERSATION ──
+const SYSTEM_PROMPT = `You are a warm, rigorous Senior Studio advisor at The Prairie School — a college-preparatory school on the western shore of Lake Michigan. You have seen many students do extraordinary things and you believe this student can too. You ask the hard questions because that is what genuine mentors do.
+
+Your role: guide the student through a "Stress-Test" of their declared Senior Studio idea. Senior Studio is a personal leadership experience (not a project assignment) where students envision, plan, and complete an extended project January–May that:
+- Acts on a personal interest or curiosity
+- Produces a real-world outcome (product, portfolio, publication, event, performance, etc.)
+- Is a meaningful benefit beyond oneself
+- Involves extensive learning, research, and expert/mentor input
+- Requires navigating obstacles and pivoting
+
+You probe four dimensions — work through them organically, not mechanically:
+A1 CONCEPT: Is the outcome clear? Is it compelling and authentic? How is it a benefit beyond oneself? Does it have scope for a multi-month endeavor?
+A2 LEARNING: What does the student need to learn? What research? Who is the expert or mentor they could learn from and how will they access them?
+B1 LOGISTICS: What are major milestones? What resources/budget/materials are needed? What does success look like at the Showcase?
+B2 CONTINGENCIES: Name THREE specific realistic obstacles that could derail this, and a pivot plan for each. How does GenAI fit in ethically?
+
+Rules:
+- Ask ONE question at a time. Never overwhelm.
+- Be warm, encouraging, specific — never sycophantic or generic.
+- Celebrate unconventional and specific thinking.
+- Gently challenge vagueness without being discouraging.
+- NEVER suggest specific project ideas — only ask questions that help the student develop their own.
+- Use "Senior Studio" language: outcome, benefit beyond oneself, expert/mentor, pivot, Showcase. Avoid: assignment, grade, requirement, task.
+- When you have sufficient depth across all four dimensions, say exactly: "READY_FOR_VISION_CARD" on its own line, then write a warm closing sentence. Do not include JSON — that comes separately.
+
+At the end, after "READY_FOR_VISION_CARD", you will be asked to generate structured JSON. That is a separate call.
+
+Student context:
+- Name: {{NAME}}
+- Declared idea: {{IDEA}}
+- Top five interests: {{TOP5}}
+- Bridge reflections: {{BRIDGES}}
+
+Open by warmly acknowledging their declared idea and asking your first probing question about Concept (A1). Be specific to their idea — reference their actual words.`;
+
+function buildSystemPrompt(){
+  return SYSTEM_PROMPT
+    .replace('{{NAME}}', state.name)
+    .replace('{{IDEA}}', state.declaration)
+    .replace('{{TOP5}}', state.top5.join(', '))
+    .replace('{{BRIDGES}}', `Q1: ${state.bridges.q1||'(no response)'} | Q2: ${state.bridges.q2||'(no response)'} | Q3: ${state.bridges.q3||'(no response)'} | Q4: ${state.bridges.q4||'(no response)'}`);
+}
+
+async function openAdvisor(){
+  setInputEnabled(false);
+  showTyping();
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: buildSystemPrompt(),
+        messages:[{role:'user',content:'Please begin.'}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'';
+    removeTyping();
+    state.conversation.push({role:'user',content:'Please begin.'});
+    state.conversation.push({role:'assistant',content:text});
+    displayMessage('advisor', text);
+  }catch(e){removeTyping();displayMessage('advisor','Something went wrong connecting to the advisor. Please check your connection and try refreshing.');}
+  setInputEnabled(true);
+}
+
+async function sendMessage(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim(); if(!text)return;
+  input.value=''; input.style.height='48px';
+  displayMessage('student',text);
+  state.conversation.push({role:'user',content:text});
+  setInputEnabled(false); showTyping();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:buildSystemPrompt(),
+        messages:state.conversation
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.find(b=>b.type==='text')?.text||'';
+    removeTyping();
+    state.conversation.push({role:'assistant',content:reply});
+    updateDimPips(state.conversation);
+    if(reply.includes('READY_FOR_VISION_CARD')){
+      const clean=reply.replace('READY_FOR_VISION_CARD','').trim();
+      displayMessage('advisor',clean);
+      setTimeout(()=>generateVisionCard(),1200);
+    } else {
+      displayMessage('advisor',reply);
+    }
+  }catch(e){removeTyping();displayMessage('advisor','Connection error — please try again.');}
+  setInputEnabled(true);
+}
+
+function displayMessage(role,text){
+  const msgs=document.getElementById('chat-messages');
+  const wrap=document.createElement('div'); wrap.className='msg '+role;
+  const label=document.createElement('div'); label.className='msg-label';
+  label.textContent=role==='advisor'?'Studio Advisor':state.name;
+  const bubble=document.createElement('div'); bubble.className='msg-bubble';
+  bubble.textContent=text;
+  wrap.appendChild(label); wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const wrap=document.createElement('div'); wrap.className='msg advisor'; wrap.id='typing-wrap';
+  const bubble=document.createElement('div'); bubble.className='msg-bubble';
+  bubble.innerHTML='<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  wrap.appendChild(bubble); msgs.appendChild(wrap); msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const t=document.getElementById('typing-wrap');if(t)t.remove();}
+function setInputEnabled(on){
+  document.getElementById('chat-input').disabled=!on;
+  document.getElementById('send-btn').disabled=!on;
+}
+
+// Dim pip logic — keyword scan
+function updateDimPips(conv){
+  const full=conv.map(m=>m.content).join(' ').toLowerCase();
+  const dims={
+    a1:['outcome','benefit','impact','who benefits','compelling','authentic','what will exist','what you want to make','why this matters'],
+    a2:['learn','research','expert','mentor','skill','study','knowledge','access','interview'],
+    b1:['milestone','timeline','resource','budget','materials','showcase','schedule','plan','steps'],
+    b2:['obstacle','risk','pivot','challenge','contingency','what if','derail','backup','alternative']
+  };
+  Object.entries(dims).forEach(([dim,kws])=>{
+    const hits=kws.filter(k=>full.includes(k)).length;
+    const pip=document.getElementById('pip-'+dim);
+    if(hits>=4){pip.classList.add('done');pip.classList.remove('lit');}
+    else if(hits>=1){pip.classList.add('lit');pip.classList.remove('done');}
+  });
+}
+
+// ── OUTPUT GENERATION ──
+async function generateVisionCard(){
+  displayMessage('advisor','Give me a moment to pull your Vision Card together…');
+  const jsonPrompt=`Based on our entire conversation, generate a JSON object for the student's Senior Studio Vision Card and Readiness Profile. Respond with ONLY valid JSON, no markdown, no preamble.
+
+Schema:
+{
+  "headline": "one compelling sentence describing their Studio in their own voice",
+  "outcome": "what will actually exist at the end",
+  "benefit": "who benefits and how — specific",
+  "learning": "key learning areas and research",
+  "mentor": "expert or mentor name/description and how they'll access them",
+  "obstacles": [
+    {"obstacle":"...","pivot":"..."},
+    {"obstacle":"...","pivot":"..."},
+    {"obstacle":"...","pivot":"..."}
+  ],
+  "firstStep": "the single most immediate action",
+  "scores": {"a1":3,"a2":3,"b1":2,"b2":3},
+  "summary": "2–3 warm, specific sentences: strengths and areas to develop further"
+}
+
+Scores 1–5. Be honest but encouraging. Base everything on the student's own words from the conversation.`;
+
+  const msgs=[...state.conversation,{role:'user',content:jsonPrompt}];
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:buildSystemPrompt(),messages:msgs})
+    });
+    const data=await res.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'{}';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    state.outputData=parsed;
+    renderOutputPage(parsed);
+    showScreen('screen-output');
+  }catch(e){
+    displayMessage('advisor','There was a hiccup generating your Vision Card. Your advisor can help you complete it by hand — your conversation is a great starting point.');
+  }
+}
+
+function renderOutputPage(d){
+  document.getElementById('vc-name').textContent=state.name;
+  document.getElementById('vc-date').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('vc-headline').textContent=d.headline||'';
+  document.getElementById('vc-outcome').textContent=d.outcome||'';
+  document.getElementById('vc-benefit').textContent=d.benefit||'';
+  document.getElementById('vc-learning').textContent=d.learning||'';
+  document.getElementById('vc-mentor').textContent=d.mentor||'';
+  document.getElementById('vc-firststep').textContent=d.firstStep||'';
+
+  const obs=document.getElementById('vc-obstacles');
+  obs.innerHTML='';
+  (d.obstacles||[]).forEach((o,i)=>{
+    const div=document.createElement('div'); div.className='obstacle-item';
+    div.innerHTML=`<strong>Obstacle ${i+1}: ${o.obstacle}</strong><div class="pivot">↳ Pivot: ${o.pivot}</div>`;
+    obs.appendChild(div);
+  });
+
+  const chart=document.getElementById('readiness-chart');
+  chart.innerHTML='';
+  const labels={a1:'A1 — Concept Clarity',a2:'A2 — Learning & Expertise',b1:'B1 — Logistics & Planning',b2:'B2 — Contingency Thinking'};
+  const scores=d.scores||{a1:3,a2:3,b1:2,b2:3};
+  Object.entries(labels).forEach(([k,label])=>{
+    const score=Math.min(5,Math.max(1,scores[k]||2));
+    const pct=score/5*100;
+    const row=document.createElement('div'); row.className='r-row';
+    row.innerHTML=`<span class="r-label">${label}</span><div class="r-bar-bg"><div class="r-bar-fill" style="width:${pct}%"></div></div><span class="r-score">${score}/5</span>`;
+    chart.appendChild(row);
+  });
+
+  document.getElementById('readiness-summary').textContent=d.summary||'';
+}
+
+// Auto-resize textarea
+document.getElementById('chat-input').addEventListener('input',function(){
+  this.style.height='48px'; this.style.height=Math.min(this.scrollHeight,140)+'px';
+});
+</script>
+</body>
+</html>
