@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output (committed for static hosting on GitHub Pages)
+# dist/
 
 # Environment variables (contains Firebase secrets)
 .env

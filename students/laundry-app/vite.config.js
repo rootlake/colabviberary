@@ -4,6 +4,7 @@ import path from 'path';
 
 // Demo mode: redirect all firebase imports to the in-memory mock layer.
 export default defineConfig({
+  base: './',
   plugins: [react()],
   resolve: {
     alias: {
