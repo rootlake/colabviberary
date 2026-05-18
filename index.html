@@ -373,6 +373,7 @@
         discipline: 'worldLanguages', format: 'interactiveLesson',
         contributor: { name: 'Michael McGrann', school: 'Morristown Beard School' },
         previewImage: 'teachers/animalia-mirabilia.png',
+        fitContain: true,
         cohortYear: 2026,
       },
       {
@@ -510,9 +511,10 @@
         const img = raw.previewImage ?? raw.thumb ?? '';
         const promptExcerpt = formatExamplePrompt(raw);
 
+        const winClass = raw.fitContain ? 'cat-window cat-window--contain' : 'cat-window';
         const plate = img && String(img).trim()
           ? `<div class="cat-plate-frame">
-               <div class="cat-window"><img src="${escapeHtml(String(img).trim())}" alt="" loading="lazy" /></div>
+               <div class="${winClass}"><img src="${escapeHtml(String(img).trim())}" alt="" loading="lazy" /></div>
              </div>`
           : `<div class="cat-plate-frame">
                <div class="cat-window"><div class="cat-window-placeholder">awaiting engraving</div></div>

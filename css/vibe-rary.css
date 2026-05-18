@@ -724,6 +724,11 @@ button.masthead-link {
   transition: filter 0.3s ease, transform 0.4s ease;
 }
 
+.cat-window--contain img {
+  object-fit: contain;
+  object-position: center;
+}
+
 .cat-card:hover .cat-window img {
   filter: sepia(0.05) saturate(1.05) contrast(1.04);
   transform: scale(1.03);
