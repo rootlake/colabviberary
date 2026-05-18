@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who Wants to Be an Anatomist? — Team Wager Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#08090f; --bg2:#10111e; --bg3:#181a2e; --panel:#1e2038;
+  --border:#2e3158; --gold:#f5c842; --gold-dim:#a88820;
+  --cyan:#00e5ff; --cyan-dim:#007a8a;
+  --red:#ff4757; --green:#2ed573; --text:#e8eaf0; --text-dim:#8890b0;
+  --t1:#ff9f43; --t2:#48dbfb; --t3:#ff6b9d; --t4:#a29bfe;
+  --font-d:'Oswald',sans-serif; --font-b:'Source Sans 3',sans-serif; --font-m:'Roboto Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;overflow:hidden}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5) 0%,transparent 100%),
+  radial-gradient(1px 1px at 80% 10%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 40% 70%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 60% 50%,rgba(255,255,255,.5) 0%,transparent 100%),
+  radial-gradient(1px 1px at 10% 90%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 90% 80%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(ellipse 60% 50% at 50% 0%,rgba(0,100,180,.12) 0%,transparent 70%),
+  var(--bg)}
+#app{position:relative;z-index:1;width:100%;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.screen{display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;padding:14px;animation:fadeIn .35s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{text-shadow:0 0 18px rgba(245,200,66,.55)}50%{text-shadow:0 0 38px rgba(245,200,66,.95),0 0 70px rgba(245,200,66,.35)}}
+@keyframes scoreUp{0%{transform:translateY(0);opacity:1}60%{transform:translateY(-22px);opacity:1}100%{transform:translateY(-36px);opacity:0}}
+@keyframes scoreDown{0%{transform:translateY(0);opacity:1}60%{transform:translateY(22px);opacity:1}100%{transform:translateY(36px);opacity:0}}
+@keyframes flash-green{0%{background:rgba(46,213,115,.3)}100%{background:transparent}}
+@keyframes flash-red{0%{background:rgba(255,71,87,.3)}100%{background:transparent}}
+.btn{font-family:var(--font-d);font-size:.9rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:8px 18px;border:1.5px solid;border-radius:4px;cursor:pointer;transition:all .15s;background:transparent}
+.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.btn-gold{border-color:var(--gold);color:var(--gold)}.btn-gold:hover{background:var(--gold);color:var(--bg)}
+.btn-cyan{border-color:var(--cyan);color:var(--cyan)}.btn-cyan:hover{background:var(--cyan);color:var(--bg)}
+.btn-red{border-color:var(--red);color:var(--red)}.btn-red:hover{background:var(--red);color:#fff}
+.btn-ghost{border-color:var(--border);color:var(--text-dim)}.btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+.btn-sm{font-size:.72rem;padding:5px 11px}
+.btn-xs{font-size:.65rem;padding:3px 8px}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+
+/* WELCOME */
+#sw{text-align:center;gap:22px}
+.wt{font-family:var(--font-d);font-size:clamp(2rem,4.5vw,4rem);font-weight:700;color:var(--gold);animation:glow 3s ease-in-out infinite;letter-spacing:.04em;line-height:1.05}
+.wd{width:180px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto}
+.wb{font-family:var(--font-m);font-size:.65rem;letter-spacing:.18em;color:var(--cyan);border:1px solid var(--cyan-dim);padding:3px 12px;border-radius:2px}
+
+/* SETUP */
+#ss{gap:18px;overflow-y:auto}
+.team-setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:560px}
+.setup-card{background:var(--panel);border:1.5px solid;border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.setup-card label{font-family:var(--font-d);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+.team-name-inp{background:var(--bg2);border:1.5px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-d);font-size:1.05rem;font-weight:600;padding:7px 9px;width:100%;transition:border-color .2s}
+.team-name-inp:focus{outline:none;border-color:var(--cyan)}
+
+/* GAME LAYOUT */
+#sg{display:none;flex-direction:column;padding:0;gap:0}
+#sg.active{display:flex}
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg2);gap:8px;flex-shrink:0}
+.game-logo{font-family:var(--font-d);font-size:.95rem;font-weight:700;color:var(--gold)}
+.game-body{flex:1;display:flex;overflow:hidden}
+.left-panel{width:210px;min-width:180px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.right-panel{width:210px;min-width:180px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.center-col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.panel-title{font-family:var(--font-d);font-size:.65rem;letter-spacing:.13em;color:var(--text-dim);text-transform:uppercase;padding:10px 12px 8px;border-bottom:1px solid var(--border)}
+
+/* SCOREBOARD */
+.score-row{padding:9px 12px;border-bottom:1px solid var(--border);position:relative;transition:background .2s}
+.score-row.flash-up{animation:flash-green .8s ease}
+.score-row.flash-down{animation:flash-red .8s ease}
+.score-team-name{font-family:var(--font-d);font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.score-pts{font-family:var(--font-m);font-size:1.15rem;font-weight:600;color:var(--gold)}
+.score-delta{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--font-m);font-size:.85rem;font-weight:600;pointer-events:none;opacity:0}
+.score-delta.show-up{animation:scoreUp .9s ease forwards;color:var(--green)}
+.score-delta.show-down{animation:scoreDown .9s ease forwards;color:var(--red)}
+.team-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ROUND HISTORY */
+.history-entry{padding:7px 10px;border-bottom:1px solid var(--border);font-size:.75rem}
+.history-q{color:var(--text-dim);margin-bottom:4px;line-height:1.3}
+.history-scores{display:flex;flex-direction:column;gap:2px}
+.history-score-item{display:flex;justify-content:space-between;align-items:center}
+.history-score-item span:first-child{font-size:.7rem;color:var(--text-dim)}
+.history-score-item span:last-child{font-family:var(--font-m);font-size:.72rem}
+
+/* QUESTION AREA */
+.q-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;gap:14px;overflow-y:auto}
+.q-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.q-tag{font-family:var(--font-m);font-size:.6rem;letter-spacing:.1em;padding:2px 7px;border-radius:2px;text-transform:uppercase}
+.q-tag-topic{background:rgba(0,229,255,.08);color:var(--cyan);border:1px solid var(--cyan-dim)}
+.q-tag-diff{background:rgba(245,200,66,.08);color:var(--gold);border:1px solid var(--gold-dim)}
+.q-box{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;padding:20px 24px;max-width:720px;width:100%;text-align:center;animation:popIn .3s ease}
+.q-text{font-family:var(--font-d);font-size:clamp(1rem,2.2vw,1.5rem);font-weight:600;line-height:1.4;color:var(--text)}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:720px;width:100%}
+.ans-btn{background:var(--panel);border:1.5px solid var(--border);border-radius:6px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:all .15s;color:var(--text);font-family:var(--font-b);font-size:.9rem;line-height:1.4}
+.ans-btn:hover:not(:disabled){border-color:var(--cyan);background:rgba(0,229,255,.06)}
+.ans-btn:disabled{cursor:default}
+.ans-ltr{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--gold);flex-shrink:0;min-width:18px}
+.ans-btn.reveal-correct{border-color:var(--green);background:rgba(46,213,115,.12)}
+.ans-btn.reveal-correct .ans-ltr{color:var(--green)}
+.ans-btn.reveal-wrong{border-color:var(--red);background:rgba(255,71,87,.12)}
+.ans-btn.reveal-wrong .ans-ltr{color:var(--red)}
+.expl-box{background:rgba(46,213,115,.05);border:1px solid rgba(46,213,115,.25);border-radius:6px;padding:12px 16px;max-width:720px;width:100%;animation:fadeIn .3s ease}
+.expl-lbl{font-family:var(--font-d);font-size:.65rem;letter-spacing:.13em;color:var(--green);text-transform:uppercase;margin-bottom:5px}
+
+/* BOTTOM CONTROLS */
+.bottom-bar{border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.wager-section{padding:10px 14px;border-bottom:1px solid var(--border)}
+.wager-section-title{font-family:var(--font-d);font-size:.65rem;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px}
+.wager-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.team-wager-col{display:flex;flex-direction:column;gap:5px}
+.team-wager-label{font-family:var(--font-d);font-size:.75rem;font-weight:600;text-align:center;padding:3px 0;border-radius:3px}
+.wager-btns{display:flex;flex-direction:column;gap:4px}
+.wager-btn{font-family:var(--font-d);font-size:.68rem;font-weight:600;letter-spacing:.06em;padding:5px 4px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;background:transparent;color:var(--text-dim);transition:all .12s;text-align:center;line-height:1.2}
+.wager-btn:hover{border-color:var(--text);color:var(--text);background:rgba(255,255,255,.05)}
+.wager-btn.selected-wager{background:var(--panel);color:var(--text)}
+.wager-btn.w-none.selected-wager{border-color:var(--text-dim);color:var(--text)}
+.wager-btn.w-low.selected-wager{border-color:#f5c842;color:#f5c842}
+.wager-btn.w-high.selected-wager{border-color:#00e5ff;color:#00e5ff}
+
+/* MARKING SECTION */
+.mark-section{padding:10px 14px;border-bottom:1px solid var(--border)}
+.mark-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.team-mark-col{display:flex;flex-direction:column;gap:4px}
+.mark-team-lbl{font-family:var(--font-d);font-size:.72rem;font-weight:600;text-align:center}
+.mark-btns{display:flex;gap:4px}
+.mark-btn{flex:1;font-family:var(--font-d);font-size:.68rem;font-weight:600;padding:6px 2px;border:1.5px solid;border-radius:3px;cursor:pointer;background:transparent;transition:all .12s;text-align:center}
+.mark-btn.correct-btn{border-color:rgba(46,213,115,.4);color:var(--green)}
+.mark-btn.correct-btn:hover,.mark-btn.correct-btn.marked{background:rgba(46,213,115,.2);border-color:var(--green)}
+.mark-btn.wrong-btn{border-color:rgba(255,71,87,.4);color:var(--red)}
+.mark-btn.wrong-btn:hover,.mark-btn.wrong-btn.marked{background:rgba(255,71,87,.2);border-color:var(--red)}
+.mark-preview{font-family:var(--font-m);font-size:.68rem;text-align:center;padding:3px 0;border-radius:3px;background:rgba(255,255,255,.04)}
+
+/* ACTION BAR */
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;padding:10px 14px}
+
+/* TOPIC FILTER */
+.topic-bar{display:flex;gap:5px;flex-wrap:wrap;padding:7px 14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.topic-btn{font-family:var(--font-m);font-size:.6rem;letter-spacing:.07em;padding:3px 9px;border:1px solid var(--border);border-radius:2px;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .13s;text-transform:uppercase}
+.topic-btn:hover,.topic-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.07)}
+
+/* IDLE */
+.idle-msg{color:var(--text-dim);font-family:var(--font-d);font-size:1.05rem;letter-spacing:.05em;text-align:center;padding:30px}
+
+/* MANUAL PTS MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:24px;min-width:320px;max-width:88vw;animation:popIn .22s ease}
+.modal-title{font-family:var(--font-d);font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:14px}
+.modal-body{display:flex;flex-direction:column;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.pts-row{display:flex;align-items:center;gap:8px}
+.pts-row label{font-size:.8rem;color:var(--text-dim);min-width:70px}
+.pts-inp{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:var(--font-m);font-size:.9rem;width:80px}
+select.pts-team-sel{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:var(--font-b);font-size:.9rem;width:140px}
+
+/* FINAL */
+#sf{gap:20px;text-align:center}
+.final-title{font-family:var(--font-d);font-size:clamp(1.8rem,3.5vw,3.2rem);font-weight:700;color:var(--gold);animation:glow 2s ease-in-out infinite}
+.final-winner{font-family:var(--font-d);font-size:clamp(1.8rem,4vw,3.8rem);font-weight:700;color:var(--cyan)}
+.final-tbl{display:flex;flex-direction:column;gap:7px;min-width:260px}
+.final-row{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:9px 14px}
+.final-row.winner-row{border-color:var(--gold);background:rgba(245,200,66,.07)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:680px){.left-panel,.right-panel{display:none}.wager-grid,.mark-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* FINAL WAGER INPUT */
+.final-wager-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:var(--font-m);font-size:.85rem;width:70px;text-align:center}
+.final-wager-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.final-wager-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="app">
+
+<!-- WELCOME -->
+<div id="sw" class="screen active">
+  <span class="wb">Anatomy &amp; Physiology · Team Edition</span>
+  <div class="wt">Who Wants to Be<br>an Anatomist?</div>
+  <div class="wd"></div>
+  <div style="color:var(--text-dim);font-size:.95rem;letter-spacing:.05em">Wager · Compete · Learn</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+    <button class="btn btn-gold" onclick="showS('ss')">▶ Start Game</button>
+    <button class="btn btn-ghost" onclick="showS('ss')">⚙ Team Setup</button>
+  </div>
+  <div style="font-family:var(--font-m);font-size:.65rem;color:var(--text-dim);letter-spacing:.1em;margin-top:8px">4 TEAMS · 40+ QUESTIONS · WAGER SYSTEM</div>
+</div>
+
+<!-- SETUP -->
+<div id="ss" class="screen">
+  <div style="font-family:var(--font-d);font-size:1.6rem;font-weight:700;color:var(--gold);text-align:center">Team Setup</div>
+  <div class="team-setup-grid" id="setup-grid"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-gold" onclick="startGame()">▶ Start Game</button>
+    <button class="btn btn-ghost" onclick="showS('sw')">← Back</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="sg" class="screen">
+  <!-- Header -->
+  <div class="game-header">
+    <div class="game-logo">🧬 Anatomist?</div>
+    <div style="font-family:var(--font-d);font-size:.8rem;color:var(--text-dim)" id="round-counter">Round 1</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="openManual()">＋ Pts</button>
+      <button class="btn btn-ghost btn-sm" onclick="openFinalWager()">Final Wager</button>
+      <button class="btn btn-ghost btn-sm" onclick="undoLast()" id="undo-btn" disabled>↩ Undo</button>
+      <button class="btn btn-red btn-sm" onclick="openEndConfirm()">End Game</button>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <!-- LEFT: Scoreboard -->
+    <div class="left-panel">
+      <div class="panel-title">Scoreboard</div>
+      <div id="scoreboard"></div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center-col">
+      <!-- Topic filter -->
+      <div class="topic-bar" id="topic-bar"></div>
+
+      <!-- Question display -->
+      <div class="q-area" id="q-area">
+        <div class="idle-msg" id="idle-msg">
+          <div style="font-size:2rem;margin-bottom:10px">🧬</div>
+          Click <span style="color:var(--gold)">Next Question</span> to begin
+        </div>
+      </div>
+
+      <!-- Bottom controls -->
+      <div class="bottom-bar">
+        <!-- Wager section -->
+        <div class="wager-section" id="wager-section">
+          <div class="wager-section-title">Select wager per team</div>
+          <div class="wager-grid" id="wager-grid"></div>
+        </div>
+        <!-- Marking section (hidden until revealed) -->
+        <div class="mark-section" id="mark-section" style="display:none">
+          <div style="font-family:var(--font-d);font-size:.65rem;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px">Mark teams correct / incorrect</div>
+          <div class="mark-grid" id="mark-grid"></div>
+        </div>
+        <!-- Action bar -->
+        <div class="action-bar">
+          <button class="btn btn-ghost btn-sm" id="btn-reset-round" onclick="resetRound()">Reset Round</button>
+          <button class="btn btn-gold" id="btn-reveal" onclick="revealAnswer()" style="display:none">Reveal Answer</button>
+          <button class="btn btn-gold" id="btn-apply" onclick="applyScores()" style="display:none">Apply Scores</button>
+          <button class="btn btn-cyan" id="btn-next" onclick="nextQuestion()">Next Question ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: History -->
+    <div class="right-panel">
+      <div class="panel-title">Round History</div>
+      <div id="history-log"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="sf" class="screen">
+  <div style="font-size:3.5rem">🏆</div>
+  <div class="final-title">Game Over!</div>
+  <div id="final-winner-area"></div>
+  <div class="final-tbl" id="final-tbl"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+    <button class="btn btn-gold" onclick="resetGame()">↺ Play Again</button>
+    <button class="btn btn-ghost" onclick="showS('sw')">← Menu</button>
+  </div>
+</div>
+
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="modal-manual">
+  <div class="modal">
+    <div class="modal-title">Adjust Points</div>
+    <div class="modal-body">
+      <div class="pts-row"><label>Team:</label><select class="pts-team-sel" id="adj-team"></select></div>
+      <div class="pts-row"><label>Amount:</label><input type="number" class="pts-inp" id="adj-pts" value="100" step="50"></div>
+      <div style="font-size:.78rem;color:var(--text-dim)">Positive = add, negative = subtract</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-sm" onclick="applyManual()">Apply</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-manual')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-final-wager">
+  <div class="modal">
+    <div class="modal-title">Final Wager Round</div>
+    <div class="modal-body">
+      <div style="font-size:.82rem;color:var(--text-dim);margin-bottom:8px">Each team wagers custom points on the next question. Enter amounts (0 = no wager).</div>
+      <div id="final-wager-rows"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-sm" onclick="activateFinalWager()">Set Wagers</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-final-wager')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-end-confirm">
+  <div class="modal">
+    <div class="modal-title">End Game?</div>
+    <div class="modal-body"><div>Show final scores and declare a winner?</div></div>
+    <div class="modal-actions">
+      <button class="btn btn-red btn-sm" onclick="endGame()">End Game</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-end-confirm')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAM_COLORS = ['var(--t1)','var(--t2)','var(--t3)','var(--t4)'];
+const WAGER_OPTS = [
+  {label:'No Wager (+100/0)',val:0,cls:'w-none'},
+  {label:'+100 / -100',val:100,cls:'w-low'},
+  {label:'+300 / -300',val:300,cls:'w-high'},
+];
+
+const QUESTIONS = [
+  {text:"Which directional term means 'toward the back of the body'?",choices:{A:"Anterior",B:"Posterior",C:"Superior",D:"Lateral"},correct:"B",explanation:"Posterior (dorsal) means toward the back. Anterior (ventral) means toward the front.",topic:"Terminology",difficulty:"Easy"},
+  {text:"A cut dividing the body into left and right halves is called a:",choices:{A:"Transverse section",B:"Coronal section",C:"Sagittal section",D:"Oblique section"},correct:"C",explanation:"A sagittal section divides the body into left and right halves.",topic:"Terminology",difficulty:"Easy"},
+  {text:"Which term describes the elbow's position relative to the wrist?",choices:{A:"Distal",B:"Inferior",C:"Proximal",D:"Lateral"},correct:"C",explanation:"Proximal = closer to the point of attachment. The elbow is proximal to the wrist.",topic:"Terminology",difficulty:"Easy"},
+  {text:"Which best describes a negative feedback loop?",choices:{A:"Output amplifies the original stimulus",B:"Output shuts off or reduces the original stimulus",C:"Response has no effect on stimulus",D:"Effector stimulates the receptor"},correct:"B",explanation:"Negative feedback reduces/reverses the change, restoring homeostasis.",topic:"Homeostasis",difficulty:"Easy"},
+  {text:"Correct organizational hierarchy from simplest to most complex:",choices:{A:"Organ → Tissue → Cell → Organism",B:"Cell → Tissue → Organ → Organ System → Organism",C:"Tissue → Cell → Organ → Organism",D:"Molecule → Organ → Tissue → Organism"},correct:"B",explanation:"Cells → tissues → organs → organ systems → organism.",topic:"Homeostasis",difficulty:"Easy"},
+  {text:"Which tissue type is avascular and receives nutrients by diffusion?",choices:{A:"Nervous tissue",B:"Muscle tissue",C:"Epithelial tissue",D:"Dense connective tissue"},correct:"C",explanation:"Epithelial tissue has no blood vessels and depends on diffusion through the basement membrane.",topic:"Tissues",difficulty:"Medium"},
+  {text:"Biopsy shows flat, scale-like cells in multiple layers. This is:",choices:{A:"Simple cuboidal epithelium",B:"Stratified squamous epithelium",C:"Pseudostratified columnar epithelium",D:"Simple columnar epithelium"},correct:"B",explanation:"Stratified = multiple layers; squamous = flat/scale-like. Found in skin and mouth lining.",topic:"Tissues",difficulty:"Medium"},
+  {text:"Melanin is produced by melanocytes in which skin layer?",choices:{A:"Stratum corneum",B:"Stratum granulosum",C:"Stratum basale",D:"Dermis"},correct:"C",explanation:"Melanocytes reside in the stratum basale (deepest epidermal layer).",topic:"Integumentary",difficulty:"Medium"},
+  {text:"A second-degree burn affects:",choices:{A:"Epidermis only",B:"Epidermis and part of the dermis",C:"Epidermis, dermis, and subcutaneous tissue",D:"Dermis only"},correct:"B",explanation:"Second-degree (partial-thickness) burns damage the epidermis and extend into the dermis, causing blisters.",topic:"Integumentary",difficulty:"Medium"},
+  {text:"Articular surfaces of bones at synovial joints are covered by:",choices:{A:"Fibrocartilage",B:"Elastic cartilage",C:"Hyaline cartilage",D:"Fibrous cartilage"},correct:"C",explanation:"Hyaline (articular) cartilage provides a smooth, low-friction surface for joint movement.",topic:"Skeletal",difficulty:"Medium"},
+  {text:"Osteoclasts perform which function in bone remodeling?",choices:{A:"Synthesize new bone matrix",B:"Maintain existing bone matrix",C:"Resorb (break down) bone matrix",D:"Convert cartilage to bone"},correct:"C",explanation:"Osteoclasts secrete acids and enzymes to dissolve bone matrix during remodeling.",topic:"Skeletal",difficulty:"Medium"},
+  {text:"A child with bowed legs, soft bones, low vitamin D and calcium. Most consistent with:",choices:{A:"Osteoporosis",B:"Rickets",C:"Paget's disease",D:"Osteomalacia"},correct:"B",explanation:"Rickets occurs when vitamin D deficiency impairs calcium absorption, leading to weak, deforming bones.",topic:"Skeletal",difficulty:"Hard"},
+  {text:"ATP's role at the myosin cross-bridge during contraction:",choices:{A:"Binds troponin to expose actin active site",B:"Causes the power stroke directly",C:"Detaches myosin from actin and re-cocks the head",D:"Pumps calcium into the SR"},correct:"C",explanation:"ATP binding causes myosin to release actin; hydrolysis re-cocks the head. Absence causes rigor mortis.",topic:"Muscular",difficulty:"Hard"},
+  {text:"Best muscle fiber type for a marathon runner:",choices:{A:"Type II-X (fast glycolytic)",B:"Type I (slow oxidative)",C:"Type II-A (fast oxidative-glycolytic)",D:"Type II-B fibers"},correct:"B",explanation:"Type I fibers are fatigue-resistant, rich in mitochondria, and rely on aerobic metabolism.",topic:"Muscular",difficulty:"Medium"},
+  {text:"Patient cannot extend their leg at the knee. Most likely affected muscle:",choices:{A:"Hamstrings",B:"Gluteus maximus",C:"Quadriceps femoris",D:"Gastrocnemius"},correct:"C",explanation:"The quadriceps femoris is the primary knee extensor.",topic:"Muscular",difficulty:"Medium"},
+  {text:"Which ion rushes INTO the neuron during depolarization?",choices:{A:"Potassium (K⁺)",B:"Chloride (Cl⁻)",C:"Sodium (Na⁺)",D:"Calcium (Ca²⁺)"},correct:"C",explanation:"Voltage-gated Na⁺ channels open during depolarization; Na⁺ floods in making the interior positive.",topic:"Nervous",difficulty:"Medium"},
+  {text:"Myelin sheaths in the PNS are formed by:",choices:{A:"Astrocytes",B:"Oligodendrocytes",C:"Schwann cells",D:"Microglia"},correct:"C",explanation:"Schwann cells myelinate PNS axons. Oligodendrocytes myelinate CNS axons.",topic:"Nervous",difficulty:"Medium"},
+  {text:"Loss of pain/temperature sensation on the LEFT below the neck, intact fine touch LEFT. RIGHT spinal cord damage is:",choices:{A:"Left dorsal column",B:"Right corticospinal tract",C:"Right lateral spinothalamic tract",D:"Left lateral spinothalamic tract"},correct:"C",explanation:"The lateral spinothalamic tract crosses immediately upon entry; right-side damage → left-side loss.",topic:"Nervous",difficulty:"Expert"},
+  {text:"Stimulation of the parasympathetic ANS would most likely cause:",choices:{A:"Increased heart rate and bronchodilation",B:"Pupil dilation and decreased GI motility",C:"Decreased heart rate and increased digestive activity",D:"Release of epinephrine from adrenal medulla"},correct:"C",explanation:"'Rest and digest': slows heart rate, promotes digestion, constricts pupils (SLUDD).",topic:"Nervous",difficulty:"Hard"},
+  {text:"ADH is produced in the hypothalamus but stored and released from the:",choices:{A:"Anterior pituitary",B:"Posterior pituitary",C:"Adrenal cortex",D:"Thyroid gland"},correct:"B",explanation:"ADH travels down axons to be stored in and released from the posterior pituitary.",topic:"Endocrine",difficulty:"Medium"},
+  {text:"Low blood Ca²⁺ — which hormone corrects this?",choices:{A:"Calcitonin from the thyroid",B:"Parathyroid hormone (PTH)",C:"Aldosterone from the adrenal cortex",D:"Cortisol from the adrenal cortex"},correct:"B",explanation:"PTH stimulates osteoclasts, increases renal Ca²⁺ reabsorption, and activates vitamin D.",topic:"Endocrine",difficulty:"Hard"},
+  {text:"Increased urination, thirst, glucose 350 mg/dL, undetectable C-peptide. Most consistent with:",choices:{A:"Type 2 diabetes mellitus",B:"Type 1 diabetes mellitus",C:"Diabetes insipidus",D:"Cushing's syndrome"},correct:"B",explanation:"Undetectable C-peptide = no endogenous insulin production = autoimmune beta-cell destruction (T1DM).",topic:"Endocrine",difficulty:"Expert"},
+  {text:"The 'lub' heart sound is caused by:",choices:{A:"Closure of the semilunar valves",B:"Closure of the AV valves",C:"Opening of the semilunar valves",D:"Blood rushing through the aorta"},correct:"B",explanation:"S1 ('lub') = closure of mitral and tricuspid (AV) valves at the start of ventricular systole.",topic:"Cardiovascular",difficulty:"Medium"},
+  {text:"ECG shows no P waves and irregular rhythm. Most likely:",choices:{A:"First-degree heart block",B:"Ventricular tachycardia",C:"Atrial fibrillation",D:"Normal sinus rhythm"},correct:"C",explanation:"A-fib: chaotic atrial activity, no P waves, irregularly irregular ventricular rhythm.",topic:"Cardiovascular",difficulty:"Hard"},
+  {text:"Which vessel carries oxygenated blood from lungs to the heart?",choices:{A:"Pulmonary artery",B:"Pulmonary vein",C:"Aorta",D:"Superior vena cava"},correct:"B",explanation:"Pulmonary veins carry oxygenated blood from lungs to the left atrium — exception to the artery/vein O₂ rule.",topic:"Cardiovascular",difficulty:"Easy"},
+  {text:"Surfactant in alveoli primarily functions to:",choices:{A:"Increase surface tension to aid inflation",B:"Reduce surface tension to prevent collapse",C:"Facilitate gas exchange across the respiratory membrane",D:"Warm and humidify incoming air"},correct:"B",explanation:"Surfactant (type II pneumocytes) reduces surface tension, preventing alveolar collapse on exhalation.",topic:"Respiratory",difficulty:"Medium"},
+  {text:"Premature infant with breathing difficulty and ground-glass X-ray. Most likely cause:",choices:{A:"Pneumonia",B:"Surfactant deficiency (infant RDS)",C:"Congenital heart disease",D:"Pneumothorax"},correct:"B",explanation:"Premature lungs lack surfactant (~28 weeks), causing alveolar collapse and IRDS.",topic:"Respiratory",difficulty:"Hard"},
+  {text:"Most CO₂ in the blood is transported as:",choices:{A:"Dissolved CO₂ in plasma",B:"Carbaminohemoglobin",C:"Bicarbonate ions (HCO₃⁻)",D:"Bound to albumin"},correct:"C",explanation:"~70% of CO₂ is converted to bicarbonate by carbonic anhydrase in RBCs.",topic:"Respiratory",difficulty:"Hard"},
+  {text:"Where does most chemical digestion and nutrient absorption occur?",choices:{A:"Stomach",B:"Large intestine",C:"Small intestine",D:"Esophagus"},correct:"C",explanation:"The small intestine (duodenum, jejunum, ileum) is the primary site — villi/microvilli maximize surface area.",topic:"Digestive",difficulty:"Easy"},
+  {text:"Chief cells of the stomach secrete:",choices:{A:"Hydrochloric acid",B:"Intrinsic factor",C:"Pepsinogen",D:"Mucus"},correct:"C",explanation:"Chief cells secrete pepsinogen. Parietal cells secrete HCl and intrinsic factor.",topic:"Digestive",difficulty:"Medium"},
+  {text:"B12 deficiency with megaloblastic anemia despite normal dietary intake. Most likely deficiency:",choices:{A:"Pepsinogen from chief cells",B:"Intrinsic factor from parietal cells",C:"Bile from the liver",D:"Pancreatic lipase"},correct:"B",explanation:"Intrinsic factor (parietal cells) is required for B12 absorption in the ileum — pernicious anemia.",topic:"Digestive",difficulty:"Expert"},
+  {text:"Which enzyme breaks down starch in the mouth?",choices:{A:"Lipase",B:"Pepsin",C:"Salivary amylase",D:"Trypsin"},correct:"C",explanation:"Salivary amylase begins carbohydrate digestion, breaking starch into maltose.",topic:"Digestive",difficulty:"Easy"},
+  {text:"Structure responsible for filtration in the nephron:",choices:{A:"Loop of Henle",B:"Collecting duct",C:"Bowman's capsule / glomerulus",D:"Distal convoluted tubule"},correct:"C",explanation:"Blood is filtered under pressure at the glomerulus; filtrate collects in Bowman's capsule.",topic:"Urinary",difficulty:"Easy"},
+  {text:"Aldosterone acts on the kidney to:",choices:{A:"Increase water loss and decrease Na⁺ reabsorption",B:"Increase Na⁺ reabsorption and K⁺ secretion",C:"Decrease BP by dilating afferent arterioles",D:"Inhibit ADH release"},correct:"B",explanation:"Aldosterone retains Na⁺ and water while excreting K⁺, increasing blood volume and pressure.",topic:"Urinary",difficulty:"Hard"},
+  {text:"Blood pH 7.26, PaCO₂ 32 mmHg, HCO₃⁻ 14 mEq/L. Most consistent with:",choices:{A:"Respiratory acidosis",B:"Respiratory alkalosis",C:"Metabolic acidosis with respiratory compensation",D:"Metabolic alkalosis"},correct:"C",explanation:"Low pH + low HCO₃⁻ (metabolic cause) + low PaCO₂ (lungs compensating) = metabolic acidosis.",topic:"Urinary",difficulty:"Expert"},
+  {text:"Sperm are produced in which testicular structure?",choices:{A:"Epididymis",B:"Seminiferous tubules",C:"Vas deferens",D:"Interstitial cells of Leydig"},correct:"B",explanation:"Spermatogenesis occurs in seminiferous tubules. Sperm mature in the epididymis.",topic:"Reproductive",difficulty:"Easy"},
+  {text:"Which hormone triggers ovulation?",choices:{A:"Estrogen",B:"Progesterone",C:"FSH",D:"LH surge"},correct:"D",explanation:"A sharp LH surge around day 14 triggers ovulation. FSH stimulates follicle development earlier.",topic:"Reproductive",difficulty:"Medium"},
+  {text:"hCG's physiological role in pregnancy:",choices:{A:"Triggers labor contractions",B:"Maintains the corpus luteum for progesterone",C:"Stimulates breast milk production",D:"Causes the LH surge"},correct:"B",explanation:"hCG rescues the corpus luteum so progesterone keeps the uterine lining intact.",topic:"Reproductive",difficulty:"Hard"},
+  {text:"Resting membrane potential of –70 mV primarily reflects:",choices:{A:"High intracellular Na⁺ relative to outside",B:"Diffusion of K⁺ outward and impermeability to Na⁺ at rest",C:"Active influx of Cl⁻ through open channels",D:"Permanently open calcium channels"},correct:"B",explanation:"K⁺ leaks out through open K⁺ channels; Na⁺ cannot enter at rest, creating the –70 mV potential.",topic:"Nervous",difficulty:"Expert"},
+  {text:"A patient with Addison's disease would show:",choices:{A:"Hyponatremia, hyperkalemia, hypoglycemia",B:"Hypernatremia, hypokalemia, hyperglycemia",C:"Normal Na⁺, elevated cortisol, low ACTH",D:"Elevated aldosterone with low renin"},correct:"A",explanation:"Addison's = low aldosterone (Na⁺ lost, K⁺ retained) + low cortisol (hypoglycemia).",topic:"Endocrine",difficulty:"Expert"},
+  {text:"Primary energy system for a 400m sprint after the first 10 seconds:",choices:{A:"ATP-PCr (phosphocreatine) system",B:"Anaerobic glycolysis (lactic acid system)",C:"Aerobic oxidative phosphorylation",D:"Beta-oxidation of fatty acids"},correct:"B",explanation:"ATP-PCr powers ~10 s. 10 s–2 min efforts rely on anaerobic glycolysis, producing lactic acid.",topic:"Muscular",difficulty:"Expert"},
+];
+
+let G = {
+  teams:[],
+  activeQ:null,
+  usedIds:new Set(),
+  topic:'All',
+  round:0,
+  wagers:[0,0,0,0],
+  marks:[null,null,null,null],
+  revealed:false,
+  applied:false,
+  history:[],
+  undoStack:[],
+  finalWagerActive:false,
+  finalWagers:[0,0,0,0],
+};
+
+function initTeams(names){
+  G.teams = names.map((n,i)=>({name:n,score:0,color:TEAM_COLORS[i]}));
+}
+function showS(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});
+  document.getElementById(id).classList.add('active');
+}
+function initSetup(){
+  const grid=document.getElementById('setup-grid');
+  const def=['Team 1','Team 2','Team 3','Team 4'];
+  grid.innerHTML=def.map((n,i)=>`
+    <div class="setup-card" style="border-color:${TEAM_COLORS[i]}40">
+      <label style="color:${TEAM_COLORS[i]}">Team ${i+1}</label>
+      <input class="team-name-inp" id="tn-${i}" value="${n}" maxlength="16" placeholder="Team ${i+1}">
+    </div>
+  `).join('');
+}
+function startGame(){
+  const names=[0,1,2,3].map(i=>{const v=document.getElementById('tn-'+i).value.trim();return v||`Team ${i+1}`;});
+  initTeams(names);
+  G.round=0; G.usedIds=new Set(); G.history=[]; G.undoStack=[];
+  showS('sg');
+  buildTopicBar();
+  renderScoreboard();
+  renderWagerGrid();
+  resetRoundState();
+  renderHistory();
+}
+function buildTopicBar(){
+  const topics=['All',...new Set(QUESTIONS.map(q=>q.topic))];
+  document.getElementById('topic-bar').innerHTML=topics.map(t=>`
+    <button class="topic-btn${t===G.topic?' active':''}" onclick="setTopic('${t}')">${t}</button>
+  `).join('');
+}
+function setTopic(t){G.topic=t;buildTopicBar();}
+
+/* SCOREBOARD */
+function renderScoreboard(){
+  document.getElementById('scoreboard').innerHTML=G.teams.map((t,i)=>`
+    <div class="score-row" id="sr-${i}">
+      <div class="score-team-name">
+        <div class="team-dot" style="background:${t.color}"></div>
+        <span style="color:${t.color}">${t.name}</span>
+      </div>
+      <div class="score-pts">${t.score.toLocaleString()}</div>
+      <div class="score-delta" id="delta-${i}"></div>
+    </div>
+  `).join('');
+}
+function flashScore(i,delta){
+  const row=document.getElementById('sr-'+i);
+  const d=document.getElementById('delta-'+i);
+  if(!row||!d)return;
+  row.classList.remove('flash-up','flash-down');
+  d.classList.remove('show-up','show-down');
+  void row.offsetWidth;
+  if(delta>0){
+    row.classList.add('flash-up');
+    d.textContent='+'+delta.toLocaleString();
+    d.classList.add('show-up');
+  } else if(delta<0){
+    row.classList.add('flash-down');
+    d.textContent=delta.toLocaleString();
+    d.classList.add('show-down');
+  }
+  setTimeout(()=>{d.classList.remove('show-up','show-down');d.textContent='';},950);
+  setTimeout(()=>row.classList.remove('flash-up','flash-down'),850);
+}
+
+/* WAGER GRID */
+function renderWagerGrid(){
+  document.getElementById('wager-grid').innerHTML=G.teams.map((t,i)=>`
+    <div class="team-wager-col">
+      <div class="team-wager-label" style="color:${t.color};background:${t.color}18">${t.name}</div>
+      <div class="wager-btns">
+        ${WAGER_OPTS.map(opt=>`
+          <button class="wager-btn ${opt.cls}${G.wagers[i]===opt.val?' selected-wager':''}"
+            onclick="setWager(${i},${opt.val})">${opt.label}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function setWager(ti,val){
+  if(G.revealed){return;}
+  G.wagers[ti]=val;
+  renderWagerGrid();
+  if(G.revealed) renderMarkGrid();
+}
+
+/* MARK GRID */
+function renderMarkGrid(){
+  document.getElementById('mark-grid').innerHTML=G.teams.map((t,i)=>{
+    const w=G.finalWagerActive?G.finalWagers[i]:G.wagers[i];
+    const gain=w>0?`+${w}`:'0';
+    const loss=w>0?`-${w}`:'0';
+    return `
+      <div class="team-mark-col">
+        <div class="mark-team-lbl" style="color:${t.color}">${t.name}</div>
+        <div class="mark-btns">
+          <button class="mark-btn correct-btn${G.marks[i]==='correct'?' marked':''}"
+            onclick="setMark(${i},'correct')">✓ Correct</button>
+          <button class="mark-btn wrong-btn${G.marks[i]==='incorrect'?' marked':''}"
+            onclick="setMark(${i},'incorrect')">✗ Wrong</button>
+        </div>
+        <div class="mark-preview" style="color:${G.marks[i]==='correct'?'var(--green)':G.marks[i]==='incorrect'?'var(--red)':'var(--text-dim)'}">
+          ${G.marks[i]==='correct'?gain:G.marks[i]==='incorrect'?loss:'–'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setMark(ti,val){
+  G.marks[ti]=val;
+  renderMarkGrid();
+}
+
+/* QUESTION */
+function nextQuestion(){
+  if(G.applied||!G.revealed){
+    // allow even if not applied
+  }
+  G.round++;
+  document.getElementById('round-counter').textContent=`Round ${G.round}`;
+  const pool=QUESTIONS.filter(q=>!G.usedIds.has(q.text)&&(G.topic==='All'||q.topic===G.topic));
+  if(!pool.length){
+    alert('No more unused questions in this topic!');
+    return;
+  }
+  const q=pool[Math.floor(Math.random()*pool.length)];
+  G.usedIds.add(q.text);
+  G.activeQ=q;
+  G.marks=[null,null,null,null];
+  G.revealed=false;
+  G.applied=false;
+  G.finalWagerActive=false;
+  renderQuestion();
+  document.getElementById('wager-section').style.display='';
+  document.getElementById('mark-section').style.display='none';
+  renderWagerGrid();
+  document.getElementById('btn-reveal').style.display='inline-flex';
+  document.getElementById('btn-apply').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+}
+
+function renderQuestion(){
+  const q=G.activeQ;
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-meta">
+      <span class="q-tag q-tag-topic">${q.topic}</span>
+      <span class="q-tag q-tag-diff">${q.difficulty}</span>
+    </div>
+    <div class="q-box">
+      <div class="q-text">${q.text}</div>
+    </div>
+    <div class="answers-grid">
+      ${['A','B','C','D'].map(l=>`
+        <div class="ans-btn" id="ans-${l}">
+          <span class="ans-ltr">${l}</span>
+          <span>${q.choices[l]}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div id="expl-area"></div>
+  `;
+}
+
+function revealAnswer(){
+  if(!G.activeQ)return;
+  G.revealed=true;
+  const q=G.activeQ;
+  ['A','B','C','D'].forEach(l=>{
+    const el=document.getElementById('ans-'+l);
+    if(!el)return;
+    if(l===q.correct)el.classList.add('reveal-correct');
+    else el.classList.add('reveal-wrong');
+  });
+  document.getElementById('expl-area').innerHTML=`
+    <div class="expl-box">
+      <div class="expl-lbl">Explanation</div>
+      <div style="font-size:.9rem;line-height:1.5;color:var(--text)">${q.explanation}</div>
+    </div>
+  `;
+  document.getElementById('wager-section').style.display='none';
+  document.getElementById('mark-section').style.display='';
+  renderMarkGrid();
+  document.getElementById('btn-reveal').style.display='none';
+  document.getElementById('btn-apply').style.display='inline-flex';
+  document.getElementById('btn-next').style.display='none';
+}
+
+function applyScores(){
+  const snapshot=G.teams.map(t=>t.score);
+  const deltas=[0,0,0,0];
+  G.teams.forEach((t,i)=>{
+    const w=G.finalWagerActive?G.finalWagers[i]:G.wagers[i];
+    const isNoWager=!G.finalWagerActive&&G.wagers[i]===0;
+    if(G.marks[i]==='correct') deltas[i]=isNoWager?100:w;
+    else if(G.marks[i]==='incorrect') deltas[i]=isNoWager?0:-w;
+    t.score+=deltas[i];
+  });
+  G.undoStack.push({snapshot,deltas,q:G.activeQ?G.activeQ.text:'—'});
+  document.getElementById('undo-btn').disabled=false;
+  renderScoreboard();
+  deltas.forEach((d,i)=>{if(d!==0)flashScore(i,d);});
+  G.applied=true;
+  addHistory();
+  document.getElementById('btn-apply').style.display='none';
+  document.getElementById('btn-next').style.display='inline-flex';
+  G.wagers=[0,0,0,0];
+}
+
+function addHistory(){
+  const q=G.activeQ;
+  G.history.unshift({
+    round:G.round,
+    q:q?q.text.substring(0,55)+'…':'—',
+    correct:q?q.correct:'—',
+    teams:G.teams.map((t,i)=>{
+      const w=G.finalWagerActive?G.finalWagers[i]:G.wagers[i];
+      const m=G.marks[i];
+      const d=m==='correct'?w:m==='incorrect'?-w:0;
+      return {name:t.name,color:t.color,delta:d,mark:m};
+    }),
+  });
+  renderHistory();
+}
+
+function renderHistory(){
+  const log=document.getElementById('history-log');
+  if(!log)return;
+  if(!G.history.length){log.innerHTML='<div style="padding:12px 10px;font-size:.75rem;color:var(--text-dim)">No rounds yet.</div>';return;}
+  log.innerHTML=G.history.map(h=>`
+    <div class="history-entry">
+      <div class="history-q">R${h.round}: ${h.q}</div>
+      <div class="history-scores">
+        ${h.teams.map(t=>`
+          <div class="history-score-item">
+            <span style="color:${t.color}">${t.name}</span>
+            <span style="color:${t.delta>0?'var(--green)':t.delta<0?'var(--red)':'var(--text-dim)'}">${t.delta>0?'+'+t.delta:t.delta===0?'0':t.delta} (${t.mark||'–'})</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function resetRound(){
+  G.marks=[null,null,null,null];
+  G.wagers=[0,0,0,0];
+  G.revealed=false;
+  G.applied=false;
+  G.finalWagerActive=false;
+  document.getElementById('wager-section').style.display='';
+  document.getElementById('mark-section').style.display='none';
+  document.getElementById('btn-reveal').style.display=G.activeQ?'inline-flex':'none';
+  document.getElementById('btn-apply').style.display='none';
+  document.getElementById('btn-next').style.display=G.applied?'inline-flex':'none';
+  renderWagerGrid();
+  if(G.activeQ)renderQuestion();
+}
+function resetRoundState(){
+  G.activeQ=null; G.marks=[null,null,null,null]; G.wagers=[0,0,0,0];
+  G.revealed=false; G.applied=false; G.finalWagerActive=false;
+  document.getElementById('q-area').innerHTML=`<div class="idle-msg"><div style="font-size:2rem;margin-bottom:10px">🧬</div>Click <span style="color:var(--gold)">Next Question</span> to begin</div>`;
+  document.getElementById('wager-section').style.display='';
+  document.getElementById('mark-section').style.display='none';
+  document.getElementById('btn-reveal').style.display='none';
+  document.getElementById('btn-apply').style.display='none';
+  document.getElementById('btn-next').style.display='inline-flex';
+  document.getElementById('undo-btn').disabled=!G.undoStack.length;
+  renderWagerGrid();
+}
+
+/* UNDO */
+function undoLast(){
+  if(!G.undoStack.length)return;
+  const last=G.undoStack.pop();
+  G.teams.forEach((t,i)=>t.score=last.snapshot[i]);
+  // remove last history entry
+  G.history.shift();
+  renderScoreboard();
+  renderHistory();
+  document.getElementById('undo-btn').disabled=!G.undoStack.length;
+  G.applied=false;
+  document.getElementById('btn-apply').style.display='inline-flex';
+  document.getElementById('btn-next').style.display='none';
+}
+
+/* MANUAL POINTS */
+function openManual(){
+  const sel=document.getElementById('adj-team');
+  sel.innerHTML=G.teams.map((t,i)=>`<option value="${i}">${t.name} (${t.score})</option>`).join('');
+  document.getElementById('adj-pts').value=100;
+  document.getElementById('modal-manual').classList.add('open');
+}
+function applyManual(){
+  const ti=parseInt(document.getElementById('adj-team').value);
+  const pts=parseInt(document.getElementById('adj-pts').value)||0;
+  G.teams[ti].score+=pts;
+  renderScoreboard();
+  if(pts!==0)flashScore(ti,pts);
+  closeModal('modal-manual');
+}
+
+/* FINAL WAGER */
+function openFinalWager(){
+  document.getElementById('final-wager-rows').innerHTML=G.teams.map((t,i)=>`
+    <div class="final-wager-row">
+      <span style="color:${t.color};font-family:var(--font-d);font-size:.9rem">${t.name}</span>
+      <span style="font-size:.78rem;color:var(--text-dim)">Score: ${t.score.toLocaleString()}</span>
+      <input type="number" class="final-wager-input" id="fw-${i}" value="${Math.floor(t.score/2)||0}" min="0" max="${Math.max(t.score,0)}">
+    </div>
+  `).join('');
+  document.getElementById('modal-final-wager').classList.add('open');
+}
+function activateFinalWager(){
+  G.finalWagers=G.teams.map((_,i)=>parseInt(document.getElementById('fw-'+i).value)||0);
+  G.finalWagerActive=true;
+  closeModal('modal-final-wager');
+  alert('Final wager set! Proceed with Next Question — wagers will apply automatically.');
+}
+
+/* END / RESET */
+function openEndConfirm(){document.getElementById('modal-end-confirm').classList.add('open');}
+function endGame(){
+  closeModal('modal-end-confirm');
+  const sorted=[...G.teams].sort((a,b)=>b.score-a.score);
+  const winner=sorted[0];
+  const tied=sorted.filter(t=>t.score===winner.score);
+  document.getElementById('final-winner-area').innerHTML=tied.length>1
+    ?`<div style="color:var(--text-dim);font-size:1rem">Tie between:</div><div class="final-winner">${tied.map(t=>t.name).join(' & ')}</div>`
+    :`<div style="color:var(--text-dim);font-size:.95rem">Winner:</div><div class="final-winner" style="color:${winner.color}">${winner.name}</div>`;
+  document.getElementById('final-tbl').innerHTML=sorted.map((t,i)=>`
+    <div class="final-row${i===0?' winner-row':''}">
+      <span style="font-family:var(--font-d);font-size:.95rem;font-weight:600;color:${t.color}">${i===0?'🥇 ':''}${t.name}</span>
+      <span style="font-family:var(--font-m);color:var(--gold)">${t.score.toLocaleString()} pts</span>
+    </div>
+  `).join('');
+  showS('sf');
+}
+function resetGame(){
+  G={...G,teams:[],activeQ:null,usedIds:new Set(),topic:'All',round:0,wagers:[0,0,0,0],marks:[null,null,null,null],revealed:false,applied:false,history:[],undoStack:[],finalWagerActive:false,finalWagers:[0,0,0,0]};
+  showS('ss');
+  initSetup();
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+initSetup();
+</script>
+</body>
+</html>
