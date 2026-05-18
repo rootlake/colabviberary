@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animalia Mirabilia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --ink: #3b2f2f;
+      --parchment: #f6ecd2;
+      --parchment-dark: #e8d4a8;
+      --accent: #8b5e34;
+      --accent-dark: #5f3f23;
+    }
+
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.5), transparent 40%),
+        linear-gradient(135deg, #f8efd8 0%, #ead7ab 100%);
+      min-height: 100vh;
+    }
+
+    .bestiary-card {
+      background: rgba(255, 248, 226, 0.92);
+      border: 2px solid rgba(139, 94, 52, 0.35);
+      box-shadow: 0 18px 45px rgba(74, 48, 25, 0.14);
+    }
+
+    .ornament {
+      border-top: 2px solid rgba(139, 94, 52, 0.35);
+      border-bottom: 2px solid rgba(139, 94, 52, 0.35);
+    }
+
+    .print-card {
+      background: #fff8e6;
+      border: 3px double #8b5e34;
+    }
+
+    @media print {
+      body { background: white; }
+      .no-print { display: none !important; }
+      .print-area { display: block !important; }
+      .print-card { box-shadow: none; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="font-serif">
+  <header class="no-print px-5 py-6 md:px-10">
+    <div class="mx-auto max-w-6xl bestiary-card rounded-3xl p-6 md:p-8">
+      <p class="text-sm uppercase tracking-[0.28em] text-amber-900/70">Latin • Mythology • Geography</p>
+      <div class="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-amber-950">Animalia Mirabilia</h1>
+          <p class="mt-2 max-w-2xl text-lg text-stone-700">A mythological bestiary lab for researching fantastic beasts and producing guided Latin sentences.</p>
+        </div>
+        <button onclick="window.print()" class="rounded-2xl bg-amber-900 px-5 py-3 text-white shadow hover:bg-amber-950 active:scale-[0.99]">Print ID Card</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="no-print mx-auto grid max-w-6xl gap-6 px-5 pb-10 md:grid-cols-[280px_1fr] md:px-10">
+    <aside class="bestiary-card rounded-3xl p-5">
+      <h2 class="text-xl font-bold text-amber-950">Bestiary Steps</h2>
+      <ol class="mt-4 space-y-3 text-sm text-stone-700">
+        <li class="rounded-xl bg-amber-100/70 p-3"><strong>1. Choose</strong><br />Select a creature.</li>
+        <li class="rounded-xl bg-white/50 p-3"><strong>2. Research</strong><br />Gather mythological evidence.</li>
+        <li class="rounded-xl bg-white/50 p-3"><strong>3. Locate</strong><br />Connect story to geography.</li>
+        <li class="rounded-xl bg-white/50 p-3"><strong>4. Produce Latin</strong><br />Use sentence frames.</li>
+        <li class="rounded-xl bg-white/50 p-3"><strong>5. Publish</strong><br />Print your ID card.</li>
+      </ol>
+      <p class="mt-5 rounded-xl border border-amber-900/20 bg-amber-50 p-3 text-xs text-stone-600">Privacy note: this page does not use accounts, databases, analytics, uploads, or location tracking. Work exists only in this browser session.</p>
+    </aside>
+
+    <section class="space-y-6">
+      <div class="bestiary-card rounded-3xl p-5 md:p-6">
+        <label for="creatureSelect" class="block text-lg font-bold text-amber-950">Choose a creature</label>
+        <p class="mt-1 text-sm text-stone-600">Begin by selecting one creature from the classical mythological bestiary.</p>
+        <select id="creatureSelect" class="mt-4 w-full rounded-2xl border border-amber-900/30 bg-white/70 p-4 text-lg" onchange="selectCreature()">
+          <option value="">-- Select a creature --</option>
+        </select>
+      </div>
+
+      <section class="bestiary-card rounded-3xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold text-amber-950">Research Resources</h2>
+        <p class="mt-1 text-sm text-stone-600">Use these starting points to investigate your creature. Open links in a new tab, take notes in your own words, and compare information across sources.</p>
+        <div class="mt-4 grid gap-3 md:grid-cols-3">
+          <a href="https://www.theoi.com/" target="_blank" rel="noopener noreferrer" class="rounded-2xl bg-white/70 p-4 shadow-sm hover:bg-amber-50">
+            <strong class="text-amber-950">Theoi Greek Mythology</strong>
+            <p class="mt-1 text-sm text-stone-600">Detailed classical mythology entries, names, family relationships, and ancient source references.</p>
+          </a>
+          <a href="https://mythopedia.com/" target="_blank" rel="noopener noreferrer" class="rounded-2xl bg-white/70 p-4 shadow-sm hover:bg-amber-50">
+            <strong class="text-amber-950">Mythopedia</strong>
+            <p class="mt-1 text-sm text-stone-600">Readable myth summaries and background information for students beginning research.</p>
+          </a>
+          <a href="https://www.britannica.com/" target="_blank" rel="noopener noreferrer" class="rounded-2xl bg-white/70 p-4 shadow-sm hover:bg-amber-50">
+            <strong class="text-amber-950">Encyclopaedia Britannica</strong>
+            <p class="mt-1 text-sm text-stone-600">Reliable encyclopedia articles for checking facts, places, people, and historical context.</p>
+          </a>
+        </div>
+        <div class="mt-4 rounded-2xl border border-amber-900/20 bg-amber-50 p-4 text-sm text-stone-700">
+          <strong>Research reminder:</strong> Write notes in your own words. Look for origin, powers, habitat, physical description, and the story in which your creature appears. Record which source helped you most.
+        </div>
+      </section>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <section class="bestiary-card rounded-3xl p-5 md:p-6">
+          <h2 class="text-2xl font-bold text-amber-950">Research Notes</h2>
+          <div class="ornament my-4 py-2 text-center text-sm uppercase tracking-[0.2em] text-amber-900/60">Origo • Potestas • Fabula • Forma • Locus</div>
+          <div class="space-y-4">
+            <label class="block">
+              <span class="font-bold">Appearance / Forma</span>
+              <textarea id="appearance" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="What does the creature look like?" oninput="updatePreview()"></textarea>
+            </label>
+            <label class="block">
+              <span class="font-bold">Origin / Origo</span>
+              <textarea id="origin" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="Who are its parents, or how was it created?" oninput="updatePreview()"></textarea>
+            </label>
+            <label class="block">
+              <span class="font-bold">Powers / Potestates</span>
+              <textarea id="powers" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="What special powers or abilities does it have?" oninput="updatePreview()"></textarea>
+            </label>
+            <label class="block">
+              <span class="font-bold">Habitat / Locus</span>
+              <textarea id="habitatNotes" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="Where does this creature live? What kind of place is it found in?" oninput="updatePreview()"></textarea>
+            </label>
+            <label class="block">
+              <span class="font-bold">Story / Fabula</span>
+              <textarea id="story" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="What myth or story includes this creature?" oninput="updatePreview()"></textarea>
+            </label>
+            <label class="block">
+              <span class="font-bold">Meaning / Interpretatio</span>
+              <textarea id="meaning" class="mt-2 h-24 w-full rounded-2xl border border-amber-900/25 bg-white/70 p-3" placeholder="What might this creature reveal about ancient people?" oninput="updatePreview()"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="bestiary-card rounded-3xl p-5 md:p-6">
+          <h2 class="text-2xl font-bold text-amber-950">Mythic Map</h2>
+          <p class="mt-1 text-sm text-stone-600">A first-version geography panel. Later, this can become a tappable Mediterranean map.</p>
+          <div class="mt-4 rounded-3xl border-2 border-dashed border-amber-900/30 bg-amber-50 p-5 text-center">
+            <div class="mx-auto flex h-48 max-w-md items-center justify-center rounded-[2rem] bg-gradient-to-br from-amber-100 to-orange-100 text-6xl">🗺️</div>
+            <h3 id="mapLocation" class="mt-4 text-xl font-bold text-amber-950">Select a creature to reveal its mythic location.</h3>
+            <p id="mapNote" class="mt-2 text-sm text-stone-600"></p>
+          </div>
+        </section>
+      </div>
+
+      <section class="bestiary-card rounded-3xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold text-amber-950">Latin Sentence Builder</h2>
+        <p class="mt-1 text-sm text-stone-600">Answer each prompt using the sentence frame. Type only the missing Latin words, then add the sentence to your final list.</p>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl bg-white/70 p-4 shadow-sm">
+            <p class="font-bold text-amber-950">Quid est nomen?</p>
+            <label class="mt-2 block text-sm text-stone-600">Nomen <input id="latinNameInput" class="mx-1 w-36 rounded-lg border border-amber-900/25 bg-white px-2 py-1" placeholder="Medusae" /> est.</label>
+            <button onclick="addLatinFrame('name')" class="mt-3 rounded-xl bg-amber-900 px-4 py-2 text-sm text-white hover:bg-amber-950">Add sentence</button>
+          </div>
+
+          <div class="rounded-2xl bg-white/70 p-4 shadow-sm">
+            <p class="font-bold text-amber-950">Quis est mater? Quis est pater?</p>
+            <label class="mt-2 block text-sm text-stone-600">Mater <input id="latinMotherInput" class="mx-1 w-36 rounded-lg border border-amber-900/25 bg-white px-2 py-1" placeholder="___" /> est.</label>
+            <label class="mt-2 block text-sm text-stone-600">Pater <input id="latinFatherInput" class="mx-1 w-36 rounded-lg border border-amber-900/25 bg-white px-2 py-1" placeholder="___" /> est.</label>
+            <button onclick="addLatinFrame('parents')" class="mt-3 rounded-xl bg-amber-900 px-4 py-2 text-sm text-white hover:bg-amber-950">Add sentences</button>
+          </div>
+
+          <div class="rounded-2xl bg-white/70 p-4 shadow-sm">
+            <p class="font-bold text-amber-950">Ubi habitat?</p>
+            <label class="mt-2 block text-sm text-stone-600"><input id="latinHabitatInput" class="mr-1 w-44 rounded-lg border border-amber-900/25 bg-white px-2 py-1" placeholder="In Creta" /> habitat.</label>
+            <button onclick="addLatinFrame('habitat')" class="mt-3 rounded-xl bg-amber-900 px-4 py-2 text-sm text-white hover:bg-amber-950">Add sentence</button>
+          </div>
+
+          <div class="rounded-2xl bg-white/70 p-4 shadow-sm">
+            <p class="font-bold text-amber-950">Quid habet?</p>
+            <p class="mt-1 text-xs text-stone-500">Use this for physical description, e.g. centum oculos habet, alas habet.</p>
+            <label class="mt-2 block text-sm text-stone-600"><input id="latinHasInput" class="mr-1 w-44 rounded-lg border border-amber-900/25 bg-white px-2 py-1" placeholder="alas" /> habet.</label>
+            <button onclick="addLatinFrame('has')" class="mt-3 rounded-xl bg-amber-900 px-4 py-2 text-sm text-white hover:bg-amber-950">Add sentence</button>
+          </div>
+
+          <div class="rounded-2xl bg-white/70 p-4 shadow-sm md:col-span-2">
+            <p class="font-bold text-amber-950">Quid saepe dicit?</p>
+            <p class="mt-1 text-xs text-stone-500">Invent a short catch phrase for your animal mirabile.</p>
+            <label class="mt-2 block text-sm text-stone-600"><input id="latinCatchphraseInput" class="mr-1 w-full rounded-lg border border-amber-900/25 bg-white px-2 py-1 md:w-96" placeholder="E.g. Cave monstrum!" /></label>
+            <button onclick="addLatinFrame('catchphrase')" class="mt-3 rounded-xl bg-amber-900 px-4 py-2 text-sm text-white hover:bg-amber-950">Add catch phrase</button>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-2xl bg-white/70 p-4">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 class="font-bold">My Latin Sentences</h3>
+            <button onclick="clearLatinSentences()" class="rounded-xl border border-amber-900/30 px-3 py-1 text-sm text-amber-950 hover:bg-amber-50">Clear Latin list</button>
+          </div>
+          <ul id="latinList" class="mt-2 list-disc space-y-1 pl-5 text-stone-700"></ul>
+        </div>
+      </section>
+
+      <section class="bestiary-card rounded-3xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold text-amber-950">Printable ID Card Preview</h2>
+        <p class="mt-1 text-sm text-stone-600">This preview updates as students select and type. Use the print button when finished.</p>
+        <div class="mt-4 print-card rounded-3xl p-6">
+          <p class="text-sm uppercase tracking-[0.25em] text-amber-900/70">Animalia Mirabilia</p>
+          <h3 id="previewName" class="mt-2 text-3xl font-bold text-amber-950">Creature Name</h3>
+          <p id="previewLatin" class="italic text-stone-600">Nomen Latinum</p>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <div><strong>Map Location:</strong><p id="previewHabitat">--</p></div>
+            <div><strong>Known From:</strong><p id="previewKnown">--</p></div>
+            <div><strong>Habitat Notes:</strong><p id="previewHabitatNotes">--</p></div>
+            <div><strong>Origin:</strong><p id="previewOrigin">--</p></div>
+            <div><strong>Powers:</strong><p id="previewPowers">--</p></div>
+            <div><strong>Appearance:</strong><p id="previewAppearance">--</p></div>
+            <div><strong>Meaning:</strong><p id="previewMeaning">--</p></div>
+          </div>
+          <div class="mt-4"><strong>Latin Sentences:</strong><ul id="previewLatinList" class="mt-1 list-disc pl-5"></ul></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <section class="print-area hidden px-8 py-8">
+    <div class="print-card rounded-3xl p-8">
+      <p class="text-sm uppercase tracking-[0.25em] text-amber-900/70">Animalia Mirabilia</p>
+      <h1 id="printName" class="mt-2 text-4xl font-bold text-amber-950">Creature Name</h1>
+      <p id="printLatin" class="italic text-stone-600">Nomen Latinum</p>
+      <hr class="my-5 border-amber-900/30" />
+      <p><strong>Map Location:</strong> <span id="printHabitat">--</span></p>
+      <p class="mt-3"><strong>Known From:</strong> <span id="printKnown">--</span></p>
+      <p class="mt-3"><strong>Habitat Notes:</strong> <span id="printHabitatNotes">--</span></p>
+      <p class="mt-3"><strong>Origin:</strong> <span id="printOrigin">--</span></p>
+      <p class="mt-3"><strong>Powers:</strong> <span id="printPowers">--</span></p>
+      <p class="mt-3"><strong>Appearance:</strong> <span id="printAppearance">--</span></p>
+      <p class="mt-3"><strong>Story:</strong> <span id="printStory">--</span></p>
+      <p class="mt-3"><strong>Meaning:</strong> <span id="printMeaning">--</span></p>
+      <div class="mt-5"><strong>Latin Sentences:</strong><ul id="printLatinList" class="mt-1 list-disc pl-6"></ul></div>
+    </div>
+  </section>
+
+  <script>
+    // Stateless app: no localStorage, no cookies, no analytics, no network data collection.
+    const creatures = [
+      { id: 'cerberus', english: 'Cerberus', latin: 'Cerberus', habitat: 'Underworld / apud inferos', location: 'The Underworld', note: 'Cerberus guards the gates of the Underworld.', known: 'The labors of Hercules', feature: 'tres capita' },
+      { id: 'minotaur', english: 'Minotaur', latin: 'Minotaurus', habitat: 'Crete / in Creta', location: 'Crete', note: 'The Minotaur is associated with the labyrinth of Crete.', known: 'Theseus and the Labyrinth', feature: 'caput tauri' },
+      { id: 'chimera', english: 'Chimera', latin: 'Chimaera', habitat: 'Lycia / in Lycia', location: 'Lycia, Asia Minor', note: 'The Chimera is associated with Lycia in Asia Minor.', known: 'Bellerophon and Pegasus', feature: 'caput leonis et cauda serpentis' },
+      { id: 'hydra', english: 'Hydra', latin: 'Hydra', habitat: 'Lerna / in palude', location: 'Lerna, Greece', note: 'The Hydra is associated with the marshes of Lerna.', known: 'The labors of Hercules', feature: 'multa capita' },
+      { id: 'pegasus', english: 'Pegasus', latin: 'Pegasus', habitat: 'Mount Helicon or Corinth', location: 'Greek mythic landscapes', note: 'Pegasus is connected with poetic springs, heroes, and the sky.', known: 'Bellerophon', feature: 'alas' },
+      { id: 'sphinx', english: 'Sphinx', latin: 'Sphinx', habitat: 'Thebes / in Thebis', location: 'Thebes, Boeotia', note: 'The Sphinx is associated with Thebes and riddling wisdom.', known: 'Oedipus and the riddle', feature: 'corpus leonis' },
+      { id: 'medusa', english: 'Medusa', latin: 'Medusa', habitat: 'Far west or Libya / in terra remota', location: 'Mythic far west or Libya', note: 'Medusa is often placed at the far edges of the known world in mythic geography.', known: 'Perseus and Medusa', feature: 'serpentes pro capillis' },
+      { id: 'harpy', english: 'Harpy', latin: 'Harpyia', habitat: 'Islands or stormy skies / in insulis', location: 'Aegean mythic landscapes', note: 'Harpies are winged spirits often connected with winds, punishment, and sudden disappearance.', known: 'Jason, the Argonauts, and Phineus', feature: 'alas et ungues' },
+      { id: 'argus', english: 'Argus', latin: 'Argus Panoptes', habitat: 'Argos / in Argo', location: 'Argos, Greece', note: 'Argus is associated with Argos and the story of Io.', known: 'Io, Hera, Hermes, and Argus', feature: 'multos oculos' },
+      { id: 'hecatonchires', english: 'Hecatonchires', latin: 'Hecatonchires', habitat: 'Tartarus / in Tartaro', location: 'Tartarus', note: 'The Hecatonchires are linked to the deep mythic prison of Tartarus.', known: 'The Titanomachy', feature: 'centum manus' },
+      { id: 'sirens', english: 'Sirens', latin: 'Sirenes', habitat: 'Rocky islands and sea cliffs / in insulis', location: 'Central Mediterranean seascapes', note: 'The Sirens are associated with dangerous seafaring places and irresistible song.', known: 'Odysseus and the Sirens', feature: 'alas et voces pulchras' },
+      { id: 'charybdis', english: 'Charybdis', latin: 'Charybdis', habitat: 'Strait of Messina / in freto', location: 'Strait of Messina', note: 'Charybdis is associated with a dangerous whirlpool between Sicily and Italy.', known: 'Odysseus and the sea monsters', feature: 'os magnum' },
+      { id: 'scylla', english: 'Scylla', latin: 'Scylla', habitat: 'Strait of Messina / in scopulis', location: 'Strait of Messina', note: 'Scylla is associated with rocky cliffs opposite Charybdis.', known: 'Odysseus and the sea monsters', feature: 'multa capita et canes' },
+      { id: 'centaur', english: 'Centaur', latin: 'Centaurus', habitat: 'Thessaly / in Thessalia', location: 'Thessaly, Greece', note: 'Centaurs are often associated with the mountains and wild spaces of Thessaly.', known: 'Lapiths, Chiron, and heroic education', feature: 'corpus equi et corpus hominis' }
+    ];
+
+    let selectedCreature = null;
+    let latinSentences = [];
+
+    const select = document.getElementById('creatureSelect');
+    creatures.forEach(creature => {
+      const option = document.createElement('option');
+      option.value = creature.id;
+      option.textContent = `${creature.english} (${creature.latin})`;
+      select.appendChild(option);
+    });
+
+    function selectCreature() {
+      selectedCreature = creatures.find(c => c.id === select.value) || null;
+      latinSentences = [];
+      renderLatin();
+      updatePreview();
+    }
+
+    function addLatinFrame(type) {
+      const getValue = id => document.getElementById(id).value.trim();
+      const addIfPresent = sentence => {
+        if (sentence && sentence.trim()) latinSentences.push(sentence.trim());
+      };
+
+      if (type === 'name') {
+        const nomen = getValue('latinNameInput');
+        if (!nomen) return alert('Add a Latin name first.');
+        addIfPresent(`Nomen ${nomen} est.`);
+      }
+
+      if (type === 'parents') {
+        const mater = getValue('latinMotherInput');
+        const pater = getValue('latinFatherInput');
+        if (!mater && !pater) return alert('Add a mother, father, or both.');
+        if (mater) addIfPresent(`Mater ${mater} est.`);
+        if (pater) addIfPresent(`Pater ${pater} est.`);
+      }
+
+      if (type === 'habitat') {
+        const habitat = getValue('latinHabitatInput');
+        if (!habitat) return alert('Add a habitat phrase first.');
+        addIfPresent(`${habitat} habitat.`);
+      }
+
+      if (type === 'has') {
+        const has = getValue('latinHasInput');
+        if (!has) return alert('Add a physical feature first.');
+        addIfPresent(`${has} habet.`);
+      }
+
+      if (type === 'catchphrase') {
+        const phrase = getValue('latinCatchphraseInput');
+        if (!phrase) return alert('Add a catch phrase first.');
+        addIfPresent(`Saepe dicit: “${phrase}”`);
+      }
+
+      renderLatin();
+      updatePreview();
+    }
+
+    function clearLatinSentences() {
+      latinSentences = [];
+      renderLatin();
+      updatePreview();
+    }
+
+    function renderLatin() {
+      const lists = ['latinList', 'previewLatinList', 'printLatinList'];
+      lists.forEach(id => {
+        const ul = document.getElementById(id);
+        ul.innerHTML = '';
+        latinSentences.forEach(sentence => {
+          const li = document.createElement('li');
+          li.textContent = sentence;
+          ul.appendChild(li);
+        });
+      });
+    }
+
+    function valueOrDash(id) {
+      return document.getElementById(id).value.trim() || '--';
+    }
+
+    function setText(id, text) {
+      document.getElementById(id).textContent = text;
+    }
+
+    function updatePreview() {
+      const c = selectedCreature;
+      setText('previewName', c ? c.english : 'Creature Name');
+      setText('previewLatin', c ? c.latin : 'Nomen Latinum');
+      setText('previewHabitat', c ? c.habitat : '--');
+      setText('previewKnown', c ? c.known : '--');
+      setText('previewHabitatNotes', valueOrDash('habitatNotes'));
+      setText('previewOrigin', valueOrDash('origin'));
+      setText('previewPowers', valueOrDash('powers'));
+      setText('previewAppearance', valueOrDash('appearance'));
+      setText('previewMeaning', valueOrDash('meaning'));
+      setText('mapLocation', c ? c.location : 'Select a creature to reveal its mythic location.');
+      setText('mapNote', c ? c.note : '');
+
+      setText('printName', c ? c.english : 'Creature Name');
+      setText('printLatin', c ? c.latin : 'Nomen Latinum');
+      setText('printHabitat', c ? c.habitat : '--');
+      setText('printKnown', c ? c.known : '--');
+      setText('printHabitatNotes', valueOrDash('habitatNotes'));
+      setText('printOrigin', valueOrDash('origin'));
+      setText('printPowers', valueOrDash('powers'));
+      setText('printAppearance', valueOrDash('appearance'));
+      setText('printStory', valueOrDash('story'));
+      setText('printMeaning', valueOrDash('meaning'));
+    }
+  </script>
+</body>
+</html>
