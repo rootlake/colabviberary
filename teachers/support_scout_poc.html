@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Scout — Proof of Concept</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #eff6ff; }
+    @keyframes ripple {
+      0%   { r: 6; opacity: 0.8; }
+      100% { r: 14; opacity: 0; }
+    }
+    .map-pulse { animation: ripple 1.4s ease-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .live-dot { animation: blink 1.2s ease-in-out infinite; }
+  </style>
+  <script>
+    // ── SUBJECT DATA ─────────────────────────────────────────────────
+    const SUBJECTS = [
+      { id:"math",       name:"Math",            clue:"Blue Square Card",     defaultLoc:"The Forum", standing:{day:2}, color:"blue"   },
+      { id:"physics",    name:"Physics",          clue:"Sky Triangle Card",    defaultLoc:null,                          color:"sky"    },
+      { id:"writing",    name:"Writing",          clue:"Indigo Star Card",     defaultLoc:null,                          color:"indigo" },
+      { id:"humanities", name:"Humanities",       clue:"Violet Diamond Card",  defaultLoc:null,                          color:"violet" },
+      { id:"chem",       name:"Chemistry",        clue:"Teal Circle Card",     defaultLoc:null,                          color:"teal"   },
+      { id:"french",     name:"French",           clue:"Cyan Heart Card",      defaultLoc:null,                          color:"cyan"   },
+      { id:"cs",         name:"Computer Science", clue:"Slate Hexagon Card",   defaultLoc:null,                          color:"slate"  },
+    ];
+
+    const LOCATIONS = ["The Theater","The Forum","The House","The Barn","New Building"];
+
+    // All blue-family palette
+    const COLOR = {
+      blue:   { bg:"bg-blue-50",   border:"border-blue-500",   badge:"bg-blue-600",   text:"text-blue-800",   sel:"bg-blue-100"   },
+      sky:    { bg:"bg-sky-50",    border:"border-sky-400",    badge:"bg-sky-500",    text:"text-sky-800",    sel:"bg-sky-100"    },
+      indigo: { bg:"bg-indigo-50", border:"border-indigo-400", badge:"bg-indigo-500", text:"text-indigo-800", sel:"bg-indigo-100" },
+      violet: { bg:"bg-violet-50", border:"border-violet-400", badge:"bg-violet-500", text:"text-violet-800", sel:"bg-violet-100" },
+      teal:   { bg:"bg-teal-50",   border:"border-teal-400",   badge:"bg-teal-500",   text:"text-teal-800",   sel:"bg-teal-100"   },
+      cyan:   { bg:"bg-cyan-50",   border:"border-cyan-500",   badge:"bg-cyan-600",   text:"text-cyan-800",   sel:"bg-cyan-100"   },
+      slate:  { bg:"bg-slate-100", border:"border-blue-700",   badge:"bg-blue-800",   text:"text-blue-900",   sel:"bg-blue-50"    },
+    };
+
+    // Pixel centers of each building in the SVG (viewBox 0 0 320 220)
+    const MAP_COORDS = {
+      "The House":    { x: 74,  y: 52  },  // top-left
+      "The Forum":    { x: 246, y: 52  },  // top-right
+      "New Building": { x: 160, y: 108 },  // center
+      "The Barn":     { x: 75,  y: 168 },  // bottom-left
+      "The Theater":  { x: 246, y: 168 },  // bottom-right
+    };
+
+    // Dot fill per location (for seeker map)
+    const LOC_COLOR = {
+      "The House":    "#1d4ed8",
+      "The Forum":    "#4f46e5",
+      "New Building": "#0891b2",
+      "The Barn":     "#15803d",
+      "The Theater":  "#2563eb",
+    };
+
+    // ── IN-MEMORY STATE ───────────────────────────────────────────────
+    const activeTutors = {
+      "demo-1": { location:"The Barn",  subjectIds:["math","physics"] },
+      "demo-2": { location:"The Forum", subjectIds:["writing"]        },
+    };
+    let currentRole      = null;
+    let mySession        = null;
+    let selectedSubjects = new Set();
+    let selectedLocation = "";
+    let myId             = "me-" + Math.random().toString(36).slice(2,8);
+
+    // ── HELPERS ───────────────────────────────────────────────────────
+    const isTuesday   = () => new Date().getDay() === 2;
+    const subjectName = id => SUBJECTS.find(s=>s.id===id)?.name ?? id;
+
+    function liveTutorsFor(subjectId) {
+      return Object.values(activeTutors).filter(t =>
+        Array.isArray(t.subjectIds) && t.subjectIds.includes(subjectId));
+    }
+
+    function subjectStatus(subject) {
+      const live = liveTutorsFor(subject.id);
+      if (live.length > 0) return { state:"live", tutors:live };
+      if (subject.standing && isTuesday()) return { state:"standing", loc:subject.defaultLoc };
+      return { state:"inactive" };
+    }
+
+    // Unique active locations for the seeker map
+    function activeLocations() {
+      const seen = {};
+      Object.values(activeTutors).forEach(t => { seen[t.location] = true; });
+      return Object.keys(seen);
+    }
+
+    function startBroadcast() {
+      if (selectedSubjects.size === 0) { toast("Pick at least one subject."); return; }
+      if (!selectedLocation)           { toast("Tap a location on the map."); return; }
+      mySession = { location: selectedLocation, subjectIds:[...selectedSubjects] };
+      activeTutors[myId] = mySession;
+      toast("You're live! 📡");
+      render();
+    }
+
+    function endSession() {
+      delete activeTutors[myId];
+      mySession = null;
+      selectedSubjects.clear();
+      selectedLocation = "";
+      toast("Session ended.");
+      render();
+    }
+
+    // ── TOAST ─────────────────────────────────────────────────────────
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("opacity-0","translate-y-4");
+      el.classList.add("opacity-100","translate-y-0");
+      setTimeout(()=>{
+        el.classList.remove("opacity-100","translate-y-0");
+        el.classList.add("opacity-0","translate-y-4");
+      }, 3000);
+    }
+
+    // ── CAMPUS MAP SVG ────────────────────────────────────────────────
+    // mode: "home" | "seeker" | "tutor"
+    function campusMap(mode) {
+      const liveSet  = new Set(activeLocations());
+      const selLoc   = selectedLocation;
+
+      // Hit-area click handler for tutor mode
+      const click = loc => mode === "tutor"
+        ? `onclick="selectLocation('${loc}')" style="cursor:pointer"`
+        : "";
+
+      // Selection ring shown in tutor mode
+      const ring = (loc, cx, cy, r) => mode === "tutor" && selLoc === loc
+        ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#facc15" stroke-width="3" stroke-dasharray="4 2" opacity="0.9"/>`
+        : "";
+
+      // Live dot shown in seeker mode
+      const dot = (loc, cx, cy) => {
+        if (mode !== "seeker" || !liveSet.has(loc)) return "";
+        const fill = LOC_COLOR[loc] || "#2563eb";
+        return `
+          <circle cx="${cx}" cy="${cy}" r="6" fill="${fill}" opacity="0.9"/>
+          <circle class="map-pulse" cx="${cx}" cy="${cy}" r="6" fill="${fill}" opacity="0.5"/>
+          <text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="middle"
+                font-size="7" font-weight="800" fill="white">●</text>`;
+      };
+
+      return `
+      <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg"
+           class="w-full rounded-2xl shadow-lg border-2 border-blue-100">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#dbeafe"/>
+            <stop offset="100%" stop-color="#bfdbfe"/>
+          </linearGradient>
+        </defs>
+        <rect width="320" height="220" rx="14" fill="url(#bg)"/>
+
+        <!-- Decorative edge puffs -->
+        <ellipse cx="160" cy="212" rx="32" ry="9" fill="#93c5fd" opacity="0.3"/>
+        <ellipse cx="18"  cy="108" rx="9"  ry="22" fill="#93c5fd" opacity="0.25"/>
+        <ellipse cx="302" cy="108" rx="9"  ry="22" fill="#93c5fd" opacity="0.25"/>
+
+        <!-- Campus paths radiating from center -->
+        <path d="M 96,68 Q 122,86 144,102"  stroke="#c4b89a" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 224,68 Q 198,86 176,102" stroke="#c4b89a" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 146,122 Q 120,142 96,156" stroke="#c4b89a" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 174,122 Q 200,142 224,156" stroke="#c4b89a" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+        <!-- Decorative blue dots scattered -->
+        <circle cx="160" cy="18"  r="6"  fill="#93c5fd" opacity="0.4"/>
+        <circle cx="20"  cy="30"  r="5"  fill="#60a5fa" opacity="0.35"/>
+        <circle cx="300" cy="28"  r="6"  fill="#60a5fa" opacity="0.35"/>
+        <circle cx="20"  cy="195" r="5"  fill="#93c5fd" opacity="0.3"/>
+        <circle cx="300" cy="195" r="6"  fill="#60a5fa" opacity="0.3"/>
+
+        <!-- ══ THE HOUSE (top-left) ══ -->
+        <!-- Chimney -->
+        <rect x="83" y="26" width="6" height="14" rx="1" fill="#1d4ed8"/>
+        <!-- Roof -->
+        <polygon points="50,52 74,28 98,52" fill="#1d4ed8"/>
+        <!-- Body -->
+        <rect x="52" y="51" width="44" height="30" rx="2" fill="#2563eb"/>
+        <!-- Windows -->
+        <rect x="56" y="57" width="10" height="8" rx="1.5" fill="#bfdbfe"/>
+        <rect x="78" y="57" width="10" height="8" rx="1.5" fill="#bfdbfe"/>
+        <!-- Door -->
+        <rect x="67" y="65" width="12" height="16" rx="2" fill="#1e3a8a"/>
+        <!-- Hit area -->
+        <rect x="44" y="22" width="60" height="64" rx="4" fill="transparent" ${click("The House")}/>
+        ${ring("The House", 74, 52, 32)}
+        ${dot("The House", 74, 38)}
+        <text x="74" y="94" text-anchor="middle" font-size="8.5" font-weight="800"
+              fill="#1e3a8a" font-family="system-ui, sans-serif">The House</text>
+
+        <!-- ══ THE FORUM — BLUE TREEHOUSE (top-right) ══ -->
+        <!-- Trunk -->
+        <rect x="242" y="70" width="9" height="20" rx="2" fill="#1e3a8a"/>
+        <!-- Roots -->
+        <line x1="242" y1="88" x2="229" y2="96" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="251" y1="88" x2="264" y2="96" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round"/>
+        <!-- Canopy (back) -->
+        <ellipse cx="246" cy="52" rx="26" ry="21" fill="#1d4ed8"/>
+        <!-- Canopy highlight -->
+        <ellipse cx="238" cy="45" rx="12" ry="10" fill="#2563eb" opacity="0.45"/>
+        <!-- Platform -->
+        <rect x="229" y="64" width="34" height="3" rx="1" fill="#1e3a8a"/>
+        <!-- House walls -->
+        <rect x="233" y="51" width="26" height="14" rx="1.5" fill="#4f46e5"/>
+        <!-- Roof -->
+        <polygon points="229,51 246,36 263,51" fill="#3730a3"/>
+        <!-- Roof ridge line -->
+        <line x1="246" y1="36" x2="246" y2="51" stroke="#1e3a8a" stroke-width="1" opacity="0.4"/>
+        <!-- Window -->
+        <rect x="240" y="55" width="12" height="7" rx="1.5" fill="#bfdbfe"/>
+        <!-- Window cross -->
+        <line x1="246" y1="55" x2="246" y2="62" stroke="#3730a3" stroke-width="1"/>
+        <line x1="240" y1="58" x2="252" y2="58" stroke="#3730a3" stroke-width="1"/>
+        <!-- Ladder -->
+        <line x1="237" y1="67" x2="237" y2="86" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="255" y1="67" x2="255" y2="86" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="237" y1="71" x2="255" y2="71" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="237" y1="77" x2="255" y2="77" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="237" y1="83" x2="255" y2="83" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Hit area -->
+        <rect x="214" y="14" width="74" height="88" rx="4" fill="transparent" ${click("The Forum")}/>
+        ${ring("The Forum", 246, 55, 36)}
+        ${dot("The Forum", 246, 40)}
+        <text x="246" y="100" text-anchor="middle" font-size="8.5" font-weight="800"
+              fill="#1e3a8a" font-family="system-ui, sans-serif">The Forum</text>
+
+        <!-- ══ NEW BUILDING (center) ══ -->
+        <!-- Roof band -->
+        <rect x="124" y="88" width="72" height="6" rx="3" fill="#0e7490"/>
+        <!-- Body -->
+        <rect x="124" y="93" width="72" height="44" rx="3" fill="#0891b2"/>
+        <!-- Window grid: 4 cols × 2 rows -->
+        <rect x="130" y="101" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="146" y="101" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="162" y="101" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="178" y="101" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="130" y="115" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="146" y="115" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="162" y="115" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <rect x="178" y="115" width="12" height="8" rx="1" fill="#a5f3fc"/>
+        <!-- Ground line -->
+        <rect x="120" y="135" width="80" height="3" rx="1.5" fill="#0e7490" opacity="0.5"/>
+        <!-- Hit area -->
+        <rect x="118" y="84" width="84" height="58" rx="4" fill="transparent" ${click("New Building")}/>
+        ${ring("New Building", 160, 110, 44)}
+        ${dot("New Building", 160, 96)}
+        <text x="160" y="148" text-anchor="middle" font-size="8.5" font-weight="800"
+              fill="#164e63" font-family="system-ui, sans-serif">New Building</text>
+
+        <!-- ══ THE BARN (bottom-left) ══ -->
+        <!-- Curved roof -->
+        <path d="M 47,162 Q 75,144 103,162" fill="#0369a1"/>
+        <!-- Loft window in peak -->
+        <circle cx="75" cy="154" r="5.5" fill="#7dd3fc"/>
+        <!-- Body -->
+        <rect x="47" y="161" width="56" height="36" rx="2" fill="#0284c1"/>
+        <!-- Barn door X -->
+        <line x1="57" y1="167" x2="93" y2="197" stroke="#075985" stroke-width="2.5"/>
+        <line x1="93" y1="167" x2="57" y2="197" stroke="#075985" stroke-width="2.5"/>
+        <!-- Hit area -->
+        <rect x="42" y="142" width="66" height="60" rx="4" fill="transparent" ${click("The Barn")}/>
+        ${ring("The Barn", 75, 168, 34)}
+        ${dot("The Barn", 75, 152)}
+        <text x="75" y="210" text-anchor="middle" font-size="8.5" font-weight="800"
+              fill="#075985" font-family="system-ui, sans-serif">The Barn</text>
+
+        <!-- ══ THE THEATER (bottom-right) ══ -->
+        <!-- Building body -->
+        <rect x="216" y="150" width="60" height="40" rx="3" fill="#1d4ed8"/>
+        <!-- Marquee -->
+        <rect x="210" y="161" width="72" height="11" rx="3" fill="#1e40af"/>
+        <!-- Marquee lights -->
+        <circle cx="220" cy="167" r="2" fill="#fde68a"/>
+        <circle cx="230" cy="167" r="2" fill="#fde68a"/>
+        <circle cx="240" cy="167" r="2" fill="#fde68a"/>
+        <circle cx="250" cy="167" r="2" fill="#fde68a"/>
+        <circle cx="260" cy="167" r="2" fill="#fde68a"/>
+        <circle cx="270" cy="167" r="2" fill="#fde68a"/>
+        <!-- Windows -->
+        <rect x="220" y="153" width="12" height="8" rx="1.5" fill="#93c5fd"/>
+        <rect x="258" y="153" width="12" height="8" rx="1.5" fill="#93c5fd"/>
+        <!-- Door -->
+        <rect x="237" y="174" width="16" height="16" rx="2" fill="#1e3a8a"/>
+        <!-- Hit area -->
+        <rect x="206" y="146" width="80" height="58" rx="4" fill="transparent" ${click("The Theater")}/>
+        ${ring("The Theater", 246, 168, 40)}
+        ${dot("The Theater", 246, 155)}
+        <text x="246" y="212" text-anchor="middle" font-size="8.5" font-weight="800"
+              fill="#1e3a8a" font-family="system-ui, sans-serif">The Theater</text>
+
+        <!-- Compass -->
+        <text x="308" y="214" text-anchor="middle" font-size="8" fill="#3b82f6"
+              font-family="system-ui" font-weight="700">N↑</text>
+      </svg>`;
+    }
+
+    // ── RENDER ROOT ───────────────────────────────────────────────────
+    function render() {
+      const root = document.getElementById("root");
+      if (!currentRole)             return renderHome(root);
+      if (currentRole === "seeker") return renderSeeker(root);
+      if (currentRole === "tutor")  return renderTutor(root);
+    }
+
+    // ── HOME ──────────────────────────────────────────────────────────
+    function renderHome(root) {
+      root.innerHTML = `
+        <div class="min-h-screen bg-gradient-to-b from-blue-950 via-blue-900 to-blue-800
+                    flex flex-col items-center justify-center p-5">
+          <div class="text-center mb-5">
+            <div class="text-5xl mb-2">🔭</div>
+            <h1 class="text-4xl font-black text-white tracking-tight">Support Scout</h1>
+            <p class="text-blue-300 mt-1 text-xs tracking-widest uppercase">Peer tutoring · Free block</p>
+          </div>
+
+          <div class="w-full max-w-sm mb-5 px-1">
+            ${campusMap("home")}
+          </div>
+
+          <div class="w-3/4 border-t border-blue-700 mb-4 opacity-40"></div>
+          <div class="flex flex-col gap-3 w-full max-w-xs">
+            <button onclick="setRole('seeker')"
+              class="w-full py-4 rounded-2xl bg-white text-blue-900 font-bold text-base
+                     shadow-2xl hover:scale-105 active:scale-95 transition-transform">
+              🎯 Find a Tutor
+            </button>
+            <button onclick="setRole('tutor')"
+              class="w-full py-4 rounded-2xl bg-blue-500 text-white font-bold text-base
+                     shadow-2xl hover:scale-105 active:scale-95 transition-transform">
+              📡 Go Live as Tutor
+            </button>
+          </div>
+
+          <div class="mt-4 bg-blue-800/50 border border-blue-600/40 rounded-xl px-4 py-2
+                      text-blue-300 text-[11px] text-center">
+            ⚡ Proof of concept — demo data preloaded
+          </div>
+        </div>`;
+    }
+
+    // ── SEEKER ────────────────────────────────────────────────────────
+    function renderSeeker(root) {
+      const liveSummary = Object.values(activeTutors);
+
+      root.innerHTML = `
+        <div class="min-h-screen bg-blue-50 pb-20">
+          <header class="bg-blue-900 text-white px-5 py-4 flex items-center justify-between shadow-xl sticky top-0 z-10">
+            <div>
+              <div class="text-[10px] text-blue-300 uppercase tracking-widest">Support Scout</div>
+              <div class="font-black text-lg">Mission Brief 🎯</div>
+            </div>
+            <button onclick="setRole(null)" class="text-xs text-blue-300 underline">← Home</button>
+          </header>
+
+          <div class="p-4 max-w-lg mx-auto">
+
+            <!-- Campus map with live dots -->
+            <div class="mb-4">
+              <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">Campus Map</div>
+              ${campusMap("seeker")}
+              ${liveSummary.length > 0 ? `
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  ${liveSummary.map(t=>`
+                    <div class="flex items-center gap-1.5 bg-white rounded-full px-3 py-1 shadow text-xs font-semibold text-blue-800">
+                      <span class="w-1.5 h-1.5 rounded-full bg-blue-500 live-dot"></span>
+                      ${t.subjectIds.map(subjectName).join(" & ")} · ${t.location}
+                    </div>`).join("")}
+                </div>` : ""}
+            </div>
+
+            <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">All Subjects</div>
+            <div class="grid grid-cols-2 gap-3">
+              ${SUBJECTS.map(s=>seekerCard(s)).join("")}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function seekerCard(subject) {
+      const status = subjectStatus(subject);
+      const c = COLOR[subject.color];
+
+      if (status.state === "live") {
+        const first = status.tutors[0];
+        return `
+          <div class="${c.bg} border-2 ${c.border} rounded-2xl p-4 shadow-xl relative overflow-hidden">
+            <div class="absolute top-2 right-2 ${c.badge} text-white text-[9px] font-black
+                        px-2 py-0.5 rounded-full live-dot">LIVE</div>
+            <div class="${c.text} font-black text-base mb-1">${subject.name}</div>
+            <div class="text-blue-600 text-xs font-semibold mb-2">${first.location}</div>
+            <div class="bg-white/70 rounded-lg px-2 py-1.5 text-[11px] text-slate-500">
+              🪧 ${subject.clue}
+            </div>
+          </div>`;
+      }
+
+      if (status.state === "standing") {
+        return `
+          <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 shadow relative overflow-hidden">
+            <div class="absolute top-2 right-2 bg-blue-100 text-blue-500 text-[9px] font-bold
+                        px-2 py-0.5 rounded-full">STANDING</div>
+            <div class="text-blue-800 font-black text-base mb-1">${subject.name}</div>
+            <div class="text-blue-500 text-xs font-semibold mb-2">${status.loc}</div>
+            <div class="bg-blue-50 rounded-lg px-2 py-1.5 text-[11px] text-slate-400">
+              🪧 ${subject.clue}
+            </div>
+          </div>`;
+      }
+
+      return `
+        <div class="bg-white border-2 border-blue-100 rounded-2xl p-4 shadow opacity-50">
+          <div class="text-blue-400 font-black text-base mb-1">${subject.name}</div>
+          <div class="text-blue-300 text-xs mb-2">No one live</div>
+          <div class="text-[11px] text-blue-200">→ Try teacher offices</div>
+        </div>`;
+    }
+
+    // ── TUTOR ─────────────────────────────────────────────────────────
+    function renderTutor(root) {
+      const isLive = mySession !== null;
+      const others = Object.entries(activeTutors).filter(([id])=>id!==myId);
+
+      root.innerHTML = `
+        <div class="min-h-screen bg-blue-50 pb-20">
+          <header class="bg-blue-800 text-white px-5 py-4 flex items-center justify-between shadow-xl sticky top-0 z-10">
+            <div>
+              <div class="text-[10px] text-blue-300 uppercase tracking-widest">Support Scout</div>
+              <div class="font-black text-lg">Tutor Dashboard 📡</div>
+            </div>
+            <button onclick="setRole(null)" class="text-xs text-blue-300 underline">← Home</button>
+          </header>
+
+          <div class="p-4 max-w-lg mx-auto">
+
+            ${isLive ? `
+              <div class="bg-blue-50 border-2 border-blue-400 rounded-2xl p-5 shadow-xl mb-4 text-center">
+                <div class="text-blue-700 font-black text-xl live-dot">📡 You're Live!</div>
+                <div class="text-blue-500 text-sm mt-1">
+                  ${mySession.subjectIds.map(subjectName).join(", ")} · ${mySession.location}
+                </div>
+                <button onclick="endSession()"
+                  class="mt-4 w-full py-3 bg-red-500 text-white font-bold rounded-xl
+                         shadow hover:bg-red-600 active:scale-95 transition-all">
+                  End Session
+                </button>
+                <p class="mt-3 text-[11px] text-blue-400">
+                  Remember to log your session with the form below when you're done ↓
+                </p>
+              </div>` : ""}
+
+            <!-- Other tutors live -->
+            <div class="mb-4">
+              <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">Other Tutors Live</div>
+              ${others.length === 0
+                ? `<div class="text-blue-300 text-sm">No other tutors live yet.</div>`
+                : others.map(([,t])=>`
+                    <div class="bg-white rounded-xl px-4 py-2.5 shadow mb-2 flex items-center gap-3">
+                      <span class="w-2 h-2 rounded-full bg-blue-400 live-dot shrink-0"></span>
+                      <span class="text-sm font-semibold text-blue-800">
+                        ${t.subjectIds.map(subjectName).join(", ")}
+                      </span>
+                      <span class="ml-auto text-xs text-blue-400 shrink-0">${t.location}</span>
+                    </div>`).join("")}
+            </div>
+
+            <!-- Session log form link — always visible -->
+            <a href="https://forms.gle/your-form-link-here" target="_blank"
+              class="flex items-center gap-4 bg-white border-2 border-purple-200 rounded-2xl
+                     px-4 py-4 shadow-lg mb-4 hover:border-purple-400 hover:shadow-xl
+                     active:scale-95 transition-all group">
+              <!-- Google Forms icon -->
+              <div class="shrink-0 w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="4" y="2" width="16" height="20" rx="2" fill="white" opacity="0.9"/>
+                  <rect x="7" y="7" width="10" height="1.5" rx="0.75" fill="#7c3aed"/>
+                  <rect x="7" y="10.5" width="10" height="1.5" rx="0.75" fill="#7c3aed"/>
+                  <rect x="7" y="14" width="6" height="1.5" rx="0.75" fill="#7c3aed"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-black text-sm text-slate-800 group-hover:text-purple-700 transition-colors">
+                  Log Your Session
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Required after each tutoring session · Google Form
+                </div>
+              </div>
+              <svg class="shrink-0 w-4 h-4 text-slate-300 group-hover:text-purple-400 transition-colors"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0
+                         0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+              </svg>
+            </a>
+
+            ${!isLive ? `
+              <div class="bg-white rounded-2xl p-5 shadow-xl">
+                <div class="font-black text-blue-900 text-base mb-4">Start Your Session</div>
+
+                <!-- Map as location picker -->
+                <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">
+                  Your Location
+                  <span class="text-blue-300 font-normal normal-case ml-1">tap a building</span>
+                </div>
+                <div class="mb-1">
+                  ${campusMap("tutor")}
+                </div>
+                <div class="text-center text-xs font-semibold text-blue-600 mb-4 h-5">
+                  ${selectedLocation ? `📍 ${selectedLocation}` : ""}
+                </div>
+
+                <!-- Subject picker -->
+                <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">
+                  Subjects
+                  <span class="text-blue-300 font-normal normal-case ml-1">pick all that apply</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-5">
+                  ${SUBJECTS.map(s=>`
+                    <button id="sbj-${s.id}" onclick="toggleSubject('${s.id}')"
+                      class="py-2.5 px-3 rounded-xl border-2 border-blue-100 text-sm font-semibold
+                             text-blue-400 text-left transition-all hover:scale-105 active:scale-95">
+                      ${s.name}
+                    </button>`).join("")}
+                </div>
+
+                <button onclick="startBroadcast()"
+                  class="w-full py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg
+                         hover:bg-blue-700 active:scale-95 transition-all text-base">
+                  📡 Start Broadcast
+                </button>
+              </div>` : ""}
+          </div>
+        </div>`;
+
+      selectedSubjects.forEach(id => highlightBtn(id, true));
+    }
+
+    function highlightBtn(id, on) {
+      const btn = document.getElementById(`sbj-${id}`);
+      if (!btn) return;
+      const c = COLOR[SUBJECTS.find(s=>s.id===id).color];
+      if (on) {
+        btn.classList.add(c.sel, c.border, c.text);
+        btn.classList.remove("border-blue-100","text-blue-400");
+      } else {
+        btn.classList.remove(c.sel, c.border, c.text);
+        btn.classList.add("border-blue-100","text-blue-400");
+      }
+    }
+
+    // ── GLOBAL HANDLERS ───────────────────────────────────────────────
+    function setRole(role) {
+      currentRole = role;
+      selectedSubjects.clear();
+      selectedLocation = "";
+      if (role !== "tutor") mySession = null;
+      render();
+    }
+
+    function toggleSubject(id) {
+      if (selectedSubjects.has(id)) { selectedSubjects.delete(id); highlightBtn(id, false); }
+      else                          { selectedSubjects.add(id);    highlightBtn(id, true);  }
+    }
+
+    function selectLocation(loc) {
+      selectedLocation = loc;
+      render();
+    }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <div id="toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-blue-900 text-white text-sm font-semibold
+           px-6 py-3 rounded-full shadow-2xl opacity-0 translate-y-4 transition-all duration-300
+           z-50 pointer-events-none whitespace-nowrap">
+  </div>
+  <script>render();</script>
+</body>
+</html>
