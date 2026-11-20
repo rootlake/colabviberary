@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Co-Lab Prompt Builder — assemble a vibe-coding prompt scaled from simple single-file sites to full-stack builds." />
+  <title>Prompt Builder · AI Co-Lab Vibe-rary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Special+Elite&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/vibe-rary.css" />
+  <link rel="stylesheet" href="css/prompt-builder.css" />
+  <script src="scripts/view-transitions.js"></script>
+</head>
+<body class="pb-page">
+  <div class="lib">
+    <svg class="corner tl" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner tr" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner bl" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+    <svg class="corner br" viewBox="0 0 60 60" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+        <path d="M2 14 Q 2 2, 14 2 L 32 2" />
+        <path d="M2 14 L 2 32" />
+        <path d="M8 14 Q 8 8, 14 8 L 24 8" />
+        <path d="M8 14 L 8 24" />
+        <path d="M14 14 L 22 14 L 22 22 L 14 22 Z" opacity="0.6" />
+        <circle cx="18" cy="18" r="1.4" fill="currentColor" />
+      </g>
+    </svg>
+
+    <div class="lib-inner pb-inner">
+      <header class="masthead pb-masthead">
+        <div class="masthead-grid">
+          <div class="crest">
+            <a class="crest-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer" title="AI Co-Lab — educolab.org">
+              <img src="assets/ai-co-lab-logo.png" alt="AI Co-Lab" decoding="async" />
+            </a>
+          </div>
+          <div class="masthead-title">
+            <p class="masthead-kicker">AI Co-Lab · Prompt Studio · MMXXVI</p>
+            <h1 class="masthead-name"><span class="masthead-name-inner">Prompt Builder</span></h1>
+            <div class="masthead-rule" aria-hidden="true">
+              <span class="line"></span>
+              <span class="ornament">❦</span>
+              <span class="line"></span>
+            </div>
+            <p class="masthead-tag">
+              Check the options that fit your build. Copy the assembled prompt into Claude, Cursor, ChatGPT, Gemini, or any coding partner.
+            </p>
+          </div>
+          <div class="masthead-meta">
+            <a class="masthead-link" href="index.html">← Vibe-rary</a>
+            <a class="masthead-link" href="https://educolab.org/" target="_blank" rel="noopener noreferrer">Co-Lab · home</a>
+            <a class="masthead-link" href="students.html">Student Vibe-rary</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="pb-main">
+        <div class="pb-mode-bar" role="group" aria-label="Experience level">
+          <span class="pb-mode-label">Mode</span>
+          <div class="pb-mode-toggle">
+            <button type="button" class="pb-mode-btn is-active" data-mode="beginner" id="mode-beginner">
+              Beginner
+              <small>Simple defaults · complex options muted</small>
+            </button>
+            <button type="button" class="pb-mode-btn" data-mode="advanced" id="mode-advanced">
+              Advanced
+              <small>Full menu · stronger starting guesses</small>
+            </button>
+          </div>
+          <p class="pb-mode-hint" id="mode-hint">Beginner mode keeps the path short: one HTML file you can open or email.</p>
+        </div>
+
+        <div class="pb-layout">
+          <form class="pb-menu" id="pb-form" autocomplete="off">
+            <section class="pb-section">
+              <h2 class="pb-section-title">Your idea <span class="pb-optional">(optional)</span></h2>
+              <label class="pb-field">
+                <span class="pb-field-label">What do you want to make?</span>
+                <textarea id="idea-text" name="idea" rows="3" placeholder="e.g. A quiz that helps 9th graders practice stoichiometry before a lab…"></textarea>
+              </label>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">Coaching style</h2>
+              <div class="pb-options" data-group="coaching" role="radiogroup" aria-label="Coaching style">
+                <label class="pb-option">
+                  <input type="radio" name="coaching" value="tutor" checked />
+                  <span class="pb-option-body">
+                    <strong>Walk me through it like a tutor</strong>
+                    <em>One question at a time. Teach the why. Stages and progress tags.</em>
+                  </span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="coaching" value="justdoit" />
+                  <span class="pb-option-body">
+                    <strong>Just do it</strong>
+                    <em>Skip lessons. Sensible defaults. Build the working thing fast.</em>
+                  </span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="coaching" value="balanced" />
+                  <span class="pb-option-body">
+                    <strong>Balanced</strong>
+                    <em>Brief explanations, then build. Good if you've vibe-coded once before.</em>
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">AI tool</h2>
+              <div class="pb-options pb-options-grid" data-group="tool" role="radiogroup" aria-label="AI tool">
+                <label class="pb-option">
+                  <input type="radio" name="tool" value="claude-chat" checked />
+                  <span class="pb-option-body"><strong>Claude</strong><em>Chat / web</em></span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="tool" value="claude-desktop" />
+                  <span class="pb-option-body"><strong>Claude Desktop</strong><em>Projects &amp; files</em></span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="tool" value="claude-code" />
+                  <span class="pb-option-body"><strong>Claude Code</strong><em>Terminal agent</em></span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="tool" value="cursor" />
+                  <span class="pb-option-body"><strong>Cursor</strong><em>AI code editor</em></span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="tool" value="chatgpt" />
+                  <span class="pb-option-body"><strong>ChatGPT</strong><em>Chat / Canvas</em></span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="tool" value="gemini" />
+                  <span class="pb-option-body"><strong>Gemini</strong><em>Chat / Canvas</em></span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="tool" value="codex" />
+                  <span class="pb-option-body"><strong>Codex</strong><em>OpenAI coding</em></span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="tool" value="other" />
+                  <span class="pb-option-body"><strong>Other</strong><em>Any AI coding tool</em></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">What you're building</h2>
+              <div class="pb-options" data-group="build" role="radiogroup" aria-label="Build type">
+                <label class="pb-option">
+                  <input type="radio" name="build" value="single-html" checked />
+                  <span class="pb-option-body">
+                    <strong>Single HTML page</strong>
+                    <em>One file. Double-click to open. Easiest share.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="multi-page" />
+                  <span class="pb-option-body">
+                    <strong>Multi-page website</strong>
+                    <em>Several HTML/CSS/JS pages that link together.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="apps-script" />
+                  <span class="pb-option-body">
+                    <strong>Google Apps Script</strong>
+                    <em>Automate Sheets, Docs, Forms, Gmail.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="extension" />
+                  <span class="pb-option-body">
+                    <strong>Browser extension</strong>
+                    <em>Lives in Chrome / Edge toolbar.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="mobile-pwa" />
+                  <span class="pb-option-body">
+                    <strong>Phone-friendly app (PWA)</strong>
+                    <em>Works on phones; installable from the browser.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="framework" />
+                  <span class="pb-option-body">
+                    <strong>Framework app (React / Vite)</strong>
+                    <em>More power, more structure, local preview.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="fullstack" />
+                  <span class="pb-option-body">
+                    <strong>Full-stack + database</strong>
+                    <em>Accounts, saved data, backend. Highest complexity.</em>
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">Hosting &amp; sharing</h2>
+              <div class="pb-options" data-group="hosting" role="radiogroup" aria-label="Hosting">
+                <label class="pb-option">
+                  <input type="radio" name="hosting" value="local" />
+                  <span class="pb-option-body">
+                    <strong>Local only</strong>
+                    <em>Runs on my computer. No public URL.</em>
+                  </span>
+                </label>
+                <label class="pb-option">
+                  <input type="radio" name="hosting" value="email-file" checked />
+                  <span class="pb-option-body">
+                    <strong>Share as a file</strong>
+                    <em>Email / Drive / AirDrop a single HTML (or zip).</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="hosting" value="github-pages" />
+                  <span class="pb-option-body">
+                    <strong>GitHub Pages</strong>
+                    <em>Free public site from a repo.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="hosting" value="netlify-vercel" />
+                  <span class="pb-option-body">
+                    <strong>Netlify / Vercel / Drop</strong>
+                    <em>Drag-drop or git deploy with a live URL.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="hosting" value="apps-script-web" />
+                  <span class="pb-option-body">
+                    <strong>Apps Script web app</strong>
+                    <em>Deploy from Google (pairs with Apps Script builds).</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="hosting" value="school-lms" />
+                  <span class="pb-option-body">
+                    <strong>School LMS / intranet</strong>
+                    <em>Embed or link inside Canvas, Google Classroom, etc.</em>
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">Flavor of project <span class="pb-optional">(pick any)</span></h2>
+              <div class="pb-options pb-options-grid" data-group="flavor">
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="interactive-tool" />
+                  <span class="pb-option-body"><strong>Interactive tool / practice</strong></span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="game" />
+                  <span class="pb-option-body"><strong>Game / story / escape room</strong></span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="dashboard" />
+                  <span class="pb-option-body"><strong>Dashboard from a spreadsheet</strong></span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="automation" />
+                  <span class="pb-option-body"><strong>Automation / workflow</strong></span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="simulation" />
+                  <span class="pb-option-body"><strong>Simulation / model</strong></span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="flavor" value="creative" />
+                  <span class="pb-option-body"><strong>Creative / generative</strong></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">Guardrails</h2>
+              <div class="pb-options pb-options-grid" data-group="guards">
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="guards" value="no-pii" checked />
+                  <span class="pb-option-body">
+                    <strong>No personal / student data</strong>
+                    <em>Sample data only unless I say otherwise.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="guards" value="no-accounts" checked />
+                  <span class="pb-option-body">
+                    <strong>No logins or accounts</strong>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="guards" value="no-paid-apis" checked />
+                  <span class="pb-option-body">
+                    <strong>No paid API keys</strong>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="guards" value="accessible" checked />
+                  <span class="pb-option-body">
+                    <strong>Accessible by default</strong>
+                    <em>Keyboard, contrast, plain language.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check" data-level="advanced">
+                  <input type="checkbox" name="guards" value="school-privacy" />
+                  <span class="pb-option-body">
+                    <strong>May touch school data</strong>
+                    <em>Flag privacy / tech-lead check before building that part.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check" data-level="advanced">
+                  <input type="checkbox" name="guards" value="offline-first" />
+                  <span class="pb-option-body">
+                    <strong>Works offline / classroom Wi‑Fi flaky</strong>
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
+              <h2 class="pb-section-title">Session extras</h2>
+              <div class="pb-options pb-options-grid" data-group="extras">
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="progress-summary" checked />
+                  <span class="pb-option-body">
+                    <strong>Pause → Progress Summary</strong>
+                    <em>So I can resume in a new chat later.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="blueprint" checked />
+                  <span class="pb-option-body">
+                    <strong>Write a BLUEPRINT.md before coding</strong>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="test-checklist" checked />
+                  <span class="pb-option-body">
+                    <strong>Give me a short test checklist</strong>
+                  </span>
+                </label>
+                <label class="pb-option pb-check" data-level="advanced">
+                  <input type="checkbox" name="extras" value="explain-diffs" />
+                  <span class="pb-option-body">
+                    <strong>Explain each change in plain English</strong>
+                  </span>
+                </label>
+              </div>
+            </section>
+          </form>
+
+          <aside class="pb-output" aria-label="Assembled prompt">
+            <div class="pb-output-head">
+              <h2 class="pb-output-title">Your prompt</h2>
+              <div class="pb-output-actions">
+                <button type="button" class="pb-btn pb-btn-ghost" id="select-all-btn" title="Select prompt text">Select</button>
+                <button type="button" class="pb-btn pb-btn-primary" id="copy-btn">Copy prompt</button>
+              </div>
+            </div>
+            <p class="pb-output-lede">Paste this into your AI tool to start. It updates as you change the menu.</p>
+            <pre class="pb-prompt" id="prompt-preview" tabindex="0" aria-live="polite"></pre>
+            <p class="pb-copy-status" id="copy-status" role="status" aria-live="polite"></p>
+          </aside>
+        </div>
+      </main>
+
+      <footer class="lib-footer">
+        <div class="lib-footer-rule">
+          <span class="line"></span>
+          <span class="ornament">❦</span>
+          <span class="line"></span>
+        </div>
+        <p>AI Co-Lab Prompt Builder · scale from one file to full stack · <a href="index.html">back to the Vibe-rary</a></p>
+      </footer>
+    </div>
+  </div>
+
+  <script src="scripts/prompt-builder.js"></script>
+</body>
+</html>
