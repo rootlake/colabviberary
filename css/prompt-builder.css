@@ -161,6 +161,15 @@
   color: var(--ink-faded);
 }
 
+.pb-section-note {
+  margin: -4px 0 10px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faded);
+  line-height: 1.4;
+}
+
 .pb-field {
   display: block;
 }
@@ -387,13 +396,24 @@
   user-select: text;
 }
 
+.pb-output-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
 .pb-copy-status {
   min-height: 1.2em;
-  margin: 8px 0 0;
+  margin: 0;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--brass-hi);
+  flex: 1;
+  min-width: 0;
 }
 
 .lib-footer a {

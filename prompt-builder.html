@@ -233,6 +233,41 @@
             </section>
 
             <section class="pb-section">
+              <h2 class="pb-section-title">Primary screen <span class="pb-optional">(pick any)</span></h2>
+              <p class="pb-section-note">Web in the browser — not Xcode or App Store apps.</p>
+              <div class="pb-options pb-options-grid" data-group="device">
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="device" value="laptop" checked />
+                  <span class="pb-option-body">
+                    <strong>Laptop / desktop</strong>
+                    <em>Classroom computers, teacher workstation.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="device" value="phone" />
+                  <span class="pb-option-body">
+                    <strong>Phone (web)</strong>
+                    <em>Safari / Chrome on iPhone or Android — open a URL or file.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="device" value="ipad" />
+                  <span class="pb-option-body">
+                    <strong>iPad (web)</strong>
+                    <em>Safari on iPad — touch-friendly layout, no Xcode.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="device" value="projector" />
+                  <span class="pb-option-body">
+                    <strong>Projector / big screen</strong>
+                    <em>Readable from the back of the room.</em>
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <section class="pb-section">
               <h2 class="pb-section-title">Hosting &amp; sharing</h2>
               <div class="pb-options" data-group="hosting" role="radiogroup" aria-label="Hosting">
                 <label class="pb-option">
@@ -377,6 +412,20 @@
                     <strong>Give me a short test checklist</strong>
                   </span>
                 </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="extensive-testing" />
+                  <span class="pb-option-body">
+                    <strong>Extensive testing after build</strong>
+                    <em>Walk me through a fuller test pass once Version 1 works.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="canvas-mode" checked />
+                  <span class="pb-option-body">
+                    <strong>Canvas / Artifacts mode</strong>
+                    <em>Use live preview panes when the tool has them (Canvas, Artifacts).</em>
+                  </span>
+                </label>
                 <label class="pb-option pb-check" data-level="advanced">
                   <input type="checkbox" name="extras" value="explain-diffs" />
                   <span class="pb-option-body">
@@ -397,7 +446,10 @@
             </div>
             <p class="pb-output-lede">Paste this into your AI tool to start. It updates as you change the menu.</p>
             <pre class="pb-prompt" id="prompt-preview" tabindex="0" aria-live="polite"></pre>
-            <p class="pb-copy-status" id="copy-status" role="status" aria-live="polite"></p>
+            <div class="pb-output-foot">
+              <p class="pb-copy-status" id="copy-status" role="status" aria-live="polite"></p>
+              <button type="button" class="pb-btn pb-btn-primary" id="copy-btn-bottom">Copy prompt</button>
+            </div>
           </aside>
         </div>
       </main>
