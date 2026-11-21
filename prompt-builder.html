@@ -95,7 +95,7 @@
               <small>Simple defaults · complex options muted</small>
             </button>
             <button type="button" class="pb-mode-btn" data-mode="advanced" id="mode-advanced">
-              Advanced
+              Next Level
               <small>Full menu · stronger starting guesses</small>
             </button>
           </div>
@@ -118,8 +118,8 @@
                 <label class="pb-option">
                   <input type="radio" name="coaching" value="tutor" checked />
                   <span class="pb-option-body">
-                    <strong>Walk me through it like a tutor</strong>
-                    <em>One question at a time. Teach the why. Stages and progress tags.</em>
+                    <strong>Explain the steps to me</strong>
+                    <em>Explain why you are doing what you are doing in plain language. One question at a time.</em>
                   </span>
                 </label>
                 <label class="pb-option">
@@ -134,6 +134,15 @@
                   <span class="pb-option-body">
                     <strong>Balanced</strong>
                     <em>Brief explanations, then build. Good if you've vibe-coded once before.</em>
+                  </span>
+                </label>
+              </div>
+              <div class="pb-options pb-options-nested" data-group="language" style="margin-top: 10px;">
+                <label class="pb-option pb-check">
+                  <input type="checkbox" name="extras" value="plain-language" checked />
+                  <span class="pb-option-body">
+                    <strong>Plain language — explain technical terms</strong>
+                    <em>Avoid jargon like “HTML,” “CSS,” “vanilla JavaScript,” or explain each in one everyday sentence.</em>
                   </span>
                 </label>
               </div>
@@ -195,6 +204,20 @@
                   </span>
                 </label>
                 <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="build" value="framework" />
+                  <span class="pb-option-body">
+                    <strong>Framework app (React / Vite)</strong>
+                    <em>More power, more structure, local preview.</em>
+                  </span>
+                </label>
+                <label class="pb-option pb-option-warn" data-level="advanced">
+                  <input type="radio" name="build" value="fullstack" />
+                  <span class="pb-option-body">
+                    <strong>⚠ Full-stack + database — Advanced</strong>
+                    <em>Heavy request: accounts, saved data, backend. Only choose this if you can host on your own server. Makes a complicated site — for advanced users only.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
                   <input type="radio" name="build" value="apps-script" />
                   <span class="pb-option-body">
                     <strong>Google Apps Script</strong>
@@ -208,33 +231,8 @@
                     <em>Lives in Chrome / Edge toolbar.</em>
                   </span>
                 </label>
-                <label class="pb-option" data-level="advanced">
-                  <input type="radio" name="build" value="mobile-pwa" />
-                  <span class="pb-option-body">
-                    <strong>Phone-friendly app (PWA)</strong>
-                    <em>Works on phones; installable from the browser.</em>
-                  </span>
-                </label>
-                <label class="pb-option" data-level="advanced">
-                  <input type="radio" name="build" value="framework" />
-                  <span class="pb-option-body">
-                    <strong>Framework app (React / Vite)</strong>
-                    <em>More power, more structure, local preview.</em>
-                  </span>
-                </label>
-                <label class="pb-option" data-level="advanced">
-                  <input type="radio" name="build" value="fullstack" />
-                  <span class="pb-option-body">
-                    <strong>Full-stack + database</strong>
-                    <em>Accounts, saved data, backend. Highest complexity.</em>
-                  </span>
-                </label>
               </div>
-            </section>
-
-            <section class="pb-section">
-              <h2 class="pb-section-title">Primary screen <span class="pb-optional">(pick any)</span></h2>
-              <p class="pb-section-note">Web in the browser — not Xcode or App Store apps.</p>
+              <p class="pb-section-note" style="margin-top: 12px;">Also design for these screens? <span class="pb-optional">(check any)</span></p>
               <div class="pb-options pb-options-grid" data-group="device">
                 <label class="pb-option pb-check">
                   <input type="checkbox" name="device" value="laptop" checked />
@@ -246,15 +244,15 @@
                 <label class="pb-option pb-check">
                   <input type="checkbox" name="device" value="phone" />
                   <span class="pb-option-body">
-                    <strong>Phone (web)</strong>
-                    <em>Safari / Chrome on iPhone or Android — open a URL or file.</em>
+                    <strong>Mobile App (loads in the browser)</strong>
+                    <em>Phone-sized web layout — Safari/Chrome, not Xcode or App Store.</em>
                   </span>
                 </label>
                 <label class="pb-option pb-check">
                   <input type="checkbox" name="device" value="ipad" />
                   <span class="pb-option-body">
-                    <strong>iPad (web)</strong>
-                    <em>Safari on iPad — touch-friendly layout, no Xcode.</em>
+                    <strong>iPad / Tablet dimensions</strong>
+                    <em>Touch-friendly tablet layout in the browser — not a native app.</em>
                   </span>
                 </label>
                 <label class="pb-option pb-check">
@@ -292,10 +290,17 @@
                   </span>
                 </label>
                 <label class="pb-option" data-level="advanced">
-                  <input type="radio" name="hosting" value="netlify-vercel" />
+                  <input type="radio" name="hosting" value="netlify-drop" />
                   <span class="pb-option-body">
-                    <strong>Netlify / Vercel / Drop</strong>
-                    <em>Drag-drop or git deploy with a live URL.</em>
+                    <strong>Netlify Drop</strong>
+                    <em>Drag a folder onto Netlify for a live URL — no git required.</em>
+                  </span>
+                </label>
+                <label class="pb-option" data-level="advanced">
+                  <input type="radio" name="hosting" value="vercel" />
+                  <span class="pb-option-body">
+                    <strong>Vercel</strong>
+                    <em>Deploy from git or the Vercel dashboard with a live URL.</em>
                   </span>
                 </label>
                 <label class="pb-option" data-level="advanced">

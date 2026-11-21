@@ -170,6 +170,11 @@
   line-height: 1.4;
 }
 
+.pb-options-nested {
+  padding-top: 2px;
+  border-top: 1px dotted rgba(156, 56, 42, 0.22);
+}
+
 .pb-field {
   display: block;
 }
@@ -280,7 +285,7 @@
 }
 
 .pb-page[data-mode="beginner"] .pb-option[data-level="advanced"]::after {
-  content: 'Advanced';
+  content: 'Next Level';
   margin-left: auto;
   align-self: center;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -289,6 +294,21 @@
   text-transform: uppercase;
   color: var(--ink-faded);
   white-space: nowrap;
+}
+
+.pb-option-warn {
+  border-color: rgba(138, 42, 34, 0.35);
+  background: rgba(138, 42, 34, 0.06);
+}
+
+.pb-option-warn:hover,
+.pb-option-warn:has(input:checked) {
+  border-color: var(--stamp-red);
+  background: rgba(138, 42, 34, 0.1);
+}
+
+.pb-option-warn .pb-option-body strong {
+  color: var(--stamp-red-deep);
 }
 
 /* ── Output panel ── */

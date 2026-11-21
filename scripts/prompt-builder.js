@@ -3,7 +3,7 @@
 
   const LABELS = {
     coaching: {
-      tutor: 'Walk me through it like a tutor',
+      tutor: 'Explain the steps to me (and why, in plain language)',
       justdoit: 'Just do it — prioritize a working result',
       balanced: 'Balanced — brief teaching, then build',
     },
@@ -22,22 +22,30 @@
       'multi-page': 'a multi-page website (HTML/CSS/JS)',
       'apps-script': 'a Google Apps Script project',
       extension: 'a browser extension (Chrome/Edge)',
-      'mobile-pwa': 'a phone-friendly progressive web app (PWA)',
       framework: 'a framework app (e.g. React + Vite)',
-      fullstack: 'a full-stack app with a database',
+      fullstack: 'a full-stack app with a database (Advanced — requires your own server hosting)',
+    },
+    buildPlain: {
+      'single-html': 'a single web page file I can open in a browser (structure + styling + interactivity in one file)',
+      'multi-page': 'a small website with several linked pages',
+      'apps-script': 'an automation that runs inside Google tools I already use (Sheets, Docs, Forms, Gmail)',
+      extension: 'a small add-on that lives in my Chrome or Edge browser toolbar',
+      framework: 'a more structured web app using a modern toolkit (with a local preview while building)',
+      fullstack: 'an Advanced app that saves data on a server (accounts/database) — only if I can host on my own server; this is a heavy, complicated build',
     },
     hosting: {
       local: 'run locally on my computer only',
       'email-file': 'share as a file (email / Drive / AirDrop)',
       'github-pages': 'publish on GitHub Pages',
-      'netlify-vercel': 'deploy on Netlify, Vercel, or a drag-and-drop host',
+      'netlify-drop': 'publish with Netlify Drop (drag a folder for a live URL)',
+      vercel: 'deploy on Vercel with a live URL',
       'apps-script-web': 'deploy as a Google Apps Script web app',
       'school-lms': 'share via school LMS / Classroom / intranet',
     },
     device: {
       laptop: 'laptop / desktop browser',
-      phone: 'phone browser (Safari/Chrome web — not a native App Store app)',
-      ipad: 'iPad browser (Safari web, touch-friendly — not Xcode / native)',
+      phone: 'Mobile App that loads in the browser (phone-sized web layout — not a native App Store / Xcode app)',
+      ipad: 'iPad / Tablet dimensions (touch-friendly tablet web layout — not a native app)',
       projector: 'projector / classroom big screen',
     },
     flavor: {
@@ -67,7 +75,7 @@
       device: ['laptop'],
       flavor: [],
       guards: ['no-pii', 'no-accounts', 'no-paid-apis', 'accessible'],
-      extras: ['progress-summary', 'blueprint', 'test-checklist', 'canvas-mode'],
+      extras: ['progress-summary', 'blueprint', 'test-checklist', 'canvas-mode', 'plain-language'],
     },
     advanced: {
       coaching: 'balanced',
@@ -85,8 +93,8 @@
   const CANVAS_TOOLS = new Set(['claude-chat', 'claude-desktop', 'chatgpt', 'gemini', 'other']);
 
   const MODE_HINTS = {
-    beginner: 'Beginner mode keeps the path short: one HTML file you can open or email. Advanced options stay visible but muted.',
-    advanced: 'Advanced mode unlocks the full menu. Starting guess: Claude Desktop, multi-page site, GitHub Pages.',
+    beginner: 'Beginner mode keeps the path short: one HTML file you can open or email. Next Level options stay visible but muted.',
+    advanced: 'Next Level unlocks the full menu. Starting guess: Claude Desktop, multi-page site, GitHub Pages. Full-stack is a separate Advanced choice — only if you can host a server.',
   };
 
   const form = document.getElementById('pb-form');
@@ -234,10 +242,10 @@
       lines.push('- Design mobile-first / touch-friendly layouts (large tap targets, readable type, no hover-only controls).');
     }
     if (devices.includes('phone')) {
-      lines.push('- Phone: assume a narrow viewport (~390px); test stacked single-column layouts.');
+      lines.push('- Mobile App (browser): assume a narrow phone viewport (~390px); stacked single-column layouts; optionally installable to the home screen as a web app.');
     }
     if (devices.includes('ipad')) {
-      lines.push('- iPad: support portrait and landscape; use space well without assuming a mouse.');
+      lines.push('- iPad / Tablet dimensions: support portrait and landscape; use space well without assuming a mouse.');
     }
     if (devices.includes('projector')) {
       lines.push('- Projector: high contrast, large type, minimal clutter so it reads from the back of the room.');
@@ -265,13 +273,25 @@
       ].join('\n');
     }
     return [
-      'COACHING STYLE: Tutor',
+      'COACHING STYLE: Explain the steps',
+      '- Explain the steps to me, and explain why you are doing what you are doing in plain language.',
       '- Work through stages in order. Ask ONE question at a time and wait for my answer.',
       '- Start every message with a progress tag, e.g. [Stage 2 of 6: Shape].',
       '- Keep messages short and in plain language. Explain any technical term in one line.',
       '- When offering choices, give 2–4 numbered options plus "something else," and mark your recommendation.',
       '- At each stage, add one sentence labeled "Why this matters."',
       '- Do not write code until the Build stage unless I say "build it now."',
+    ].join('\n');
+  }
+
+  function plainLanguageBlock() {
+    return [
+      'LANGUAGE LEVEL: Plain language for coding newcomers',
+      '- Assume I may be new to coding. Prefer everyday words over jargon.',
+      '- When a technical term is useful (HTML, CSS, JavaScript, “vanilla” JS, GitHub, API, deploy, framework, etc.), introduce it once in plain English in the same sentence — e.g. "HTML (the structure of a web page, like the skeleton)" — then you may reuse the short term.',
+      '- Prefer phrases like "a single web page file you can open in a browser" over "a vanilla HTML/CSS/JS single-file app" unless you gloss the jargon.',
+      '- In choices and pathway names, lead with what it means for me (how I open it, how I share it), not the tech stack name.',
+      '- Code comments and step-by-step instructions should stay beginner-readable.',
     ].join('\n');
   }
 
@@ -349,10 +369,13 @@
     parts.push('If I paste a PROGRESS SUMMARY or BLUEPRINT along with this prompt, skip to the stage it names and continue from there.');
     parts.push('');
 
+    const plainOn = extras.includes('plain-language');
+    const buildLabel = plainOn && LABELS.buildPlain[build] ? LABELS.buildPlain[build] : LABELS.build[build];
+
     parts.push('MY SETUP');
     parts.push('- AI tool: ' + LABELS.tool[tool]);
     parts.push('- ' + toolCapabilityNote(tool, canvasOn));
-    parts.push('- Target build: ' + LABELS.build[build]);
+    parts.push('- Target build: ' + buildLabel);
     parts.push('- Hosting / sharing: ' + LABELS.hosting[hosting]);
     if (devices.length) {
       parts.push('- Primary screen(s): ' + devices.map((d) => LABELS.device[d]).join('; '));
@@ -375,6 +398,10 @@
 
     parts.push(coachingBlock(coaching));
     parts.push('');
+    if (extras.includes('plain-language')) {
+      parts.push(plainLanguageBlock());
+      parts.push('');
+    }
     parts.push(shortcutsBlock(extras));
     parts.push('');
 
@@ -383,13 +410,16 @@
     parts.push('- Design for educators and learners. Prefer simple, readable code over clever abstractions.');
     deviceConstraints(devices).forEach((line) => parts.push(line));
     if (build === 'single-html') {
-      parts.push('- Prefer a single self-contained HTML file with inline or embedded CSS/JS when feasible.');
+      parts.push(plainOn
+        ? '- Prefer one self-contained web page file (styling and interactivity included) when feasible.'
+        : '- Prefer a single self-contained HTML file with inline or embedded CSS/JS when feasible.');
     }
     if (build === 'apps-script' || hosting === 'apps-script-web') {
       parts.push('- Prefer Google Apps Script patterns that an educator can paste into script.google.com and deploy.');
     }
     if (build === 'fullstack') {
-      parts.push('- If a database is truly needed for v1, prefer the lightest option and explain tradeoffs; otherwise offer a no-DB workaround for Version 1.');
+      parts.push('- FULL-STACK WARNING: I chose an Advanced build. Only proceed if I confirm I can host on my own server. Prefer the lightest workable stack; if a database is not truly needed for v1, offer a no-server workaround and recommend stepping down.');
+      parts.push('- Be explicit that this is a heavy, complicated site relative to single-file or multi-page builds.');
     }
     parts.push('');
 
